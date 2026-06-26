@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 import { connectDB } from "@/lib/db";
 import Listing from "@/models/Listing";
 import Category from "@/models/Category";
@@ -93,6 +94,7 @@ export default async function ListingDetail({ params }) {
           </aside>
         </div>
       </main>
+      <SiteFooter />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 import SeekersBrowse from "./SeekersBrowse";
 
 export default function SeekersPage() {
@@ -18,6 +19,7 @@ export default function SeekersPage() {
         </div>
         <SeekersBrowse />
       </main>
+      <SiteFooter />
     </div>
   );
 }

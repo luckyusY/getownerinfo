@@ -1,4 +1,5 @@
 import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 import ListingsExplorer from "./ListingsExplorer";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +17,7 @@ export default function ListingsPage({ searchParams }) {
           <ListingsExplorer initialCategory={searchParams?.category || ""} />
         </div>
       </main>
+      <SiteFooter />
     </div>
   );
 }
