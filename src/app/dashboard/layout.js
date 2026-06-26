@@ -4,6 +4,7 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import { getSession } from "@/lib/auth";
 import LogoutButton from "@/components/LogoutButton";
+import DashboardNav from "@/components/DashboardNav";
 
 const ROLE_LABELS = {
   admin: "Administrator",
@@ -20,23 +21,37 @@ export default async function DashboardLayout({ children }) {
   const user = await User.findById(session.sub);
   if (!user) redirect("/login");
 
+  const initials = user.name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
+
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="border-b border-slate-200 bg-white">
+    <div className="min-h-screen">
+      {/* Top bar */}
+      <header className="sticky top-0 z-40 border-b border-line/70 bg-paper/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <Link href="/" className="text-lg font-bold text-brand">
-            getowner<span className="text-slate-800">info</span>
+          <Link href="/" className="flex items-center gap-2">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-sm font-bold text-white">g</span>
+            <span className="font-display text-xl font-semibold text-ink">getowner<span className="text-brand">info</span></span>
           </Link>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-sm font-medium text-slate-900">{user.name}</p>
-              <p className="text-xs text-slate-500">{ROLE_LABELS[user.role]}</p>
+          <div className="flex items-center gap-3">
+            <div className="hidden text-right sm:block">
+              <p className="text-sm font-semibold text-ink">{user.name}</p>
+              <p className="text-xs text-ink-faint">{ROLE_LABELS[user.role]}</p>
             </div>
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-50 text-sm font-bold text-brand">{initials}</span>
             <LogoutButton />
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+
+      {/* Sidebar + content */}
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6 md:flex-row">
+        <aside className="md:w-56 md:shrink-0">
+          <div className="md:sticky md:top-20">
+            <DashboardNav role={user.role} />
+          </div>
+        </aside>
+        <main className="min-w-0 flex-1">{children}</main>
+      </div>
     </div>
   );
 }

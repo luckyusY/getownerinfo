@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import { connectDB } from "@/lib/db";
 import Listing from "@/models/Listing";
@@ -7,12 +8,11 @@ import TokenUnlock from "@/models/TokenUnlock";
 import { getSession } from "@/lib/auth";
 import { buildRevealedContact } from "@/lib/unlockService";
 import { LISTING_STATUS, ROLES } from "@/lib/constants";
+import { formatRwf } from "@/lib/format";
 import UnlockPanel from "./UnlockPanel";
+import Gallery from "./Gallery";
 import ChatBox from "@/components/ChatBox";
-
-function money(n) {
-  return new Intl.NumberFormat("en-RW").format(n) + " Rwf";
-}
+import Badge from "@/components/ui/Badge";
 
 export const dynamic = "force-dynamic";
 
@@ -40,38 +40,28 @@ export default async function ListingDetail({ params }) {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <main className="mx-auto max-w-4xl px-4 py-10">
-        <div className="grid gap-8 md:grid-cols-3">
-          <div className="md:col-span-2">
-            <div className="aspect-video overflow-hidden rounded-xl bg-slate-100">
-              {pub.images?.[0] ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={pub.images[0]} alt={pub.title} className="h-full w-full object-cover" />
-              ) : (
-                <div className="flex h-full items-center justify-center text-slate-400">No image</div>
-              )}
+      <main className="mx-auto max-w-5xl px-4 py-8">
+        <Link href="/listings" className="text-sm text-ink-soft hover:text-ink">← Back to listings</Link>
+        <div className="mt-4 grid gap-8 md:grid-cols-5">
+          <div className="md:col-span-3">
+            <Gallery images={pub.images || []} title={pub.title} />
+
+            <div className="mt-6 flex flex-wrap items-center gap-2">
+              <Badge tone={pub.transactionType === "rent" ? "info" : "gold"}>
+                {pub.transactionType === "rent" ? "For rent" : "For sale"}
+              </Badge>
+              {pub.model === "A" && <Badge tone="brand">Exclusive</Badge>}
+              <span className="text-sm text-ink-faint">{category?.name} · {pub.itemType}</span>
             </div>
-            {pub.images?.length > 1 && (
-              <div className="mt-3 flex gap-2">
-                {pub.images.slice(1, 6).map((src) => (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img key={src} src={src} alt="" className="h-20 w-20 rounded-lg object-cover" />
-                ))}
-              </div>
-            )}
+            <h1 className="mt-2 font-display text-3xl font-semibold text-ink">{pub.title}</h1>
+            <p className="mt-2 font-display text-3xl font-semibold text-brand">{formatRwf(pub.price)}</p>
 
-            <h1 className="mt-6 text-2xl font-bold text-slate-900">{pub.title}</h1>
-            <p className="text-sm text-slate-500">
-              {category?.name} · {pub.itemType} · {pub.transactionType === "rent" ? "For rent" : "For sale"}
-            </p>
-            <p className="mt-3 text-2xl font-bold text-brand">{money(pub.price)}</p>
-
-            {pub.description && <p className="mt-4 whitespace-pre-line text-slate-700">{pub.description}</p>}
+            {pub.description && <p className="mt-5 whitespace-pre-line leading-relaxed text-ink-soft">{pub.description}</p>}
 
             {pub.features?.length > 0 && (
-              <ul className="mt-4 flex flex-wrap gap-2">
+              <ul className="mt-5 flex flex-wrap gap-2">
                 {pub.features.map((f) => (
-                  <li key={f} className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">{f}</li>
+                  <li key={f} className="rounded-full border border-line bg-surface px-3 py-1 text-xs font-medium text-ink-soft">{f}</li>
                 ))}
               </ul>
             )}
@@ -79,17 +69,18 @@ export default async function ListingDetail({ params }) {
             {/* Buyers can chat with the owner. Contact info is blocked pre-unlock. */}
             {session?.role === ROLES.BUYER && (
               <div className="mt-8">
-                <h2 className="mb-2 text-sm font-semibold text-slate-700">Ask the owner</h2>
+                <h2 className="mb-2 font-display text-lg font-semibold text-ink">Ask the owner</h2>
                 <ChatBox listingId={listing._id.toString()} side="buyer" />
               </div>
             )}
           </div>
 
           {/* Contact panel — locked until token unlock */}
-          <aside>
-            <div className="card sticky top-6">
-              <p className="text-sm text-slate-500">Token fee unlocks direct contact</p>
-              <div className="mt-3">
+          <aside className="md:col-span-2">
+            <div className="card sticky top-20">
+              <p className="font-display text-base font-semibold text-ink">Direct owner contact</p>
+              <p className="mt-0.5 text-sm text-ink-soft">A token fee reveals the verified owner&apos;s details.</p>
+              <div className="mt-4">
                 <UnlockPanel
                   listingId={listing._id.toString()}
                   loggedIn={!!session}
