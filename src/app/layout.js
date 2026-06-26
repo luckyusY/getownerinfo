@@ -1,18 +1,18 @@
 import "./globals.css";
-import { Fraunces, Manrope } from "next/font/google";
+import { Poppins, Nunito_Sans } from "next/font/google";
 import CookieBanner from "@/components/CookieBanner";
 
-const display = Fraunces({
+// Match getownerinfo.com: Poppins headings, Nunito Sans body.
+const display = Poppins({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  style: ["normal", "italic"],
+  weight: ["500", "600", "700", "800"],
   variable: "--font-display",
   display: "swap",
 });
 
-const body = Manrope({
+const body = Nunito_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "600", "700"],
   variable: "--font-body",
   display: "swap",
 });

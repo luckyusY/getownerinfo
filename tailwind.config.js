@@ -7,19 +7,20 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        paper: "#FAF7F1",
+        // Palette mirrors getownerinfo.com
+        paper: "#F7F8FA",
         surface: "#FFFFFF",
-        panel: "#F3EEE4",
-        ink: { DEFAULT: "#15211C", soft: "#4B5A53", faint: "#8A958F" },
-        line: "#E7E0D2",
+        panel: "#EEF2F5",
+        ink: { DEFAULT: "#071C1F", soft: "#5C727D", faint: "#93A1A8" },
+        line: "#E4E9ED",
         brand: {
-          DEFAULT: "#0C5A4E", // pine teal
-          dark: "#093F37",
-          light: "#7FBFB3",
-          50: "#EAF4F1",
+          DEFAULT: "#15B0DD", // sky blue
+          dark: "#1187B0",
+          light: "#9FDCEF",
+          50: "#E7F7FC",
         },
-        clay: "#C2693F",
-        gold: "#D2A04A",
+        clay: "#FAA603",
+        gold: "#FAA603", // amber accent
       },
       fontFamily: {
         display: ["var(--font-display)", "Georgia", "serif"],

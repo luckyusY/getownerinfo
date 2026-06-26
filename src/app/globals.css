@@ -3,37 +3,37 @@
 @tailwind utilities;
 
 :root {
-  --paper: #faf7f1;
+  --paper: #f7f8fa;
   --surface: #ffffff;
-  --panel: #f3eee4;
-  --ink: #15211c;
-  --ink-soft: #4b5a53;
-  --line: #e7e0d2;
-  --brand: #0c5a4e;
-  --brand-dark: #093f37;
-  --clay: #c2693f;
-  --gold: #d2a04a;
+  --panel: #eef2f5;
+  --ink: #071c1f;
+  --ink-soft: #5c727d;
+  --line: #e4e9ed;
+  --brand: #15b0dd;
+  --brand-dark: #1187b0;
+  --clay: #faa603;
+  --gold: #faa603;
 }
 
 @layer base {
   body {
     background-color: var(--paper);
-    /* Soft atmospheric warmth — a faint pine glow up top, paper below. */
+    /* Clean, with a faint sky-blue wash up top. */
     background-image:
-      radial-gradient(1100px 460px at 12% -8%, rgba(12, 90, 78, 0.07), transparent 60%),
-      radial-gradient(900px 420px at 100% 0%, rgba(210, 160, 74, 0.08), transparent 55%);
+      radial-gradient(1100px 420px at 50% -10%, rgba(21, 176, 221, 0.08), transparent 60%);
     background-attachment: fixed;
-    color: var(--ink);
+    color: var(--ink-soft);
     font-family: var(--font-body), system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
   h1, h2, h3, .font-display {
-    font-family: var(--font-display), Georgia, serif;
-    letter-spacing: -0.01em;
+    font-family: var(--font-display), system-ui, sans-serif;
+    color: var(--ink);
+    letter-spacing: -0.015em;
   }
   ::selection {
-    background: rgba(12, 90, 78, 0.15);
+    background: rgba(21, 176, 221, 0.18);
   }
 }
 
@@ -45,7 +45,7 @@
   .btn-primary {
     @apply btn text-white;
     background: var(--brand);
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15) inset, 0 8px 20px -10px rgba(12, 90, 78, 0.6);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 8px 20px -10px rgba(21, 176, 221, 0.55);
   }
   .btn-primary:hover:not(:disabled) {
     background: var(--brand-dark);
@@ -79,7 +79,7 @@
   }
   .input:focus {
     border-color: var(--brand);
-    box-shadow: 0 0 0 3px rgba(12, 90, 78, 0.12);
+    box-shadow: 0 0 0 3px rgba(21, 176, 221, 0.15);
   }
   .label {
     @apply mb-1.5 block text-sm font-semibold text-ink-soft;
@@ -106,7 +106,7 @@
   /* Skeleton shimmer */
   .skeleton {
     @apply relative overflow-hidden rounded-lg;
-    background: #ece6da;
+    background: #e6ebee;
   }
   .skeleton::after {
     content: "";

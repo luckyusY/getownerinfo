@@ -29,7 +29,7 @@ export default function HomePage() {
               <span className="badge bg-brand-50 text-brand">Trusted by serious buyers & owners</span>
               <h1 className="mt-5 max-w-3xl text-balance font-display text-5xl font-semibold leading-[1.05] text-ink sm:text-6xl">
                 Find the real owner.{" "}
-                <span className="italic text-brand">Skip the brokers.</span>
+                <span className="text-brand">Skip the brokers.</span>
               </h1>
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">
                 getownerinfo connects serious buyers and tenants directly with verified
