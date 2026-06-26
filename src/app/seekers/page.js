@@ -1,0 +1,23 @@
+import Link from "next/link";
+import SiteHeader from "@/components/SiteHeader";
+import SeekersBrowse from "./SeekersBrowse";
+
+export default function SeekersPage() {
+  return (
+    <div className="min-h-screen">
+      <SiteHeader />
+      <main className="mx-auto max-w-5xl px-4 py-12">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">Requests from seekers</h1>
+            <p className="mt-1 text-sm text-slate-600">
+              Buyers and tenants looking for property and assets. Unlock contact with a view token.
+            </p>
+          </div>
+          <Link href="/seekers/new" className="btn-primary">Post a request</Link>
+        </div>
+        <SeekersBrowse />
+      </main>
+    </div>
+  );
+}
