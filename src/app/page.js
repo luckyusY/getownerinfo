@@ -2,6 +2,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import PropertyCard from "@/components/PropertyCard";
+import HeroSearch from "@/components/HeroSearch";
 import { connectDB } from "@/lib/db";
 import Listing from "@/models/Listing";
 import Category from "@/models/Category";
@@ -63,9 +64,11 @@ export default async function HomePage() {
                 getownerinfo connects serious buyers and tenants directly with verified
                 owners — property, vehicles and assets — with privacy and trust built in.
               </p>
-              <div className="mt-8 flex flex-wrap gap-3">
+              <HeroSearch />
+
+              <div className="mt-6 flex flex-wrap gap-3">
                 <Link href="/register" className="btn-primary px-6 py-3 text-base">List your property →</Link>
-                <Link href="/listings" className="btn-outline px-6 py-3 text-base">Browse listings</Link>
+                <Link href="/listings" className="btn-outline px-6 py-3 text-base">Browse all listings</Link>
               </div>
             </div>
 

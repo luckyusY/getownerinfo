@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { ROLES } from "@/lib/constants";
+import MobileMenu from "@/components/MobileMenu";
 
 const DASHBOARD_PATHS = {
   [ROLES.ADMIN]: "/dashboard/admin",
@@ -52,14 +53,17 @@ export default function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          {session ? (
-            <Link href={dashboardPath} className="btn-primary">Dashboard</Link>
-          ) : (
-            <>
-              <Link href="/login" className="btn-ghost hidden sm:inline-flex">Log in</Link>
-              <Link href="/register" className="btn-primary">Get started</Link>
-            </>
-          )}
+          <div className="hidden items-center gap-2 sm:flex">
+            {session ? (
+              <Link href={dashboardPath} className="btn-primary">Dashboard</Link>
+            ) : (
+              <>
+                <Link href="/login" className="btn-ghost">Log in</Link>
+                <Link href="/register" className="btn-primary">Get started</Link>
+              </>
+            )}
+          </div>
+          <MobileMenu loggedIn={!!session} dashboardPath={dashboardPath || "/dashboard"} />
         </div>
       </div>
     </header>
