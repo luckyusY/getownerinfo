@@ -6,7 +6,7 @@ import User from "@/models/User";
 import Payment from "@/models/Payment";
 import PlatformSettings, { getSettings } from "@/models/PlatformSettings";
 import { DEFAULT_SETTINGS } from "@/data/catalog";
-import { getPaymentProvider } from "@/lib/payments";
+import { safeInitiate, safeVerify } from "@/lib/payments";
 import { audit } from "@/models/AuditLog";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { ROLES, PAYMENT_TYPES, PAYMENT_STATUS } from "@/lib/constants";
@@ -83,26 +83,31 @@ export async function POST(req) {
   });
 
   // Charge the post fee.
-  const provider = getPaymentProvider();
   const amount = settings.seeker?.postFee ?? 20_000;
+  const init = await safeInitiate({
+    amount,
+    type: PAYMENT_TYPES.SEEKER_POST,
+    reference: request._id.toString(),
+    metadata: { seekerRequestId: request._id.toString() },
+  });
+  if (!init.ok) {
+    // Roll back the unpaid request so it doesn't linger as a pending orphan.
+    await SeekerRequest.deleteOne({ _id: request._id });
+    return fail("Payment could not be processed right now. Please try again later.", 502);
+  }
+
   const payment = await Payment.create({
     user: user._id,
     type: PAYMENT_TYPES.SEEKER_POST,
     amount,
     status: PAYMENT_STATUS.PENDING,
-    provider: provider.name,
+    provider: init.provider.name,
+    providerRef: init.providerRef,
     meta: { seekerRequestId: request._id.toString() },
   });
-  const init = await provider.initiate({
-    amount,
-    type: PAYMENT_TYPES.SEEKER_POST,
-    reference: payment._id.toString(),
-    metadata: { seekerRequestId: request._id.toString() },
-  });
-  payment.providerRef = init.providerRef;
 
-  const verified = init.status === "paid" ? { status: "paid" } : await provider.verify(init.providerRef);
-  if (verified.status !== "paid") {
+  const verified = init.status === "paid" ? { ok: true, status: "paid" } : await safeVerify(init.providerRef);
+  if (!verified.ok || verified.status !== "paid") {
     payment.status = PAYMENT_STATUS.PENDING;
     await payment.save();
     return ok({ request: request.toPublicJSON(), needsPayment: true, paymentId: payment._id.toString(), redirectUrl: init.redirectUrl }, 201);

@@ -2,7 +2,7 @@ import { connectDB } from "@/lib/db";
 import Commission from "@/models/Commission";
 import Payment from "@/models/Payment";
 import User from "@/models/User";
-import { getPaymentProvider } from "@/lib/payments";
+import { safeInitiate, safeVerify } from "@/lib/payments";
 import { audit } from "@/models/AuditLog";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { ROLES, PAYMENT_TYPES, PAYMENT_STATUS } from "@/lib/constants";
@@ -20,7 +20,16 @@ export async function POST(_req, { params }) {
   }
   if (commission.status === "paid") return fail("Commission already paid", 409);
 
-  const provider = getPaymentProvider();
+  const init = await safeInitiate({
+    amount: commission.total,
+    type: PAYMENT_TYPES.COMMISSION,
+    reference: commission._id.toString(),
+    metadata: { commissionId: commission._id.toString() },
+  });
+  if (!init.ok) {
+    return fail("Payment could not be processed right now. Please try again later.", 502);
+  }
+
   const payment = await Payment.create({
     user: commission.owner,
     listing: commission.listing,
@@ -28,20 +37,13 @@ export async function POST(_req, { params }) {
     amount: commission.total,
     vatPortion: commission.vatPortion,
     status: PAYMENT_STATUS.PENDING,
-    provider: provider.name,
+    provider: init.provider.name,
+    providerRef: init.providerRef,
   });
-
-  const init = await provider.initiate({
-    amount: commission.total,
-    type: PAYMENT_TYPES.COMMISSION,
-    reference: payment._id.toString(),
-    metadata: { commissionId: commission._id.toString() },
-  });
-  payment.providerRef = init.providerRef;
 
   // Stub settles immediately; real provider would settle via webhook/verify.
-  const verified = init.status === "paid" ? { status: "paid" } : await provider.verify(init.providerRef);
-  if (verified.status !== "paid") {
+  const verified = init.status === "paid" ? { ok: true, status: "paid" } : await safeVerify(init.providerRef);
+  if (!verified.ok || verified.status !== "paid") {
     payment.status = PAYMENT_STATUS.PENDING;
     await payment.save();
     return ok({ pending: true, paymentId: payment._id.toString(), redirectUrl: init.redirectUrl });

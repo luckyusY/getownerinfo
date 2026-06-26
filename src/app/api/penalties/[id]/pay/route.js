@@ -2,7 +2,7 @@ import { connectDB } from "@/lib/db";
 import Penalty from "@/models/Penalty";
 import Payment from "@/models/Payment";
 import User from "@/models/User";
-import { getPaymentProvider } from "@/lib/payments";
+import { safeInitiate, safeVerify } from "@/lib/payments";
 import { audit } from "@/models/AuditLog";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { PAYMENT_TYPES, PAYMENT_STATUS } from "@/lib/constants";
@@ -18,26 +18,28 @@ export async function POST(_req, { params }) {
   if (penalty.user.toString() !== guard.session.sub) return fail("Forbidden", 403);
   if (penalty.status !== "active") return fail(`Penalty is '${penalty.status}'`, 409);
 
-  const provider = getPaymentProvider();
+  const init = await safeInitiate({
+    amount: penalty.total,
+    type: PAYMENT_TYPES.PENALTY,
+    reference: penalty._id.toString(),
+    metadata: { penaltyId: penalty._id.toString() },
+  });
+  if (!init.ok) {
+    return fail("Payment could not be processed right now. Please try again later.", 502);
+  }
+
   const payment = await Payment.create({
     user: penalty.user,
     listing: penalty.listing,
     type: PAYMENT_TYPES.PENALTY,
     amount: penalty.total,
     status: PAYMENT_STATUS.PENDING,
-    provider: provider.name,
+    provider: init.provider.name,
+    providerRef: init.providerRef,
   });
 
-  const init = await provider.initiate({
-    amount: penalty.total,
-    type: PAYMENT_TYPES.PENALTY,
-    reference: payment._id.toString(),
-    metadata: { penaltyId: penalty._id.toString() },
-  });
-  payment.providerRef = init.providerRef;
-
-  const verified = init.status === "paid" ? { status: "paid" } : await provider.verify(init.providerRef);
-  if (verified.status !== "paid") {
+  const verified = init.status === "paid" ? { ok: true, status: "paid" } : await safeVerify(init.providerRef);
+  if (!verified.ok || verified.status !== "paid") {
     payment.status = PAYMENT_STATUS.PENDING;
     await payment.save();
     return ok({ pending: true, paymentId: payment._id.toString(), redirectUrl: init.redirectUrl });

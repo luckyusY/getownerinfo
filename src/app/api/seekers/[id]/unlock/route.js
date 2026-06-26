@@ -5,7 +5,7 @@ import User from "@/models/User";
 import Payment from "@/models/Payment";
 import PlatformSettings, { getSettings } from "@/models/PlatformSettings";
 import { DEFAULT_SETTINGS } from "@/data/catalog";
-import { getPaymentProvider } from "@/lib/payments";
+import { safeInitiate, safeVerify } from "@/lib/payments";
 import { audit } from "@/models/AuditLog";
 import { buildSeekerContact } from "../route";
 import { ok, fail, requireAuth } from "@/lib/api";
@@ -37,25 +37,28 @@ export async function POST(_req, { params }) {
   const settings = await getSettings(PlatformSettings, DEFAULT_SETTINGS);
   const amount = settings.seeker?.viewToken ?? 10_000;
 
-  const provider = getPaymentProvider();
+  const init = await safeInitiate({
+    amount,
+    type: PAYMENT_TYPES.SEEKER_VIEW,
+    reference: `${request._id.toString()}:${viewer._id.toString()}`,
+    metadata: { seekerRequestId: request._id.toString() },
+  });
+  if (!init.ok) {
+    return fail("Payment could not be processed right now. Please try again later.", 502);
+  }
+
   const payment = await Payment.create({
     user: viewer._id,
     type: PAYMENT_TYPES.SEEKER_VIEW,
     amount,
     status: PAYMENT_STATUS.PENDING,
-    provider: provider.name,
+    provider: init.provider.name,
+    providerRef: init.providerRef,
     meta: { seekerRequestId: request._id.toString() },
   });
-  const init = await provider.initiate({
-    amount,
-    type: PAYMENT_TYPES.SEEKER_VIEW,
-    reference: payment._id.toString(),
-    metadata: { seekerRequestId: request._id.toString() },
-  });
-  payment.providerRef = init.providerRef;
 
-  const verified = init.status === "paid" ? { status: "paid" } : await provider.verify(init.providerRef);
-  if (verified.status !== "paid") {
+  const verified = init.status === "paid" ? { ok: true, status: "paid" } : await safeVerify(init.providerRef);
+  if (!verified.ok || verified.status !== "paid") {
     payment.status = PAYMENT_STATUS.PENDING;
     await payment.save();
     return ok({ needsPayment: true, paymentId: payment._id.toString(), redirectUrl: init.redirectUrl });

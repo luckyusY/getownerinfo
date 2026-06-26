@@ -4,7 +4,7 @@ import Listing from "@/models/Listing";
 import User from "@/models/User";
 import Payment from "@/models/Payment";
 import TokenUnlock from "@/models/TokenUnlock";
-import { getPaymentProvider } from "@/lib/payments";
+import { safeVerify } from "@/lib/payments";
 import { finalizeUnlock, buildRevealedContact } from "@/lib/unlockService";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { PAYMENT_TYPES, PAYMENT_STATUS } from "@/lib/constants";
@@ -41,8 +41,10 @@ export async function POST(req, { params }) {
   }
 
   // Confirm with the provider (stub returns paid).
-  const provider = getPaymentProvider();
-  const result = await provider.verify(payment.providerRef);
+  const result = await safeVerify(payment.providerRef);
+  if (!result.ok) {
+    return fail("Payment could not be verified right now. Please try again later.", 502);
+  }
   if (result.status !== "paid") {
     if (result.status === "failed") {
       payment.status = PAYMENT_STATUS.FAILED;

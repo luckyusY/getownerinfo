@@ -7,7 +7,7 @@ import Payment from "@/models/Payment";
 import TokenUnlock from "@/models/TokenUnlock";
 import PlatformSettings, { getSettings } from "@/models/PlatformSettings";
 import { DEFAULT_SETTINGS } from "@/data/catalog";
-import { getPaymentProvider, isStubPayments } from "@/lib/payments";
+import { safeInitiate, isStubPayments } from "@/lib/payments";
 import { finalizeUnlock, buildRevealedContact } from "@/lib/unlockService";
 import { notify, generateOtp } from "@/lib/notify";
 import { ok, fail, requireAuth } from "@/lib/api";
@@ -65,7 +65,17 @@ export async function POST(req, { params }) {
   const vatPortion = Math.round(amount - amount / (1 + (settings.vatRate ?? VAT_RATE)));
 
   // Create the payment record and initiate with the provider.
-  const provider = getPaymentProvider();
+  const init = await safeInitiate({
+    amount,
+    currency: settings.currency || "Rwf",
+    type: PAYMENT_TYPES.TOKEN_FEE,
+    reference: `${listing._id.toString()}:${user._id.toString()}`,
+    metadata: { listingId: listing._id.toString(), userId: user._id.toString(), tier },
+  });
+  if (!init.ok) {
+    return fail("Payment could not be processed right now. Please try again later.", 502);
+  }
+
   const payment = await Payment.create({
     user: user._id,
     listing: listing._id,
@@ -74,18 +84,9 @@ export async function POST(req, { params }) {
     vatPortion,
     tier,
     status: PAYMENT_STATUS.PENDING,
-    provider: provider.name,
+    provider: init.provider.name,
+    providerRef: init.providerRef,
   });
-
-  const init = await provider.initiate({
-    amount,
-    currency: settings.currency || "Rwf",
-    type: PAYMENT_TYPES.TOKEN_FEE,
-    reference: payment._id.toString(),
-    metadata: { listingId: listing._id.toString(), userId: user._id.toString(), tier },
-  });
-  payment.providerRef = init.providerRef;
-  await payment.save();
 
   await audit({
     actor: user._id,
