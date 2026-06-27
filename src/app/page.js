@@ -54,25 +54,59 @@ export default async function HomePage() {
       <main>
         {/* Hero */}
         <section className="relative overflow-hidden">
-          <div className="mx-auto max-w-6xl px-4 pb-16 pt-16 sm:pt-24">
-            <div className="animate-fade-up">
-              <span className="badge bg-brand-50 text-brand">Trusted by serious buyers &amp; owners</span>
-              <h1 className="mt-5 max-w-3xl text-balance font-display text-5xl font-bold leading-[1.05] text-ink sm:text-6xl">
-                Find the real owner. <span className="text-brand">Skip the brokers.</span>
-              </h1>
-              <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">
-                getownerinfo connects serious buyers and tenants directly with verified
-                owners — property, vehicles and assets — with privacy and trust built in.
-              </p>
-              <HeroSearch />
+          {/* atmospheric blobs */}
+          <div className="pointer-events-none absolute -right-24 top-0 h-80 w-80 rounded-full bg-brand/10 blur-3xl" />
+          <div className="pointer-events-none absolute right-40 top-40 h-64 w-64 rounded-full bg-gold/10 blur-3xl" />
 
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link href="/register" className="btn-primary px-6 py-3 text-base">List your property →</Link>
-                <Link href="/listings" className="btn-outline px-6 py-3 text-base">Browse all listings</Link>
+          <div className="mx-auto max-w-6xl px-4 pb-16 pt-16 sm:pt-24">
+            <div className="grid items-center gap-12 lg:grid-cols-2">
+              {/* copy */}
+              <div className="animate-fade-up">
+                <span className="badge bg-brand-50 text-brand">Trusted by serious buyers &amp; owners</span>
+                <h1 className="mt-5 text-balance font-display text-5xl font-bold leading-[1.05] text-ink sm:text-6xl">
+                  Find the real owner. <span className="text-brand">Skip the brokers.</span>
+                </h1>
+                <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">
+                  getownerinfo connects serious buyers and tenants directly with verified
+                  owners — property, vehicles and assets — with privacy and trust built in.
+                </p>
+                <HeroSearch />
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <Link href="/register" className="btn-primary px-6 py-3 text-base">List your property →</Link>
+                  <Link href="/listings" className="btn-outline px-6 py-3 text-base">Browse all listings</Link>
+                </div>
+              </div>
+
+              {/* product visual: a listing card with the unlock interaction */}
+              <div className="relative hidden lg:block">
+                <div className="card overflow-hidden !p-0 shadow-lift">
+                  <div className="relative aspect-[16/10] bg-panel">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="https://picsum.photos/seed/goi-hero/800/500" alt="Featured property" className="h-full w-full object-cover" />
+                    <div className="absolute left-3 top-3 flex gap-1.5">
+                      <span className="badge bg-gold text-white">For sale</span>
+                      <span className="badge bg-brand text-white">Exclusive</span>
+                    </div>
+                  </div>
+                  <div className="p-5">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-ink-faint">Real Estate</p>
+                    <h3 className="mt-0.5 font-display text-lg font-bold text-ink">4-bedroom house, Nyarutarama</h3>
+                    <p className="mt-1 font-display text-xl font-bold text-brand">75,000,000 Rwf</p>
+                  </div>
+                </div>
+                {/* floating unlock chip */}
+                <div className="absolute -bottom-5 -left-5 flex items-center gap-2 rounded-2xl border border-line bg-surface px-4 py-3 shadow-lift">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-sm text-white">✓</span>
+                  <div>
+                    <p className="text-xs font-semibold text-ink">Access Unlocked</p>
+                    <p className="text-[11px] text-ink-faint">Owner contact revealed</p>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
+            {/* category tiles */}
+            <div className="mt-14 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
               {CATEGORIES.map((c) => (
                 <Link
                   key={c.slug}

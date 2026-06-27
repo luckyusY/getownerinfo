@@ -3,6 +3,11 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SeekersBrowse from "./SeekersBrowse";
 
+export const metadata = {
+  title: "Seeker requests",
+  description: "Buyers and tenants looking for property and assets. Unlock seeker contact with a view token.",
+};
+
 export default function SeekersPage() {
   return (
     <div className="min-h-screen">

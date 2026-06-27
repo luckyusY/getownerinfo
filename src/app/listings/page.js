@@ -4,6 +4,11 @@ import ListingsExplorer from "./ListingsExplorer";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "Browse listings",
+  description: "Browse verified property, vehicles and assets across Rwanda. Unlock owner contact with a token fee.",
+};
+
 export default function ListingsPage({ searchParams }) {
   return (
     <div className="min-h-screen">

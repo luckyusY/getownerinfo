@@ -17,6 +17,21 @@ import Badge from "@/components/ui/Badge";
 
 export const dynamic = "force-dynamic";
 
+export async function generateMetadata({ params }) {
+  try {
+    await connectDB();
+    const l = await Listing.findById(params.id).select("title description price status").lean();
+    if (!l || l.status !== LISTING_STATUS.ACTIVE) return { title: "Listing" };
+    return {
+      title: l.title,
+      description: (l.description || `${l.title} — unlock verified owner contact with a token fee.`).slice(0, 160),
+      openGraph: { title: l.title, description: `${formatRwf(l.price)} · getownerinfo` },
+    };
+  } catch {
+    return { title: "Listing" };
+  }
+}
+
 export default async function ListingDetail({ params }) {
   await connectDB();
   let listing;
