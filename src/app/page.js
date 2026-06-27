@@ -53,6 +53,19 @@ async function getHomeData() {
     Category.countDocuments({}),
   ]);
   const catName = Object.fromEntries(categories.map((c) => [c._id.toString(), c.name]));
+  const idToSlug = Object.fromEntries(categories.map((c) => [c._id.toString(), c.slug]));
+
+  // One real listing photo per category for the category thumbnails.
+  const withImg = await Listing.find({ status: LISTING_STATUS.ACTIVE, "images.0": { $exists: true } })
+    .select("category images")
+    .limit(120)
+    .lean();
+  const categoryImages = {};
+  for (const l of withImg) {
+    const slug = idToSlug[l.category?.toString()];
+    if (slug && !categoryImages[slug]) categoryImages[slug] = l.images?.[0]?.url;
+  }
+
   const liveListings = listings.map((l) => ({
     id: l._id.toString(),
     title: l.title,
@@ -70,11 +83,11 @@ async function getHomeData() {
     { label: "Contacts unlocked", value: compact(unlockCount) },
     { label: "Categories", value: String(catCount) },
   ];
-  return { featured, stats, usingSamples: liveListings.length === 0 };
+  return { featured, stats, categoryImages, usingSamples: liveListings.length === 0 };
 }
 
 export default async function HomePage() {
-  const { featured, stats, usingSamples } = await getHomeData();
+  const { featured, stats, categoryImages, usingSamples } = await getHomeData();
 
   const heroSlides = [
     {
@@ -112,15 +125,18 @@ export default async function HomePage() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             {CATEGORIES.map((c) => {
               const Icon = c.icon;
+              const img = categoryImages[c.slug];
               return (
                 <Link
                   key={c.slug}
                   href={`/listings?category=${c.slug}`}
-                  className="group relative flex min-h-[140px] flex-col justify-end overflow-hidden rounded-xl text-white shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-lift"
+                  className="group relative flex min-h-[140px] flex-col justify-end overflow-hidden rounded-xl bg-gradient-to-br from-[#1576c9] to-[#0c4f9c] text-white shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-lift"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={`https://picsum.photos/seed/goi-cat-${c.slug}/400/300`} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a1f44]/90 via-[#0a1f44]/40 to-transparent" />
+                  {img && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={img} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a1f44]/92 via-[#0a1f44]/45 to-transparent" />
                   <div className="relative flex items-center gap-2 p-3">
                     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/20 backdrop-blur">
                       <Icon className="h-4 w-4" />
