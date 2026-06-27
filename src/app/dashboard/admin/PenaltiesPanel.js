@@ -1,27 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-function money(n) {
-  return n == null ? "—" : new Intl.NumberFormat("en-RW").format(n) + " Rwf";
-}
+import { formatRwf } from "@/lib/format";
+import { useToast } from "@/components/ui/Toast";
+import { StatusBadge } from "@/components/ui/Badge";
+import { SectionHeading, Table, Tr, Td } from "@/components/ui/Dashboard";
 
 const OFFENSES = [
-  "late_status_update",
-  "under_reporting",
-  "early_withdrawal",
-  "false_not_concluded",
-  "commission_delay",
-  "token_bypass",
-  "contact_sharing",
-  "override_misuse",
+  "late_status_update", "under_reporting", "early_withdrawal", "false_not_concluded",
+  "commission_delay", "token_bypass", "contact_sharing", "override_misuse",
 ];
 
 export default function PenaltiesPanel() {
+  const { toast } = useToast();
   const [penalties, setPenalties] = useState([]);
   const [summary, setSummary] = useState({ total: 0, outstanding: 0 });
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
   const [form, setForm] = useState({ userEmail: "", offenseType: "under_reporting", reason: "", expectedAmount: "" });
   const [showForm, setShowForm] = useState(false);
 
@@ -35,7 +29,6 @@ export default function PenaltiesPanel() {
 
   async function issue() {
     setBusy(true);
-    setError("");
     try {
       const res = await fetch("/api/admin/penalties", {
         method: "POST",
@@ -49,11 +42,12 @@ export default function PenaltiesPanel() {
       });
       const j = await res.json();
       if (!j.success) throw new Error(j.error);
+      toast("Penalty issued", { type: "success" });
       setForm({ userEmail: "", offenseType: "under_reporting", reason: "", expectedAmount: "" });
       setShowForm(false);
       await load();
     } catch (err) {
-      setError(err.message);
+      toast(err.message, { type: "error" });
     } finally {
       setBusy(false);
     }
@@ -62,8 +56,13 @@ export default function PenaltiesPanel() {
   async function waive(id) {
     setBusy(true);
     try {
-      await fetch(`/api/admin/penalties/${id}/waive`, { method: "POST" });
+      const res = await fetch(`/api/admin/penalties/${id}/waive`, { method: "POST" });
+      const j = await res.json();
+      if (!j.success) throw new Error(j.error);
+      toast("Penalty waived", { type: "info" });
       await load();
+    } catch (err) {
+      toast(err.message, { type: "error" });
     } finally {
       setBusy(false);
     }
@@ -71,19 +70,13 @@ export default function PenaltiesPanel() {
 
   return (
     <div className="mt-10">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-slate-900">
-          Penalties — outstanding {money(summary.outstanding)}
-        </h2>
-        <button className="btn-outline" onClick={() => setShowForm((s) => !s)}>
-          {showForm ? "Cancel" : "Issue penalty"}
-        </button>
-      </div>
-
-      {error && <p className="mt-2 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      <SectionHeading
+        title={`Penalties — outstanding ${formatRwf(summary.outstanding)}`}
+        action={<button className="btn-outline" onClick={() => setShowForm((s) => !s)}>{showForm ? "Cancel" : "Issue penalty"}</button>}
+      />
 
       {showForm && (
-        <div className="mt-3 grid gap-3 card sm:grid-cols-2">
+        <div className="mb-4 grid gap-3 card sm:grid-cols-2">
           <div><label className="label">Offender email</label>
             <input className="input" value={form.userEmail} onChange={(e) => setForm({ ...form, userEmail: e.target.value })} /></div>
           <div><label className="label">Offense</label>
@@ -103,26 +96,19 @@ export default function PenaltiesPanel() {
       )}
 
       {penalties.length === 0 ? (
-        <p className="mt-3 text-sm text-slate-500">No penalties issued.</p>
+        <p className="text-sm text-ink-soft">No penalties issued.</p>
       ) : (
-        <div className="mt-3 overflow-hidden rounded-xl border border-slate-200 bg-white">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500">
-              <tr><th className="px-4 py-3">User</th><th className="px-4 py-3">Offense</th><th className="px-4 py-3">Amount</th><th className="px-4 py-3">Status</th><th className="px-4 py-3"></th></tr>
-            </thead>
-            <tbody>
-              {penalties.map((p) => (
-                <tr key={p.id} className="border-t border-slate-100">
-                  <td className="px-4 py-3"><div className="font-medium text-slate-900">{p.userName}</div><div className="text-xs text-slate-500">{p.userEmail}</div></td>
-                  <td className="px-4 py-3 capitalize text-slate-600">{p.offenseType.replace(/_/g, " ")}</td>
-                  <td className="px-4 py-3 font-semibold">{money(p.total)}</td>
-                  <td className="px-4 py-3"><span className={`rounded-full px-2 py-1 text-xs ${p.status === "active" ? "bg-red-100 text-red-700" : p.status === "paid" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>{p.status}</span></td>
-                  <td className="px-4 py-3">{p.status === "active" && <button className="btn-outline" disabled={busy} onClick={() => waive(p.id)}>Waive</button>}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Table head={["User", "Offense", "Amount", "Status", ""]}>
+          {penalties.map((p) => (
+            <Tr key={p.id}>
+              <Td><div className="font-semibold text-ink">{p.userName}</div><div className="text-xs text-ink-faint">{p.userEmail}</div></Td>
+              <Td className="capitalize text-ink-soft">{p.offenseType.replace(/_/g, " ")}</Td>
+              <Td className="font-semibold text-ink">{formatRwf(p.total)}</Td>
+              <Td><StatusBadge status={p.status} /></Td>
+              <Td>{p.status === "active" && <button className="btn-outline" disabled={busy} onClick={() => waive(p.id)}>Waive</button>}</Td>
+            </Tr>
+          ))}
+        </Table>
       )}
     </div>
   );

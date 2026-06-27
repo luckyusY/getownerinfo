@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useToast } from "@/components/ui/Toast";
 
 function money(n) {
   return n == null ? "—" : new Intl.NumberFormat("en-RW").format(n) + " Rwf";
@@ -46,6 +47,7 @@ function Field({ k, v }) {
 }
 
 export default function UnlockPanel({ listingId, loggedIn, area, initialRevealed, tokenFees }) {
+  const { toast } = useToast();
   const [revealed, setRevealed] = useState(initialRevealed || null);
   const [tier, setTier] = useState("buyer");
   const [stage, setStage] = useState("idle"); // idle | otp
@@ -53,13 +55,11 @@ export default function UnlockPanel({ listingId, loggedIn, area, initialRevealed
   const [otp, setOtp] = useState("");
   const [devOtp, setDevOtp] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const fee = tokenFees?.[tier];
 
   async function initiate() {
     setLoading(true);
-    setError("");
     try {
       const res = await fetch(`/api/listings/${listingId}/unlock`, {
         method: "POST",
@@ -70,7 +70,9 @@ export default function UnlockPanel({ listingId, loggedIn, area, initialRevealed
       if (!j.success) throw new Error(j.error);
       if (j.data.alreadyUnlocked || j.data.unlocked) {
         setRevealed(j.data);
+        toast("Contact unlocked", { type: "success" });
       } else if (j.data.needsOtp) {
+        toast("Verification code sent to your email", { type: "info" });
         setPaymentId(j.data.paymentId);
         setDevOtp(j.data.devOtp || null);
         setStage("otp");
@@ -79,7 +81,7 @@ export default function UnlockPanel({ listingId, loggedIn, area, initialRevealed
         await verify(j.data.paymentId, "");
       }
     } catch (err) {
-      setError(err.message);
+      toast(err.message, { type: "error" });
     } finally {
       setLoading(false);
     }
@@ -87,7 +89,6 @@ export default function UnlockPanel({ listingId, loggedIn, area, initialRevealed
 
   async function verify(pid = paymentId, code = otp) {
     setLoading(true);
-    setError("");
     try {
       const res = await fetch(`/api/payments/${pid}/verify`, {
         method: "POST",
@@ -98,8 +99,9 @@ export default function UnlockPanel({ listingId, loggedIn, area, initialRevealed
       if (!j.success) throw new Error(j.error);
       setRevealed(j.data);
       setStage("idle");
+      toast("Contact unlocked", { type: "success" });
     } catch (err) {
-      setError(err.message);
+      toast(err.message, { type: "error" });
     } finally {
       setLoading(false);
     }
@@ -108,18 +110,16 @@ export default function UnlockPanel({ listingId, loggedIn, area, initialRevealed
   if (revealed) return <RevealedContact revealed={revealed} />;
 
   return (
-    <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 text-center">
-      <p className="text-sm font-medium text-slate-700">🔒 Contact &amp; exact location locked</p>
-      <p className="mt-1 text-xs text-slate-500">Approximate area: {area || "—"}</p>
-
-      {error && <p className="mt-2 rounded bg-red-50 px-2 py-1 text-xs text-red-700">{error}</p>}
+    <div className="rounded-xl border border-dashed border-line bg-panel p-4 text-center">
+      <p className="text-sm font-semibold text-ink">🔒 Contact &amp; exact location locked</p>
+      <p className="mt-1 text-xs text-ink-faint">Approximate area: {area || "—"}</p>
 
       {!loggedIn ? (
         <Link href="/login" className="btn-primary mt-3 inline-block w-full">Log in to unlock</Link>
       ) : stage === "otp" ? (
         <div className="mt-3 space-y-2">
-          <p className="text-xs text-slate-600">Enter the 6-digit code sent to your email.</p>
-          {devOtp && <p className="text-xs text-amber-600">Dev code: <strong>{devOtp}</strong></p>}
+          <p className="text-xs text-ink-soft">Enter the 6-digit code sent to your email.</p>
+          {devOtp && <p className="text-xs text-clay">Dev code: <strong>{devOtp}</strong></p>}
           <input
             className="input text-center tracking-widest"
             maxLength={6}
@@ -141,7 +141,7 @@ export default function UnlockPanel({ listingId, loggedIn, area, initialRevealed
           <button className="btn-primary w-full" disabled={loading} onClick={initiate}>
             {loading ? "Processing…" : `Pay ${money(fee)} & unlock`}
           </button>
-          <p className="text-[11px] text-slate-400">Non-refundable token fee. Reveals owner contact &amp; exact location.</p>
+          <p className="text-[11px] text-ink-faint">Non-refundable token fee. Reveals owner contact &amp; exact location.</p>
         </div>
       )}
     </div>

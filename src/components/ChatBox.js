@@ -61,9 +61,9 @@ export default function ChatBox({ listingId, side, buyerId }) {
   }
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white">
-      <div className="flex items-center justify-between border-b border-slate-100 px-4 py-2">
-        <span className="text-sm font-medium text-slate-700">Messages</span>
+    <div className="rounded-xl border border-line bg-white">
+      <div className="flex items-center justify-between border-b border-line/70 px-4 py-2">
+        <span className="text-sm font-medium text-ink">Messages</span>
         <span className={`text-xs ${unlocked ? "text-emerald-600" : "text-amber-600"}`}>
           {unlocked ? "Contact sharing unlocked" : "Pre-unlock — contact info is blocked"}
         </span>
@@ -71,9 +71,9 @@ export default function ChatBox({ listingId, side, buyerId }) {
 
       <div className="max-h-72 space-y-2 overflow-y-auto px-4 py-3">
         {loading ? (
-          <p className="text-sm text-slate-400">Loading…</p>
+          <p className="text-sm text-ink-faint">Loading…</p>
         ) : messages.length === 0 ? (
-          <p className="text-sm text-slate-400">No messages yet. Ask about availability.</p>
+          <p className="text-sm text-ink-faint">No messages yet. Ask about availability.</p>
         ) : (
           messages.map((m) => {
             const mine = m.senderSide === side;
@@ -81,7 +81,7 @@ export default function ChatBox({ listingId, side, buyerId }) {
               <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                 <div className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
                   m.blocked ? "border border-dashed border-red-300 bg-red-50 text-red-600"
-                  : mine ? "bg-brand text-white" : "bg-slate-100 text-slate-800"
+                  : mine ? "bg-brand text-white" : "bg-panel text-ink"
                 }`}>
                   {m.body}
                   {m.blocked && <span className="mt-1 block text-[11px]">Blocked ({m.blockedReasons.join(", ")}) — not delivered</span>}
@@ -96,7 +96,7 @@ export default function ChatBox({ listingId, side, buyerId }) {
 
       {notice && <p className="mx-4 mb-2 rounded bg-amber-50 px-3 py-2 text-xs text-amber-700">{notice}</p>}
 
-      <form onSubmit={send} className="flex gap-2 border-t border-slate-100 p-3">
+      <form onSubmit={send} className="flex gap-2 border-t border-line/70 p-3">
         <input
           className="input"
           placeholder={unlocked ? "Type a message…" : "Ask about availability (no contact info yet)"}

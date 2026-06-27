@@ -10,8 +10,8 @@ export default function SeekersPage() {
       <main className="mx-auto max-w-5xl px-4 py-12">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Requests from seekers</h1>
-            <p className="mt-1 text-sm text-slate-600">
+            <h1 className="text-2xl font-bold text-ink">Requests from seekers</h1>
+            <p className="mt-1 text-sm text-ink-soft">
               Buyers and tenants looking for property and assets. Unlock contact with a view token.
             </p>
           </div>

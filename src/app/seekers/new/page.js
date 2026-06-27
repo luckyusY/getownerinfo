@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useToast } from "@/components/ui/Toast";
 import { useRouter } from "next/navigation";
 
 export default function NewSeekerPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [catalog, setCatalog] = useState([]);
   const [form, setForm] = useState({
     categorySlug: "",
@@ -16,7 +18,6 @@ export default function NewSeekerPage() {
     validityDays: 30,
     contact: { name: "", phone: "", preferredContactTime: "" },
   });
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -25,7 +26,6 @@ export default function NewSeekerPage() {
 
   async function submit(e) {
     e.preventDefault();
-    setError("");
     setLoading(true);
     try {
       const res = await fetch("/api/seekers", {
@@ -43,10 +43,11 @@ export default function NewSeekerPage() {
         const detail = j.issues ? Object.values(j.issues).flat().join(", ") : j.error;
         throw new Error(detail);
       }
+      toast("Request posted", { type: "success" });
       router.push("/dashboard/buyer");
       router.refresh();
     } catch (err) {
-      setError(err.message);
+      toast(err.message, { type: "error" });
     } finally {
       setLoading(false);
     }
@@ -54,13 +55,11 @@ export default function NewSeekerPage() {
 
   return (
     <div className="mx-auto max-w-xl px-4 py-10">
-      <h1 className="text-2xl font-bold text-slate-900">Post a request</h1>
-      <p className="mt-1 text-sm text-slate-600">
+      <h1 className="font-display text-2xl font-bold text-ink">Post a request</h1>
+      <p className="mt-1 text-sm text-ink-soft">
         Tell owners what you&apos;re looking for. A non-refundable post fee applies; your
         contact stays hidden until someone pays the view token.
       </p>
-
-      {error && <p className="mt-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       <form onSubmit={submit} className="mt-5 card space-y-4">
         <div>

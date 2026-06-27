@@ -3,9 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/Toast";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -13,12 +15,10 @@ export default function RegisterPage() {
     password: "",
     role: "buyer",
   });
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e) {
     e.preventDefault();
-    setError("");
     setLoading(true);
     try {
       const res = await fetch("/api/auth/register", {
@@ -33,27 +33,25 @@ export default function RegisterPage() {
           : json.error;
         throw new Error(detail || "Registration failed");
       }
+      toast("Account created — welcome!", { type: "success" });
       router.push("/dashboard");
       router.refresh();
     } catch (err) {
-      setError(err.message);
+      toast(err.message, { type: "error" });
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-10">
+    <div className="flex min-h-screen items-center justify-center px-4 py-10">
       <div className="w-full max-w-md">
-        <Link href="/" className="mb-6 block text-center text-xl font-bold text-brand">
-          getowner<span className="text-slate-800">info</span>
+        <Link href="/" className="mb-6 flex items-center justify-center gap-2">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand text-base font-bold text-white">g</span>
+          <span className="font-display text-xl font-bold text-ink">getowner<span className="text-brand">info</span></span>
         </Link>
         <form onSubmit={onSubmit} className="card space-y-4">
-          <h1 className="text-xl font-semibold text-slate-900">Create your account</h1>
-
-          {error && (
-            <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
-          )}
+          <h1 className="font-display text-2xl font-bold text-ink">Create your account</h1>
 
           <div>
             <label className="label">Full name</label>
@@ -92,7 +90,7 @@ export default function RegisterPage() {
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
             />
-            <p className="mt-1 text-xs text-slate-500">At least 8 characters.</p>
+            <p className="mt-1 text-xs text-ink-faint">At least 8 characters.</p>
           </div>
           <div>
             <label className="label">I want to</label>
@@ -110,7 +108,7 @@ export default function RegisterPage() {
             {loading ? "Creating account…" : "Create account"}
           </button>
 
-          <p className="text-center text-sm text-slate-600">
+          <p className="text-center text-sm text-ink-soft">
             Already registered?{" "}
             <Link href="/login" className="font-medium text-brand">
               Sign in

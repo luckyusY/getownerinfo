@@ -17,9 +17,9 @@ export default function OwnerMessages() {
       });
   }, []);
 
-  if (loading) return <p className="mt-6 text-sm text-slate-500">Loading…</p>;
+  if (loading) return <p className="mt-6 text-sm text-ink-faint">Loading…</p>;
   if (convos.length === 0)
-    return <div className="mt-6 card text-center text-sm text-slate-500">No conversations yet.</div>;
+    return <div className="mt-6 card text-center text-sm text-ink-faint">No conversations yet.</div>;
 
   return (
     <div className="mt-6 grid gap-6 md:grid-cols-3">
@@ -31,11 +31,11 @@ export default function OwnerMessages() {
               className={`w-full rounded-lg border p-3 text-left text-sm ${
                 active && active.listingId === c.listingId && active.buyerId === c.buyerId
                   ? "border-brand bg-brand/5"
-                  : "border-slate-200 bg-white hover:bg-slate-50"
+                  : "border-line bg-white hover:bg-panel"
               }`}
             >
-              <p className="font-medium text-slate-900">{c.listingTitle}</p>
-              <p className="text-xs text-slate-500">{c.buyerName} · {c.preview || "—"}</p>
+              <p className="font-medium text-ink">{c.listingTitle}</p>
+              <p className="text-xs text-ink-faint">{c.buyerName} · {c.preview || "—"}</p>
             </button>
           </li>
         ))}
@@ -45,7 +45,7 @@ export default function OwnerMessages() {
         {active ? (
           <ChatBox listingId={active.listingId} side="owner" buyerId={active.buyerId} />
         ) : (
-          <div className="card text-center text-sm text-slate-500">Select a conversation.</div>
+          <div className="card text-center text-sm text-ink-faint">Select a conversation.</div>
         )}
       </div>
     </div>

@@ -7,8 +7,8 @@ export default function PrivacyPage() {
     <div className="min-h-screen">
       <SiteHeader />
       <main className="mx-auto max-w-3xl px-4 py-12">
-        <h1 className="text-2xl font-bold text-slate-900">Privacy Policy</h1>
-        <p className="mt-2 text-sm text-slate-500">Last updated: {new Date().getFullYear()}</p>
+        <h1 className="text-2xl font-bold text-ink">Privacy Policy</h1>
+        <p className="mt-2 text-sm text-ink-faint">Last updated: {new Date().getFullYear()}</p>
 
         <Section title="What we collect">
           Account details (name, email, phone), listing and request content, payment
@@ -46,8 +46,8 @@ export default function PrivacyPage() {
 function Section({ title, children }) {
   return (
     <section className="mt-6">
-      <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
-      <p className="mt-1 text-slate-600">{children}</p>
+      <h2 className="text-lg font-semibold text-ink">{title}</h2>
+      <p className="mt-1 text-ink-soft">{children}</p>
     </section>
   );
 }

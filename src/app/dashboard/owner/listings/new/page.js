@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/Toast";
 
 const STEPS = ["Category", "Details", "Location & contact", "Content", "Review"];
 
@@ -20,10 +21,10 @@ async function fileToDataUrl(file) {
 
 export default function NewListingPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [step, setStep] = useState(0);
   const [catalog, setCatalog] = useState([]);
   const [decision, setDecision] = useState(null);
-  const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -92,7 +93,6 @@ export default function NewListingPage() {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
     setUploading(true);
-    setError("");
     try {
       const uploaded = [];
       for (const file of files) {
@@ -109,7 +109,7 @@ export default function NewListingPage() {
       if (kind === "image") set({ images: [...form.images, ...uploaded] });
       else set({ ownershipProof: [...form.ownershipProof, ...uploaded] });
     } catch (err) {
-      setError(`Upload failed: ${err.message}`);
+      toast(`Upload failed: ${err.message}`, { type: "error" });
     } finally {
       setUploading(false);
     }
@@ -117,7 +117,6 @@ export default function NewListingPage() {
 
   async function submit(asDraft) {
     setSubmitting(true);
-    setError("");
     try {
       const res = await fetch("/api/listings", {
         method: "POST",
@@ -136,10 +135,11 @@ export default function NewListingPage() {
         const detail = j.issues ? Object.entries(j.issues).map(([k, v]) => `${k}: ${v}`).join("; ") : j.error;
         throw new Error(detail);
       }
+      toast(asDraft ? "Draft saved" : "Listing submitted for approval", { type: "success" });
       router.push("/dashboard/owner");
       router.refresh();
     } catch (err) {
-      setError(err.message);
+      toast(err.message, { type: "error" });
     } finally {
       setSubmitting(false);
     }
@@ -155,7 +155,7 @@ export default function NewListingPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="text-2xl font-bold text-slate-900">Create a listing</h1>
+      <h1 className="font-display text-2xl font-bold text-ink">Create a listing</h1>
 
       {/* stepper */}
       <ol className="mt-4 flex flex-wrap gap-2 text-xs">
@@ -163,15 +163,13 @@ export default function NewListingPage() {
           <li
             key={s}
             className={`rounded-full px-3 py-1 ${
-              i === step ? "bg-brand text-white" : i < step ? "bg-brand/10 text-brand" : "bg-slate-100 text-slate-500"
+              i === step ? "bg-brand text-white" : i < step ? "bg-brand-50 text-brand" : "bg-panel text-ink-faint"
             }`}
           >
             {i + 1}. {s}
           </li>
         ))}
       </ol>
-
-      {error && <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       <div className="mt-5 card space-y-4">
         {step === 0 && (
@@ -260,7 +258,7 @@ export default function NewListingPage() {
 
         {step === 2 && (
           <>
-            <p className="text-xs text-slate-500">Exact location and contact stay hidden until a buyer pays the token fee.</p>
+            <p className="text-xs text-ink-faint">Exact location and contact stay hidden until a buyer pays the token fee.</p>
             <div><label className="label">Public area (shown to everyone)</label>
               <input className="input" placeholder="e.g. Kicukiro, Kigali" value={form.location.area}
                 onChange={(e) => set({ location: { ...form.location, area: e.target.value } })} /></div>
@@ -304,9 +302,9 @@ export default function NewListingPage() {
             <div>
               <label className="label">Ownership proof (admin-only)</label>
               <input type="file" accept="image/*,application/pdf" multiple onChange={(e) => handleUpload(e, "proof")} />
-              <p className="mt-1 text-xs text-slate-500">{form.ownershipProof.length} file(s) attached.</p>
+              <p className="mt-1 text-xs text-ink-faint">{form.ownershipProof.length} file(s) attached.</p>
             </div>
-            {uploading && <p className="text-sm text-slate-500">Uploading…</p>}
+            {uploading && <p className="text-sm text-ink-faint">Uploading…</p>}
           </>
         )}
 
@@ -322,7 +320,7 @@ export default function NewListingPage() {
             {decision?.listingFee && <Row k="Listing fee" v={`${money(decision.listingFee.total)} (Model B, payable)`} />}
             <Row k="Images" v={`${form.images.length}`} />
             <Row k="Ownership proof" v={`${form.ownershipProof.length}`} />
-            <p className="pt-2 text-xs text-slate-500">
+            <p className="pt-2 text-xs text-ink-faint">
               Submitting sends the listing for admin verification (status: pending approval).
               {decision?.decision.model === "B" && " Model B listings require payment before activation (next phase)."}
             </p>
@@ -351,9 +349,9 @@ export default function NewListingPage() {
 
 function Row({ k, v }) {
   return (
-    <div className="flex justify-between border-b border-slate-100 py-1">
-      <span className="text-slate-500">{k}</span>
-      <span className="font-medium text-slate-900">{v ?? "—"}</span>
+    <div className="flex justify-between border-b border-line py-1">
+      <span className="text-ink-faint">{k}</span>
+      <span className="font-medium text-ink">{v ?? "—"}</span>
     </div>
   );
 }

@@ -8,8 +8,8 @@ export default function CookiePreferencesPage() {
     <div className="min-h-screen">
       <SiteHeader />
       <main className="mx-auto max-w-2xl px-4 py-12">
-        <h1 className="text-2xl font-bold text-slate-900">Cookie preferences</h1>
-        <p className="mt-1 text-sm text-slate-600">
+        <h1 className="text-2xl font-bold text-ink">Cookie preferences</h1>
+        <p className="mt-1 text-sm text-ink-soft">
           Disabling optional cookies won&apos;t affect core features like login, token unlocks or payments.
         </p>
         <CookiePrefs />

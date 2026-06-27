@@ -6,8 +6,8 @@ export default function OwnerMessagesPage() {
   guardRole(ROLES.OWNER);
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-900">Messages</h1>
-      <p className="mt-1 text-sm text-slate-600">
+      <h1 className="text-2xl font-bold text-ink">Messages</h1>
+      <p className="mt-1 text-sm text-ink-soft">
         Replies are filtered until the buyer unlocks — don&apos;t share contact details early.
       </p>
       <OwnerMessages />

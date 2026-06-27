@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Poppins, Nunito_Sans } from "next/font/google";
 import CookieBanner from "@/components/CookieBanner";
+import { ToastProvider } from "@/components/ui/Toast";
 
 // Match getownerinfo.com: Poppins headings, Nunito Sans body.
 const display = Poppins({
@@ -27,8 +28,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable}`}>
       <body>
-        {children}
-        <CookieBanner />
+        <ToastProvider>
+          {children}
+          <CookieBanner />
+        </ToastProvider>
       </body>
     </html>
   );

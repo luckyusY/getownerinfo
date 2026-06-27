@@ -22,37 +22,37 @@ export default function AnalyticsPanel() {
     fetch("/api/admin/analytics").then((r) => r.json()).then((j) => setData(j.data));
   }, []);
 
-  if (!data) return <p className="mt-6 text-sm text-slate-500">Loading analytics…</p>;
+  if (!data) return <p className="mt-6 text-sm text-ink-faint">Loading analytics…</p>;
 
   const byType = Object.entries(data.revenue.byType);
   const maxDay = Math.max(1, ...data.revenue.byDay.map((d) => d.total));
 
   return (
     <div className="mt-10">
-      <h2 className="text-lg font-semibold text-slate-900">Analytics</h2>
+      <h2 className="text-lg font-semibold text-ink">Analytics</h2>
 
       {/* Revenue headline */}
       <div className="mt-3 grid gap-4 sm:grid-cols-3">
         <div className="card">
-          <p className="text-sm text-slate-500">Total revenue</p>
-          <p className="mt-1 text-2xl font-bold text-slate-900">{money(data.revenue.total)}</p>
+          <p className="text-sm text-ink-faint">Total revenue</p>
+          <p className="mt-1 text-2xl font-bold text-ink">{money(data.revenue.total)}</p>
         </div>
         <div className="card">
-          <p className="text-sm text-slate-500">Last 30 days</p>
-          <p className="mt-1 text-2xl font-bold text-slate-900">{money(data.revenue.last30Days)}</p>
+          <p className="text-sm text-ink-faint">Last 30 days</p>
+          <p className="mt-1 text-2xl font-bold text-ink">{money(data.revenue.last30Days)}</p>
         </div>
         <div className="card">
-          <p className="text-sm text-slate-500">Token unlocks (30d / total)</p>
-          <p className="mt-1 text-2xl font-bold text-slate-900">{data.unlocks.last30Days} / {data.unlocks.total}</p>
+          <p className="text-sm text-ink-faint">Token unlocks (30d / total)</p>
+          <p className="mt-1 text-2xl font-bold text-ink">{data.unlocks.last30Days} / {data.unlocks.total}</p>
         </div>
       </div>
 
       {/* Revenue by type */}
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div className="card">
-          <p className="mb-3 text-sm font-medium text-slate-700">Revenue by type</p>
+          <p className="mb-3 text-sm font-medium text-ink">Revenue by type</p>
           {byType.length === 0 ? (
-            <p className="text-sm text-slate-400">No paid revenue yet.</p>
+            <p className="text-sm text-ink-faint">No paid revenue yet.</p>
           ) : (
             <ul className="space-y-2">
               {byType.map(([type, v]) => {
@@ -60,10 +60,10 @@ export default function AnalyticsPanel() {
                 return (
                   <li key={type}>
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-600">{TYPE_LABELS[type] || type}</span>
-                      <span className="font-medium text-slate-900">{money(v.total)} · {v.count}</span>
+                      <span className="text-ink-soft">{TYPE_LABELS[type] || type}</span>
+                      <span className="font-medium text-ink">{money(v.total)} · {v.count}</span>
                     </div>
-                    <div className="mt-1 h-2 rounded-full bg-slate-100">
+                    <div className="mt-1 h-2 rounded-full bg-panel">
                       <div className="h-2 rounded-full bg-brand" style={{ width: `${pct}%` }} />
                     </div>
                   </li>
@@ -75,9 +75,9 @@ export default function AnalyticsPanel() {
 
         {/* Daily revenue trend */}
         <div className="card">
-          <p className="mb-3 text-sm font-medium text-slate-700">Daily revenue (30d)</p>
+          <p className="mb-3 text-sm font-medium text-ink">Daily revenue (30d)</p>
           {data.revenue.byDay.length === 0 ? (
-            <p className="text-sm text-slate-400">No revenue in the last 30 days.</p>
+            <p className="text-sm text-ink-faint">No revenue in the last 30 days.</p>
           ) : (
             <div className="flex h-32 items-end gap-1">
               {data.revenue.byDay.map((d) => (
@@ -103,15 +103,15 @@ function Breakdown({ title, map, render = (k) => k, field }) {
   const rows = Object.entries(map || {});
   return (
     <div className="card">
-      <p className="mb-2 text-sm font-medium text-slate-700">{title}</p>
+      <p className="mb-2 text-sm font-medium text-ink">{title}</p>
       {rows.length === 0 ? (
-        <p className="text-sm text-slate-400">—</p>
+        <p className="text-sm text-ink-faint">—</p>
       ) : (
         <ul className="space-y-1 text-sm">
           {rows.map(([k, v]) => (
             <li key={k} className="flex justify-between">
-              <span className="capitalize text-slate-600">{render(k).replace?.(/_/g, " ") || render(k)}</span>
-              <span className="font-medium text-slate-900">{v[field]}</span>
+              <span className="capitalize text-ink-soft">{render(k).replace?.(/_/g, " ") || render(k)}</span>
+              <span className="font-medium text-ink">{v[field]}</span>
             </li>
           ))}
         </ul>

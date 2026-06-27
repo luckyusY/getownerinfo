@@ -26,7 +26,7 @@ export default function CookiePrefs() {
     setTimeout(() => setSaved(false), 2500);
   }
 
-  if (loading) return <p className="mt-6 text-sm text-slate-500">Loading…</p>;
+  if (loading) return <p className="mt-6 text-sm text-ink-faint">Loading…</p>;
 
   return (
     <div className="mt-6 space-y-4">
@@ -48,8 +48,8 @@ function Row({ title, desc, checked, disabled, onChange }) {
   return (
     <div className="card flex items-center justify-between">
       <div>
-        <p className="font-medium text-slate-900">{title}</p>
-        <p className="text-sm text-slate-500">{desc}</p>
+        <p className="font-medium text-ink">{title}</p>
+        <p className="text-sm text-ink-faint">{desc}</p>
       </div>
       <input type="checkbox" className="h-5 w-5" checked={checked} disabled={disabled}
         onChange={(e) => onChange?.(e.target.checked)} />

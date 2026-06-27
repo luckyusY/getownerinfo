@@ -7,8 +7,8 @@ export default function TermsPage() {
     <div className="min-h-screen">
       <SiteHeader />
       <main className="mx-auto max-w-3xl px-4 py-12 prose-sm">
-        <h1 className="text-2xl font-bold text-slate-900">Terms &amp; Conditions</h1>
-        <p className="mt-2 text-sm text-slate-500">Last updated: {new Date().getFullYear()}</p>
+        <h1 className="text-2xl font-bold text-ink">Terms &amp; Conditions</h1>
+        <p className="mt-2 text-sm text-ink-faint">Last updated: {new Date().getFullYear()}</p>
 
         <Section title="1. The service">
           getownerinfo connects owners with buyers and tenants. Owners list assets under
@@ -45,8 +45,8 @@ export default function TermsPage() {
 function Section({ title, children }) {
   return (
     <section className="mt-6">
-      <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
-      <p className="mt-1 text-slate-600">{children}</p>
+      <h2 className="text-lg font-semibold text-ink">{title}</h2>
+      <p className="mt-1 text-ink-soft">{children}</p>
     </section>
   );
 }
