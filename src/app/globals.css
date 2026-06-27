@@ -293,11 +293,11 @@
   .adorama-hero .swiper-pagination-bullet {
     width: 9px;
     height: 9px;
-    background: #0a1f44;
+    background: #071c1f;
     opacity: 0.3;
   }
   .adorama-hero .swiper-pagination-bullet-active {
-    background: #f24f13;
+    background: #0b5f86;
     opacity: 1;
   }
 

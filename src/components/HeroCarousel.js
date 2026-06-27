@@ -31,11 +31,11 @@ export default function HeroCarousel({ slides = [] }) {
             <div className="relative h-full w-full bg-gradient-to-r from-[#fdf0e6] via-[#eaf3fb] to-[#e6f7f3]">
               <div className="mx-auto grid h-full max-w-6xl grid-cols-1 items-center gap-6 px-6 sm:px-10 md:grid-cols-2">
                 <div className="z-10">
-                  {s.eyebrow && <p className="text-sm font-extrabold uppercase tracking-wide text-[#e6492d]">{s.eyebrow}</p>}
-                  <h2 className="mt-2 font-display text-3xl font-extrabold leading-[1.05] text-[#0a1f44] sm:text-4xl lg:text-5xl">{s.title}</h2>
-                  {s.body && <p className="mt-3 max-w-md text-sm text-[#0a1f44]/75 sm:text-base">{s.body}</p>}
-                  {s.price != null && <p className="mt-2 font-display text-2xl font-bold text-[#0a4f9e]">{money(s.price)}</p>}
-                  <Link href={s.href} className="mt-5 inline-flex items-center rounded-md bg-[#f24f13] px-7 py-3 text-sm font-extrabold uppercase tracking-wide text-white shadow-md transition hover:bg-[#d8430d]">
+                  {s.eyebrow && <p className="text-sm font-extrabold uppercase tracking-wide text-[#0b6c87]">{s.eyebrow}</p>}
+                  <h2 className="mt-2 font-display text-3xl font-extrabold leading-[1.05] text-[#071c1f] sm:text-4xl lg:text-5xl">{s.title}</h2>
+                  {s.body && <p className="mt-3 max-w-md text-sm text-[#071c1f]/75 sm:text-base">{s.body}</p>}
+                  {s.price != null && <p className="mt-2 font-display text-2xl font-bold text-[#0b5f86]">{money(s.price)}</p>}
+                  <Link href={s.href} className="mt-5 inline-flex items-center rounded-md bg-[#0b5f86] px-7 py-3 text-sm font-extrabold uppercase tracking-wide text-white shadow-md transition hover:bg-[#094f6b]">
                     {s.ctaLabel || "Shop now"}
                   </Link>
                 </div>
@@ -52,10 +52,10 @@ export default function HeroCarousel({ slides = [] }) {
       </Swiper>
 
       {/* Arrows */}
-      <button className="hero-prev absolute left-2 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/70 text-[#0a1f44] shadow-md backdrop-blur transition hover:bg-white" aria-label="Previous">
+      <button className="hero-prev absolute left-2 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/70 text-[#071c1f] shadow-md backdrop-blur transition hover:bg-white" aria-label="Previous">
         <ChevronLeft className="h-6 w-6" />
       </button>
-      <button className="hero-next absolute right-2 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/70 text-[#0a1f44] shadow-md backdrop-blur transition hover:bg-white" aria-label="Next">
+      <button className="hero-next absolute right-2 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/70 text-[#071c1f] shadow-md backdrop-blur transition hover:bg-white" aria-label="Next">
         <ChevronRight className="h-6 w-6" />
       </button>
     </section>

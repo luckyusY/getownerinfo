@@ -127,7 +127,7 @@ export default async function HomePage() {
                 <Link
                   key={c.slug}
                   href={`/listings?category=${c.slug}`}
-                  className="group relative flex min-h-[140px] flex-col justify-end overflow-hidden rounded-xl bg-gradient-to-br from-[#1576c9] to-[#0c4f9c] text-white shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-lift"
+                  className="group relative flex min-h-[140px] flex-col justify-end overflow-hidden rounded-xl bg-gradient-to-br from-[#16a3cc] to-[#0b5f86] text-white shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-lift"
                 >
                   {img && (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -135,7 +135,7 @@ export default async function HomePage() {
                   )}
                   <div className="absolute inset-0 bg-brand/18 mix-blend-screen" />
                   <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-brand/28 to-transparent" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a1f44]/92 via-[#0a1f44]/45 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#071c1f]/92 via-[#071c1f]/45 to-transparent" />
                   <div className="relative flex items-center gap-2 p-3">
                     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/20 backdrop-blur">
                       <Icon className="h-4 w-4" />

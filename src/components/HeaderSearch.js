@@ -27,7 +27,7 @@ export default function HeaderSearch() {
 
   return (
     <form onSubmit={submit} className="hidden min-w-0 flex-1 md:block">
-      <div className="flex h-11 w-full items-center overflow-hidden rounded-full bg-white shadow-sm ring-2 ring-transparent transition focus-within:ring-[#ffcf57]">
+      <div className="flex h-11 w-full items-center overflow-hidden rounded-full bg-white shadow-sm ring-2 ring-transparent transition focus-within:ring-[#9fdcef]">
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
@@ -55,7 +55,7 @@ export default function HeaderSearch() {
           placeholder="Search property, vehicles, area…"
           className="min-w-0 flex-1 bg-transparent px-4 text-sm font-semibold text-ink outline-none placeholder:text-ink-faint"
         />
-        <button type="submit" aria-label="Search" className="mr-1.5 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#0c4f9c] text-white transition hover:bg-[#0a4f9e]">
+        <button type="submit" aria-label="Search" className="mr-1.5 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#0b5f86] text-white transition hover:bg-[#094f6b]">
           <Search className="h-4 w-4" />
         </button>
       </div>

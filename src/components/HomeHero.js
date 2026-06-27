@@ -31,7 +31,7 @@ export default function HomeHero({ heroImage, heroHref = "/listings" }) {
           <img src={bg} alt="" loading="eager" className="absolute inset-0 h-full w-full object-cover opacity-70 transition duration-700 group-hover:scale-105" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/20" />
           <div className="relative p-6 sm:p-9">
-            <span className="badge bg-[#e6492d] text-white">Verified owners</span>
+            <span className="badge bg-[#0b6c87] text-white">Verified owners</span>
             <p className="mt-3 text-sm font-bold uppercase tracking-wide text-white/80">getownerinfo Rwanda</p>
             <h1 className="mt-1 max-w-xl font-display text-4xl font-extrabold leading-[1.04] text-white sm:text-5xl lg:text-6xl">
               Find the real owner. Skip the brokers.
@@ -39,7 +39,7 @@ export default function HomeHero({ heroImage, heroHref = "/listings" }) {
             <p className="mt-3 max-w-md text-sm text-white/85 sm:text-base">
               Property, vehicles and assets across Rwanda — unlock direct contact and exact location in seconds.
             </p>
-            <span className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-[#0b5f86] transition group-hover:bg-[#ffcf57]">
+            <span className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-[#0b5f86] transition group-hover:bg-[#9fdcef]">
               Browse listings →
             </span>
           </div>
@@ -51,7 +51,7 @@ export default function HomeHero({ heroImage, heroHref = "/listings" }) {
             <Link
               key={p.eyebrow}
               href={p.href}
-              className={`group relative flex min-h-[160px] flex-col justify-start overflow-hidden rounded-xl p-5 lg:min-h-[214px] ${p.tone === "blue" ? "bg-[#0a4f6b]" : "bg-ink"}`}
+              className={`group relative flex min-h-[160px] flex-col justify-start overflow-hidden rounded-xl p-5 lg:min-h-[214px] ${p.tone === "blue" ? "bg-[#0b5f86]" : "bg-ink"}`}
             >
               {p.tone === "image" && (
                 <>
@@ -61,7 +61,7 @@ export default function HomeHero({ heroImage, heroHref = "/listings" }) {
                 </>
               )}
               <div className="relative">
-                <p className="text-xs font-extrabold uppercase tracking-wide text-[#ffcf57]">{p.eyebrow}</p>
+                <p className="text-xs font-extrabold uppercase tracking-wide text-[#9fdcef]">{p.eyebrow}</p>
                 <p className="mt-1.5 max-w-[16rem] font-display text-lg font-bold leading-snug text-white">{p.title}</p>
               </div>
             </Link>
