@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, BadgeCheck, CalendarDays, Eye, KeyRound, Lock, MapPin } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { connectDB } from "@/lib/db";
@@ -10,11 +10,20 @@ import TokenUnlock from "@/models/TokenUnlock";
 import { getSession } from "@/lib/auth";
 import { buildRevealedContact } from "@/lib/unlockService";
 import { LISTING_STATUS, ROLES } from "@/lib/constants";
-import { formatRwf } from "@/lib/format";
+import { formatRwf, formatDate } from "@/lib/format";
 import UnlockPanel from "./UnlockPanel";
 import Gallery from "./Gallery";
 import ChatBox from "@/components/ChatBox";
 import Badge from "@/components/ui/Badge";
+import FavoriteButton from "@/components/FavoriteButton";
+import ShareButton from "@/components/ShareButton";
+import PropertyCard from "@/components/PropertyCard";
+
+const UNLOCK_INCLUDES = [
+  "Owner's full name & phone",
+  "Keys manager / caretaker contact",
+  "Exact address (UPI, street, map pin)",
+];
 
 export const dynamic = "force-dynamic";
 
@@ -53,8 +62,42 @@ export default async function ListingDetail({ params }) {
     if (unlock) initialRevealed = buildRevealedContact(listing, unlock.watermark);
   }
 
+  // Similar active listings in the same category (excluding this one).
+  const similarDocs = await Listing.find({
+    status: LISTING_STATUS.ACTIVE,
+    category: listing.category,
+    _id: { $ne: listing._id },
+  }).sort({ createdAt: -1 }).limit(3).lean();
+  const similar = similarDocs.map((l) => ({
+    id: l._id.toString(),
+    title: l.title,
+    images: (l.images || []).map((m) => m.url),
+    price: l.price,
+    transactionType: l.transactionType,
+    model: l.model,
+    location: { area: l.location?.area || null },
+    categoryName: category?.name || "Listing",
+  }));
+
+  // JSON-LD structured data for SEO / rich results.
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: pub.title,
+    description: (pub.description || pub.title).slice(0, 300),
+    image: pub.images?.[0] ? [pub.images[0]] : undefined,
+    category: category?.name,
+    offers: {
+      "@type": "Offer",
+      price: pub.price,
+      priceCurrency: "RWF",
+      availability: "https://schema.org/InStock",
+    },
+  };
+
   return (
     <div className="min-h-screen">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <SiteHeader />
       <main className="mx-auto max-w-5xl px-4 py-8">
         <Link href="/listings" className="inline-flex items-center gap-2 text-sm font-semibold text-ink-soft hover:text-ink">
@@ -76,7 +119,31 @@ export default async function ListingDetail({ params }) {
             <h1 className="mt-2 font-display text-3xl font-semibold text-ink">{pub.title}</h1>
             <p className="mt-2 font-display text-3xl font-semibold text-brand">{formatRwf(pub.price)}</p>
 
-            {pub.description && <p className="mt-5 whitespace-pre-line leading-relaxed text-ink-soft">{pub.description}</p>}
+            {/* Trust signals */}
+            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-ink-soft">
+              <span className="inline-flex items-center gap-1.5 font-semibold text-emerald-700">
+                <BadgeCheck className="h-4 w-4" /> Verified listing
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <CalendarDays className="h-4 w-4 text-ink-faint" /> Posted {formatDate(listing.createdAt)}
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <Eye className="h-4 w-4 text-ink-faint" /> {listing.unlockCount ?? 0} unlock{(listing.unlockCount ?? 0) === 1 ? "" : "s"}
+              </span>
+              {pub.location?.area && (
+                <span className="inline-flex items-center gap-1.5">
+                  <MapPin className="h-4 w-4 text-brand" /> {pub.location.area}
+                </span>
+              )}
+            </div>
+
+            {/* Save / Share */}
+            <div className="mt-4 flex flex-wrap gap-2">
+              <FavoriteButton listingId={listing._id.toString()} variant="button" />
+              <ShareButton title={pub.title} />
+            </div>
+
+            {pub.description && <p className="mt-6 whitespace-pre-line leading-relaxed text-ink-soft">{pub.description}</p>}
 
             {pub.features?.length > 0 && (
               <ul className="mt-5 flex flex-wrap gap-2">
@@ -107,9 +174,34 @@ export default async function ListingDetail({ params }) {
                   tokenFees={category?.tokenFee || null}
                 />
               </div>
+
+              {!initialRevealed && (
+                <div className="mt-4 border-t border-line pt-4">
+                  <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-ink-faint">
+                    <Lock className="h-3.5 w-3.5" /> What you unlock
+                  </p>
+                  <ul className="mt-2 space-y-1.5 text-sm text-ink-soft">
+                    {UNLOCK_INCLUDES.map((it) => (
+                      <li key={it} className="flex items-start gap-2">
+                        <KeyRound className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand" /> {it}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </aside>
         </div>
+
+        {/* Similar listings */}
+        {similar.length > 0 && (
+          <section className="mt-16">
+            <h2 className="font-display text-2xl font-bold text-ink">Similar listings</h2>
+            <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {similar.map((l) => <PropertyCard key={l.id} listing={l} />)}
+            </div>
+          </section>
+        )}
       </main>
       <SiteFooter />
     </div>

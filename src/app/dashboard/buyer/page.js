@@ -7,6 +7,7 @@ import { ROLES } from "@/lib/constants";
 import { formatRwf, formatDate } from "@/lib/format";
 import { PageHeader, StatCard, SectionHeading, Table, Tr, Td } from "@/components/ui/Dashboard";
 import EmptyState from "@/components/ui/EmptyState";
+import SavedListings from "./SavedListings";
 
 export default async function BuyerDashboard() {
   const session = guardRole(ROLES.BUYER);
@@ -57,6 +58,11 @@ export default async function BuyerDashboard() {
             ))}
           </Table>
         )}
+      </div>
+
+      <div className="mt-10">
+        <SectionHeading title="Saved listings" />
+        <SavedListings />
       </div>
     </div>
   );

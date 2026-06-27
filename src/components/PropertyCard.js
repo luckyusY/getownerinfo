@@ -1,6 +1,7 @@
 import { formatRwf } from "@/lib/format";
 import Badge from "@/components/ui/Badge";
 import MotionCard from "@/components/MotionCard";
+import FavoriteButton from "@/components/FavoriteButton";
 import { ArrowUpRight, Camera, KeyRound, MapPin, ShieldCheck } from "lucide-react";
 
 /**
@@ -34,6 +35,9 @@ export default function PropertyCard({ listing, style }) {
         <div className="absolute left-2 top-2 flex flex-wrap gap-1.5">
           <Badge tone={l.transactionType === "rent" ? "info" : "gold"}>{transactionLabel}</Badge>
           {l.model === "A" && <Badge tone="brand">Exclusive owner</Badge>}
+        </div>
+        <div className="absolute right-2 top-2">
+          <FavoriteButton listingId={l.id} />
         </div>
         <div className="absolute bottom-2 left-2 right-2 flex items-end justify-between gap-2 text-white">
           <div className="min-w-0">

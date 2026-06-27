@@ -5,6 +5,7 @@ import "swiper/css/pagination";
 import { Poppins, Nunito_Sans } from "next/font/google";
 import CookieBanner from "@/components/CookieBanner";
 import { ToastProvider } from "@/components/ui/Toast";
+import { FavoritesProvider } from "@/components/FavoritesProvider";
 import AppMotion from "@/components/AppMotion";
 
 // Match getownerinfo.com: Poppins headings, Nunito Sans body.
@@ -46,9 +47,11 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${display.variable} ${body.variable}`}>
       <body>
         <ToastProvider>
-          <AppMotion />
-          {children}
-          <CookieBanner />
+          <FavoritesProvider>
+            <AppMotion />
+            {children}
+            <CookieBanner />
+          </FavoritesProvider>
         </ToastProvider>
       </body>
     </html>

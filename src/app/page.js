@@ -6,8 +6,10 @@ import HeroSlider from "@/components/HeroSlider";
 import { connectDB } from "@/lib/db";
 import Listing from "@/models/Listing";
 import Category from "@/models/Category";
-import { LISTING_STATUS } from "@/lib/constants";
-import { BriefcaseBusiness, Car, Handshake, Home, KeyRound, Refrigerator, SearchCheck, ShieldCheck, Sofa, Store } from "lucide-react";
+import User from "@/models/User";
+import TokenUnlock from "@/models/TokenUnlock";
+import { LISTING_STATUS, ROLES } from "@/lib/constants";
+import { BriefcaseBusiness, Car, FileCheck2, Fingerprint, Handshake, Home, KeyRound, Lock, Refrigerator, ScrollText, SearchCheck, ShieldCheck, Sofa, Store } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -26,14 +28,30 @@ const CATEGORIES = [
   { label: "Business", slug: "business-industry", icon: BriefcaseBusiness },
 ];
 
-async function getFeatured() {
+const SAFETY = [
+  { icon: Fingerprint, title: "Identity verified", body: "Owners submit ID and ownership proof. Our team verifies before a listing goes live." },
+  { icon: Lock, title: "Privacy protected", body: "Contact and exact location stay hidden until a buyer pays the token fee." },
+  { icon: ScrollText, title: "Immutable access logs", body: "Every unlock is recorded permanently and used to enforce fair commissions." },
+  { icon: FileCheck2, title: "Watermarked contacts", body: "Revealed details are stamped with the viewer's identity to deter sharing." },
+];
+
+function compact(n) {
+  if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "") + "k";
+  return String(n);
+}
+
+async function getHomeData() {
   await connectDB();
-  const [listings, categories] = await Promise.all([
+  const [listings, categories, activeCount, ownerCount, unlockCount, catCount] = await Promise.all([
     Listing.find({ status: LISTING_STATUS.ACTIVE }).sort({ createdAt: -1 }).limit(6).lean(),
     Category.find({}).lean(),
+    Listing.countDocuments({ status: LISTING_STATUS.ACTIVE }),
+    User.countDocuments({ role: ROLES.OWNER }),
+    TokenUnlock.countDocuments({}),
+    Category.countDocuments({}),
   ]);
   const catName = Object.fromEntries(categories.map((c) => [c._id.toString(), c.name]));
-  return listings.map((l) => ({
+  const featured = listings.map((l) => ({
     id: l._id.toString(),
     title: l.title,
     images: (l.images || []).map((m) => m.url),
@@ -43,10 +61,17 @@ async function getFeatured() {
     location: { area: l.location?.area || null },
     categoryName: catName[l.category?.toString()] || "Listing",
   }));
+  const stats = [
+    { label: "Active listings", value: compact(activeCount) },
+    { label: "Verified owners", value: compact(ownerCount) },
+    { label: "Contacts unlocked", value: compact(unlockCount) },
+    { label: "Categories", value: String(catCount) },
+  ];
+  return { featured, stats };
 }
 
 export default async function HomePage() {
-  const featured = await getFeatured();
+  const { featured, stats } = await getHomeData();
 
   return (
     <div className="min-h-screen">
@@ -72,6 +97,18 @@ export default async function HomePage() {
               </Link>
               );
             })}
+          </div>
+        </section>
+
+        {/* Live trust stats */}
+        <section className="mx-auto max-w-6xl px-4 py-6" data-reveal>
+          <div className="grid grid-cols-2 gap-3 rounded-xl border border-line bg-surface p-5 shadow-soft sm:grid-cols-4 sm:p-6">
+            {stats.map((s) => (
+              <div key={s.label} className="text-center">
+                <p className="font-display text-3xl font-bold text-brand sm:text-4xl">{s.value}</p>
+                <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-ink-faint sm:text-sm">{s.label}</p>
+              </div>
+            ))}
           </div>
         </section>
 
@@ -125,6 +162,48 @@ export default async function HomePage() {
                 </span>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* Safety / verification */}
+        <section className="mx-auto max-w-6xl px-4 py-16" data-reveal>
+          <div className="max-w-2xl">
+            <p className="eyebrow">Trust &amp; safety</p>
+            <h2 className="mt-2 font-display text-3xl font-bold text-ink">How we keep every deal safe</h2>
+            <p className="mt-2 text-ink-soft">
+              The token fee protects everyone — it keeps inquiries serious, owner details
+              private, and every interaction on the record.
+            </p>
+          </div>
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {SAFETY.map((s) => {
+              const Icon = s.icon;
+              return (
+                <div key={s.title} className="card premium-hover">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <h3 className="mt-3 text-base font-semibold text-ink">{s.title}</h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{s.body}</p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Final CTA */}
+        <section className="mx-auto max-w-6xl px-4 pb-20" data-reveal>
+          <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-brand to-brand-dark p-8 text-center shadow-lift sm:p-12">
+            <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
+            <h2 className="font-display text-3xl font-bold text-white sm:text-4xl">Ready to find the real owner?</h2>
+            <p className="mx-auto mt-3 max-w-xl text-white/85">
+              List your property for free, or browse verified listings and unlock direct
+              owner contact in seconds.
+            </p>
+            <div className="mt-7 flex flex-wrap justify-center gap-3">
+              <Link href="/register" className="btn bg-white px-6 py-3 text-base text-brand hover:bg-white/90">Get started free</Link>
+              <Link href="/listings" className="btn border border-white/40 px-6 py-3 text-base text-white hover:bg-white/10">Browse listings</Link>
+            </div>
           </div>
         </section>
       </main>
