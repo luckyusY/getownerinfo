@@ -190,18 +190,18 @@ export default async function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#03121e] via-[#03121e]/72 to-[#03121e]/15" />
 
                 <div className="absolute left-3 top-3 flex w-[calc(100%-1.5rem)] items-start justify-between">
-                  <span className="rounded-md bg-[#0a55a4] px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide text-white shadow-sm">
+                  <span className="rounded-md bg-brand px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide text-white shadow-sm">
                     Top {String(i + 1).padStart(2, "0")}
                   </span>
-                  <span className="rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-[#0a55a4]">
+                  <span className="rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-brand">
                     getownerinfo
                   </span>
                 </div>
 
                 <div className="relative p-4 sm:p-5">
-                  <p className="text-xs font-bold uppercase tracking-wide text-[#ffcf57]">{location.eyebrow}</p>
+                  <p className="text-xs font-bold uppercase tracking-wide text-brand-light">{location.eyebrow}</p>
                   <h3 className="mt-0.5 font-display text-2xl font-extrabold uppercase tracking-tight text-white sm:text-3xl">{location.name}</h3>
-                  <span className="mt-2 block h-1 w-12 rounded-full bg-[#ffcf57]" />
+                  <span className="mt-2 block h-1 w-12 rounded-full bg-brand" />
                   <p className="mt-2.5 max-w-xs text-sm font-medium text-white/90">{location.tagline}</p>
                   <p className="mt-2 border-t border-white/20 pt-2 text-[11px] font-bold uppercase tracking-wide text-white/85">
                     {location.district}, Rwanda · Verified listings · Rent &amp; sale
