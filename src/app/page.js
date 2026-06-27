@@ -9,7 +9,9 @@ import Category from "@/models/Category";
 import User from "@/models/User";
 import TokenUnlock from "@/models/TokenUnlock";
 import { LISTING_STATUS, ROLES } from "@/lib/constants";
-import { BriefcaseBusiness, Car, FileCheck2, Fingerprint, Handshake, Home, KeyRound, Lock, Refrigerator, ScrollText, SearchCheck, ShieldCheck, Sofa, Store } from "lucide-react";
+import { BriefcaseBusiness, Car, FileCheck2, Fingerprint, Handshake, Home, KeyRound, Lock, MapPin, Refrigerator, ScrollText, SearchCheck, ShieldCheck, Sofa, Store } from "lucide-react";
+import { SAMPLE_LISTINGS } from "@/data/sampleListings";
+import { POPULAR_LOCATIONS } from "@/data/locations";
 
 export const dynamic = "force-dynamic";
 
@@ -67,11 +69,11 @@ async function getHomeData() {
     { label: "Contacts unlocked", value: compact(unlockCount) },
     { label: "Categories", value: String(catCount) },
   ];
-  return { featured, stats };
+  return { featured: featured.length ? featured : SAMPLE_LISTINGS, stats, usingSamples: featured.length === 0 };
 }
 
 export default async function HomePage() {
-  const { featured, stats } = await getHomeData();
+  const { featured, stats, usingSamples } = await getHomeData();
 
   return (
     <div className="min-h-screen">
@@ -112,12 +114,48 @@ export default async function HomePage() {
           </div>
         </section>
 
+        <section id="locations" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-10" data-reveal>
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="eyebrow">Popular locations</p>
+              <h2 className="mt-2 font-display text-3xl font-bold text-ink">Explore by Kigali area</h2>
+              <p className="mt-1 max-w-2xl text-sm text-ink-soft">
+                Inspired by the local browsing flow: start with a neighborhood, then unlock exact address only when ready.
+              </p>
+            </div>
+            <Link href="/listings" className="btn-outline">View all areas</Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {POPULAR_LOCATIONS.map((location) => (
+              <Link
+                key={location.name}
+                href={location.href}
+                className="premium-hover group relative block aspect-[16/10] overflow-hidden rounded-xl border border-line bg-ink shadow-soft"
+              >
+                <img src={location.image} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-ink/82 via-ink/22 to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-3">
+                  <div>
+                    <p className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-white/72">
+                      <MapPin className="h-3.5 w-3.5" /> {location.district}
+                    </p>
+                    <h3 className="mt-1 font-display text-2xl font-bold text-white">{location.name}</h3>
+                  </div>
+                  <span className="rounded-full bg-white/14 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">View listings</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         {featured.length > 0 && (
           <section className="mx-auto max-w-6xl px-4 py-8" data-reveal>
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <h2 className="font-display text-3xl font-bold text-ink">Featured listings</h2>
-                <p className="mt-1 text-ink-soft">Fresh, verified properties and assets.</p>
+                <h2 className="font-display text-3xl font-bold text-ink">{usingSamples ? "Example listings" : "Featured listings"}</h2>
+                <p className="mt-1 text-ink-soft">
+                  {usingSamples ? "Sample property and vehicle references from local listing folders." : "Fresh, verified properties and assets."}
+                </p>
               </div>
               <Link href="/listings" className="btn-outline">View all</Link>
             </div>

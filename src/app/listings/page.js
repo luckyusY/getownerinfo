@@ -22,7 +22,7 @@ export default function ListingsPage({ searchParams }) {
           </p>
         </section>
         <div className="mt-6">
-          <ListingsExplorer initialCategory={searchParams?.category || ""} />
+          <ListingsExplorer initialCategory={searchParams?.category || ""} initialLocation={searchParams?.location || ""} />
         </div>
       </main>
       <SiteFooter />

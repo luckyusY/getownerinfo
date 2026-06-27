@@ -174,8 +174,13 @@ export async function GET(req) {
   }
   const model = searchParams.get("model");
   if (model === "A" || model === "B") query.model = model;
+  const location = searchParams.get("location");
+  if (location) query["location.area"] = { $regex: location, $options: "i" };
   const q = searchParams.get("q");
-  if (q) query.title = { $regex: q, $options: "i" };
+  if (q) {
+    const rx = { $regex: q, $options: "i" };
+    query.$or = [{ title: rx }, { itemType: rx }, { "location.area": rx }, { description: rx }];
+  }
 
   const listings = await Listing.find(query).sort({ createdAt: -1 }).limit(60);
   return ok({ listings: listings.map((l) => l.toPublicJSON()) });

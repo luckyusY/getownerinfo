@@ -5,6 +5,7 @@ import { useToast } from "@/components/ui/Toast";
 import { useRouter } from "next/navigation";
 import { Banknote, CalendarDays, MapPin, MessageSquareText, Phone, Tags, User } from "lucide-react";
 import { FormField, FormSection, SegmentedControl, SelectInput, SubmitButton, TextareaInput, TextInput } from "@/components/ui/Form";
+import { RWANDA_LOCATIONS } from "@/data/locations";
 
 export default function NewSeekerPage() {
   const router = useRouter();
@@ -81,7 +82,10 @@ export default function NewSeekerPage() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField label="Preferred location">
-              <TextInput icon={MapPin} value={form.preferredLocation} onChange={(e) => setForm({ ...form, preferredLocation: e.target.value })} />
+              <SelectInput icon={MapPin} value={form.preferredLocation} onChange={(e) => setForm({ ...form, preferredLocation: e.target.value })}>
+                <option value="">Any location</option>
+                {RWANDA_LOCATIONS.map((loc) => <option key={loc} value={loc}>{loc}</option>)}
+              </SelectInput>
             </FormField>
             <FormField label="Quantity / type">
               <TextInput icon={Tags} value={form.quantityType} onChange={(e) => setForm({ ...form, quantityType: e.target.value })} />

@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, LogIn, UserPlus } from "lucide-react";
+import { Building2, CarFront, LayoutDashboard, LogIn, MapPin, UserPlus } from "lucide-react";
 import { MAIN_NAV } from "@/components/HeaderNav";
+import { POPULAR_LOCATIONS } from "@/data/locations";
 
 const SECONDARY_NAV = [
   ["About", "/about"],
@@ -56,6 +57,32 @@ export default function MobileMenu({ loggedIn, dashboardPath }) {
                   </Link>
                 );
               })}
+            </div>
+
+            <div className="mt-3 border-t border-line pt-3">
+              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-ink-faint">Browse fast</p>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  ["Property", "/listings?category=real-estate", Building2],
+                  ["Vehicles", "/listings?category=vehicles", CarFront],
+                  ["Areas", "/#locations", MapPin],
+                ].map(([label, href, Icon]) => (
+                  <Link key={label} href={href} onClick={() => setOpen(false)} className="grid min-h-16 place-items-center rounded-lg bg-panel px-2 py-2 text-center text-xs font-bold text-ink-soft">
+                    <Icon className="h-4 w-4 text-brand" /> {label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-3 border-t border-line pt-3">
+              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-ink-faint">Popular areas</p>
+              <div className="grid grid-cols-2 gap-2">
+                {POPULAR_LOCATIONS.slice(0, 6).map((loc) => (
+                  <Link key={loc.name} href={loc.href} onClick={() => setOpen(false)} className="flex items-center gap-2 rounded-lg bg-panel px-3 py-2 text-sm font-bold text-ink-soft">
+                    <MapPin className="h-4 w-4 text-brand" /> {loc.name}
+                  </Link>
+                ))}
+              </div>
             </div>
 
             <div className="mt-2 flex flex-wrap gap-2 border-t border-line pt-3">

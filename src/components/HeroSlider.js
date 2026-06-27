@@ -5,35 +5,42 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Autoplay, EffectFade, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { BadgeCheck, Camera, ChevronLeft, ChevronRight, KeyRound, MapPin, ShieldCheck } from "lucide-react";
 import HeroSearch from "@/components/HeroSearch";
 
 const SLIDES = [
   {
-    eyebrow: "Verified owner access",
-    title: "Find the real owner. Skip the brokers.",
-    body: "Browse verified property, vehicles, and assets across Rwanda. Unlock trusted owner details only when you are ready to move.",
-    image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=80",
-    badge: "Real Estate",
-    metric: "Owner verified",
+    eyebrow: "Real local property examples",
+    title: "Browse listings that look and feel real.",
+    body: "Use verified property photos, clear prices, and protected owner contacts to move from browsing to a serious conversation.",
+    image: "/sample-properties/kagarama-balcony.jfif",
+    gallery: ["/sample-properties/kagarama-room.jfif", "/sample-properties/kagarama-house.jfif"],
+    badge: "Kicukiro, Kagarama",
+    metric: "350M Rwf",
+    caption: "5 bedrooms, 5 bathrooms, parking for 4 cars",
     href: "/listings?category=real-estate",
   },
   {
-    eyebrow: "Direct vehicle deals",
-    title: "Contact verified sellers without the runaround.",
-    body: "Find cars, motorcycles, and business assets with clear listing details and protected owner information.",
-    image: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1400&q=80",
-    badge: "Vehicles",
-    metric: "Token unlock",
-    href: "/listings?category=vehicles",
+    eyebrow: "Land and plots",
+    title: "See the context before unlocking the owner.",
+    body: "From Kinigi plots to city homes, buyers can inspect public listing details first and unlock exact contact only when ready.",
+    image: "/sample-properties/kinigi-mountain.jfif",
+    gallery: ["/sample-properties/kinigi-plot.jfif", "/sample-properties/kagarama-balcony.jfif"],
+    badge: "Kinigi, Musanze",
+    metric: "100M Rwf",
+    caption: "1,800 sqm plot near hotel activity",
+    href: "/listings?category=real-estate",
   },
   {
-    eyebrow: "Privacy built in",
-    title: "Reveal exact contacts only after a secure unlock.",
-    body: "getownerinfo keeps owner details private until a serious buyer pays the token fee and creates an access log.",
-    image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1400&q=80",
-    badge: "Protected",
-    metric: "Access logged",
-    href: "/register",
+    eyebrow: "Vehicles and assets",
+    title: "One marketplace for property and high-value assets.",
+    body: "Cars, pickups, business assets, homes, and plots can share the same verification and token-unlock workflow.",
+    image: "/sample-properties/changan-pickup.jfif",
+    gallery: ["/sample-properties/kia-niro-exterior.jfif", "/sample-properties/kia-niro-interior.jfif"],
+    badge: "Verified vehicle",
+    metric: "57M Rwf",
+    caption: "2024 Changan Hunter range extender EV",
+    href: "/listings?category=vehicles",
   },
 ];
 
@@ -65,7 +72,7 @@ export default function HeroSlider() {
           loop
           speed={850}
           allowTouchMove={false}
-          autoplay={{ delay: 6200, disableOnInteraction: false }}
+          autoplay={{ delay: 6500, disableOnInteraction: false }}
           pagination={{ el: ".hero-swiper-pagination", clickable: true }}
           onSwiper={setSwiper}
           onSlideChange={(instance) => setActive(instance.realIndex)}
@@ -77,18 +84,18 @@ export default function HeroSlider() {
                 src={item.image}
                 alt=""
                 className="h-full w-full object-cover"
-                initial={{ scale: 1.06 }}
-                animate={{ scale: active >= 0 ? 1 : 1.06 }}
-                transition={{ duration: 6.2, ease: "linear" }}
+                initial={{ scale: 1.04 }}
+                animate={{ scale: active >= 0 ? 1 : 1.04 }}
+                transition={{ duration: 6.5, ease: "linear" }}
               />
             </SwiperSlide>
           ))}
         </Swiper>
-        <div className="absolute inset-0 z-10 bg-gradient-to-r from-ink via-ink/78 to-ink/28" />
-        <div className="absolute inset-x-0 bottom-0 z-10 h-32 bg-gradient-to-t from-paper to-transparent" />
+        <div className="absolute inset-0 z-10 bg-[linear-gradient(90deg,rgba(7,28,31,0.94),rgba(7,28,31,0.78)_43%,rgba(7,28,31,0.28))]" />
+        <div className="absolute inset-x-0 bottom-0 z-10 h-36 bg-gradient-to-t from-paper to-transparent" />
       </div>
 
-      <div className="relative z-20 mx-auto grid min-h-[680px] max-w-6xl items-end gap-10 px-4 pb-12 pt-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:pb-16 lg:pt-20">
+      <div className="relative z-20 mx-auto grid min-h-[700px] max-w-6xl items-end gap-10 px-4 pb-12 pt-16 lg:grid-cols-[1fr_0.92fr] lg:items-center lg:pb-16 lg:pt-20">
         <AnimatePresence mode="wait">
           <motion.div
             key={slide.title}
@@ -99,21 +106,21 @@ export default function HeroSlider() {
             className="max-w-3xl"
           >
             <motion.span variants={itemVariants} className="badge bg-white/10 text-white ring-1 ring-white/20">
-              {slide.eyebrow}
+              <BadgeCheck className="h-3.5 w-3.5" /> {slide.eyebrow}
             </motion.span>
-            <motion.h1 variants={itemVariants} className="mt-5 max-w-3xl text-balance font-display text-4xl font-bold leading-[1.05] text-white sm:text-6xl">
+            <motion.h1 variants={itemVariants} className="mt-5 max-w-3xl text-balance font-display text-4xl font-bold leading-[1.04] text-white sm:text-6xl">
               {slide.title}
             </motion.h1>
-            <motion.p variants={itemVariants} className="mt-5 max-w-2xl text-base leading-relaxed text-white/82 sm:text-lg">
+            <motion.p variants={itemVariants} className="mt-5 max-w-2xl text-base leading-relaxed text-white/84 sm:text-lg">
               {slide.body}
             </motion.p>
             <motion.div variants={itemVariants}>
               <HeroSearch />
             </motion.div>
             <motion.div variants={itemVariants} className="mt-6 flex flex-wrap gap-3">
-              <Link href="/register" className="btn-primary magnetic-link px-6 py-3 text-base">List your property</Link>
-              <Link href="/listings" className="btn-outline magnetic-link border-white/30 bg-white/10 px-6 py-3 text-base text-white hover:border-white hover:text-white">
-                Browse listings
+              <Link href="/listings" className="btn-primary magnetic-link px-6 py-3 text-base">Browse listings</Link>
+              <Link href="/register" className="btn-outline magnetic-link border-white/30 bg-white/10 px-6 py-3 text-base text-white hover:border-white hover:text-white">
+                List your property
               </Link>
             </motion.div>
           </motion.div>
@@ -121,39 +128,61 @@ export default function HeroSlider() {
 
         <motion.div
           className="hidden lg:block"
-          initial={{ opacity: 0, x: 32, rotate: 1 }}
-          animate={{ opacity: 1, x: 0, rotate: 0 }}
+          initial={{ opacity: 0, x: 34 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="premium-hover ml-auto max-w-md rounded-xl border border-white/20 bg-white/10 p-4 shadow-lift backdrop-blur-md">
-            <div className="overflow-hidden rounded-lg bg-white">
-              <div className="relative aspect-[4/3]">
-                <AnimatePresence mode="wait">
-                  <motion.img
-                    key={slide.image}
-                    src={slide.image}
-                    alt=""
-                    className="h-full w-full object-cover"
-                    initial={{ opacity: 0, scale: 1.04 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 1.02 }}
-                    transition={{ duration: 0.45 }}
-                  />
-                </AnimatePresence>
-                <div className="absolute left-3 top-3 flex gap-2">
-                  <span className="badge bg-brand text-white">{slide.badge}</span>
-                  <span className="badge bg-gold text-ink">{slide.metric}</span>
+          <div className="ml-auto max-w-[440px] space-y-3">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={slide.image}
+                className="overflow-hidden rounded-xl border border-white/20 bg-white shadow-lift"
+                initial={{ opacity: 0, y: 22, rotate: 1.5 }}
+                animate={{ opacity: 1, y: 0, rotate: 0 }}
+                exit={{ opacity: 0, y: -12, rotate: -1 }}
+                transition={{ duration: 0.45 }}
+              >
+                <div className="relative aspect-[4/3]">
+                  <img src={slide.image} alt="" className="h-full w-full object-cover" />
+                  <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-ink/75 to-transparent" />
+                  <div className="absolute left-3 top-3 flex gap-2">
+                    <span className="badge bg-brand text-white"><ShieldCheck className="h-3.5 w-3.5" /> Verified</span>
+                    <span className="badge bg-white/92 text-ink"><Camera className="h-3.5 w-3.5" /> Real photos</span>
+                  </div>
+                  <div className="absolute bottom-3 left-3 right-3">
+                    <p className="text-xs font-bold uppercase tracking-wide text-white/78">{slide.badge}</p>
+                    <p className="font-display text-2xl font-bold text-white">{slide.metric}</p>
+                  </div>
                 </div>
-              </div>
-              <div className="p-5">
-                <p className="text-xs font-semibold uppercase tracking-wide text-ink-faint">Featured flow</p>
-                <h3 className="mt-1 font-display text-xl font-bold text-ink">Unlock direct owner information</h3>
-                <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-                  Review the listing, pay the token fee, then use verified contact details to negotiate directly.
-                </p>
-                <Link href={slide.href} className="mt-4 inline-flex text-sm font-bold text-brand hover:text-brand-dark">
-                  Explore this category
-                </Link>
+                <div className="p-5">
+                  <p className="inline-flex items-center gap-1.5 text-sm font-bold text-ink">
+                    <MapPin className="h-4 w-4 text-brand" /> {slide.caption}
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-ink-soft line-clamp-2">
+                    Public photos and summary stay visible. Exact owner contact is protected until token unlock.
+                  </p>
+                  <Link href={slide.href} className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-brand hover:text-brand-dark">
+                    Explore category <ChevronRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+
+            <div className="grid grid-cols-[1fr_1fr_auto] gap-3">
+              {slide.gallery.map((image, index) => (
+                <motion.div
+                  key={`${slide.title}-${image}`}
+                  className="overflow-hidden rounded-xl border border-white/20 bg-white/12 p-2 shadow-lift backdrop-blur"
+                  initial={{ opacity: 0, y: 18 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.12 + index * 0.06, duration: 0.42 }}
+                >
+                  <img src={image} alt="" className="aspect-[4/3] w-full rounded-lg object-cover" />
+                </motion.div>
+              ))}
+              <div className="rounded-xl border border-white/18 bg-ink/72 p-3 text-sm shadow-lift backdrop-blur">
+                <p className="inline-flex items-center gap-2 font-bold text-white"><KeyRound className="h-4 w-4 text-clay" /> Unlock</p>
+                <p className="mt-1 max-w-28 text-xs leading-relaxed text-white/72">Private contact after token.</p>
               </div>
             </div>
           </div>
@@ -162,8 +191,12 @@ export default function HeroSlider() {
         <div className="absolute bottom-4 left-4 right-4 mx-auto flex max-w-6xl items-center justify-between gap-4">
           <div className="hero-swiper-pagination flex flex-1 items-center gap-2" />
           <div className="flex shrink-0 items-center gap-2">
-            <button type="button" aria-label="Previous hero slide" onClick={() => swiper?.slidePrev()} className="hero-control">{"<"}</button>
-            <button type="button" aria-label="Next hero slide" onClick={() => swiper?.slideNext()} className="hero-control">{">"}</button>
+            <button type="button" aria-label="Previous hero slide" onClick={() => swiper?.slidePrev()} className="hero-control">
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <button type="button" aria-label="Next hero slide" onClick={() => swiper?.slideNext()} className="hero-control">
+              <ChevronRight className="h-5 w-5" />
+            </button>
           </div>
         </div>
       </div>

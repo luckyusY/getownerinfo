@@ -28,6 +28,7 @@ import {
   TextareaInput,
   TextInput,
 } from "@/components/ui/Form";
+import { RWANDA_LOCATIONS } from "@/data/locations";
 
 const STEPS = [
   { label: "Category", icon: Tags },
@@ -302,8 +303,11 @@ export default function NewListingPage() {
             {step === 2 && (
               <div className="space-y-4">
                 <FormField label="Public area" hint="Shown to everyone. Keep exact address private.">
-                  <TextInput icon={MapPin} placeholder="e.g. Kicukiro, Kigali" value={form.location.area}
-                    onChange={(e) => set({ location: { ...form.location, area: e.target.value } })} />
+                  <SelectInput icon={MapPin} value={form.location.area}
+                    onChange={(e) => set({ location: { ...form.location, area: e.target.value } })}>
+                    <option value="">Choose public area</option>
+                    {RWANDA_LOCATIONS.map((loc) => <option key={loc} value={loc}>{loc}</option>)}
+                  </SelectInput>
                 </FormField>
                 <div className="grid gap-4 sm:grid-cols-3">
                   <FormField label="UPI">

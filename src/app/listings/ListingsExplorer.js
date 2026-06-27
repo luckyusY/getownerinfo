@@ -5,14 +5,16 @@ import PropertyCard from "@/components/PropertyCard";
 import { ListingCardSkeleton } from "@/components/ui/Skeleton";
 import EmptyState from "@/components/ui/EmptyState";
 import { BadgeCheck, Filter, RotateCcw, Search, SlidersHorizontal, Sparkles } from "lucide-react";
+import { RWANDA_LOCATIONS } from "@/data/locations";
 
-export default function ListingsExplorer({ initialCategory = "" }) {
+export default function ListingsExplorer({ initialCategory = "", initialLocation = "" }) {
   const [cats, setCats] = useState([]);
   const [catMap, setCatMap] = useState({});
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [category, setCategory] = useState(initialCategory);
+  const [location, setLocation] = useState(initialLocation);
   const [txn, setTxn] = useState("all");
   const [model, setModel] = useState("all");
   const [q, setQ] = useState("");
@@ -32,6 +34,7 @@ export default function ListingsExplorer({ initialCategory = "" }) {
     setLoading(true);
     const qs = new URLSearchParams();
     if (category) qs.set("category", category);
+    if (location) qs.set("location", location);
     if (model !== "all") qs.set("model", model);
     if (q.trim()) qs.set("q", q.trim());
     const ctrl = new AbortController();
@@ -42,7 +45,7 @@ export default function ListingsExplorer({ initialCategory = "" }) {
         .catch(() => {});
     }, q ? 250 : 0);
     return () => { clearTimeout(t); ctrl.abort(); };
-  }, [category, model, q]);
+  }, [category, location, model, q]);
 
   const visible = useMemo(() => {
     const min = Number(priceMin) || 0;
@@ -56,11 +59,12 @@ export default function ListingsExplorer({ initialCategory = "" }) {
     return sorted; // "new" keeps API order (newest first)
   }, [listings, txn, priceMin, priceMax, sort]);
 
-  const activeCount = [category, txn !== "all" ? txn : "", model !== "all" ? model : "", q.trim(), priceMin, priceMax].filter(Boolean).length;
+  const activeCount = [category, location, txn !== "all" ? txn : "", model !== "all" ? model : "", q.trim(), priceMin, priceMax].filter(Boolean).length;
   const activeCategory = cats.find((c) => c.slug === category)?.name;
 
   function resetFilters() {
     setCategory("");
+    setLocation("");
     setTxn("all");
     setModel("all");
     setQ("");
@@ -109,6 +113,14 @@ export default function ListingsExplorer({ initialCategory = "" }) {
               </button>
             ))}
           </div>
+          <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
+            <button className="chip" data-active={location === ""} onClick={() => setLocation("")}>All areas</button>
+            {RWANDA_LOCATIONS.map((loc) => (
+              <button key={loc} className="chip shrink-0" data-active={location === loc} onClick={() => setLocation(loc)}>
+                {loc}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -132,7 +144,7 @@ export default function ListingsExplorer({ initialCategory = "" }) {
                 {visible.length} verified listing{visible.length === 1 ? "" : "s"}
               </p>
               <p className="mt-1 text-xs font-semibold text-ink-faint">
-                {activeCount ? `Filtered by ${[activeCategory, txn !== "all" ? txn : "", model !== "all" ? `Model ${model}` : "", q.trim() && `"${q.trim()}"`].filter(Boolean).join(", ")}` : "Showing the newest active listings first"}
+                {activeCount ? `Filtered by ${[activeCategory, location, txn !== "all" ? txn : "", model !== "all" ? `Model ${model}` : "", q.trim() && `"${q.trim()}"`].filter(Boolean).join(", ")}` : "Showing the newest active listings first"}
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -143,7 +155,7 @@ export default function ListingsExplorer({ initialCategory = "" }) {
                   className="w-24 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-sm font-semibold text-ink outline-none focus:border-brand"
                   aria-label="Minimum price"
                 />
-                <span className="text-ink-faint">–</span>
+                <span className="text-ink-faint">-</span>
                 <input
                   type="number" inputMode="numeric" placeholder="Max Rwf" value={priceMax}
                   onChange={(e) => setPriceMax(e.target.value)}

@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth";
 import { ROLES } from "@/lib/constants";
 import MobileMenu from "@/components/MobileMenu";
 import HeaderNav from "@/components/HeaderNav";
+import HeaderSearch from "@/components/HeaderSearch";
 
 const DASHBOARD_PATHS = {
   [ROLES.ADMIN]: "/dashboard/admin",
@@ -34,6 +35,8 @@ export default function SiteHeader() {
             getowner<span className="text-brand">info</span>
           </span>
         </Link>
+
+        <HeaderSearch />
 
         <HeaderNav />
 

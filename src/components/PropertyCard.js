@@ -17,7 +17,7 @@ export default function PropertyCard({ listing, style }) {
 
   return (
     <MotionCard
-      href={`/listings/${l.id}`}
+      href={l.href || `/listings/${l.id}`}
       className="property-card card premium-hover group flex h-full flex-col !p-3 transition duration-300 hover:border-brand/30 hover:shadow-lift"
       style={style}
     >
