@@ -7,6 +7,7 @@ import { ROLES } from "@/lib/constants";
 import { formatRwf } from "@/lib/format";
 import { PageHeader, StatCard } from "@/components/ui/Dashboard";
 import OwnerManage from "./OwnerManage";
+import { ListPlus, MessageSquareText } from "lucide-react";
 
 export default async function OwnerDashboard() {
   const session = guardRole(ROLES.OWNER);
@@ -27,8 +28,8 @@ export default async function OwnerDashboard() {
         subtitle="Create listings, track unlocks, report deals and settle commissions."
         actions={
           <>
-            <Link href="/dashboard/owner/messages" className="btn-outline">Messages</Link>
-            <Link href="/dashboard/owner/listings/new" className="btn-primary">+ New listing</Link>
+            <Link href="/dashboard/owner/messages" className="btn-outline"><MessageSquareText className="h-4 w-4" /> Messages</Link>
+            <Link href="/dashboard/owner/listings/new" className="btn-primary"><ListPlus className="h-4 w-4" /> New listing</Link>
           </>
         }
       />

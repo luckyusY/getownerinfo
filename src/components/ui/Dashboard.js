@@ -15,10 +15,13 @@ export function PageHeader({ title, subtitle, actions }) {
   );
 }
 
-export function SectionHeading({ title, action }) {
+export function SectionHeading({ title, description, action }) {
   return (
-    <div className="mb-3 flex items-center justify-between gap-3">
-      <h2 className="font-display text-xl font-bold text-ink">{title}</h2>
+    <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <h2 className="font-display text-xl font-bold text-ink">{title}</h2>
+        {description && <p className="mt-1 text-sm text-ink-soft">{description}</p>}
+      </div>
       {action}
     </div>
   );
@@ -40,21 +43,23 @@ export function StatCard({ label, value, hint, tone = "default" }) {
 /** Table wrapper + header/cell helpers for consistent dashboard tables. */
 export function Table({ head, children }) {
   return (
-    <div className="dashboard-reveal overflow-x-auto rounded-xl border border-line bg-surface shadow-soft">
+    <div className="dashboard-reveal overflow-hidden rounded-xl border border-line bg-surface shadow-soft">
+      <div className="overflow-x-auto">
       <table className="w-full min-w-[680px] text-sm">
-        <thead className="bg-panel text-left text-xs uppercase tracking-wide text-ink-faint">
-          <tr>{head.map((h) => <th key={h} className="px-4 py-3 font-semibold">{h}</th>)}</tr>
+        <thead className="border-b border-line bg-panel/80 text-left text-[11px] uppercase tracking-wide text-ink-faint">
+          <tr>{head.map((h) => <th key={h} className="px-4 py-3.5 font-bold">{h}</th>)}</tr>
         </thead>
-        <tbody>{children}</tbody>
+        <tbody className="divide-y divide-line/70">{children}</tbody>
       </table>
+      </div>
     </div>
   );
 }
 
 export function Tr({ children }) {
-  return <tr className="border-t border-line/70 transition hover:bg-panel/45">{children}</tr>;
+  return <tr className="transition hover:bg-brand-50/35">{children}</tr>;
 }
 
 export function Td({ children, className = "" }) {
-  return <td className={`px-4 py-3 ${className}`}>{children}</td>;
+  return <td className={`px-4 py-3.5 align-middle ${className}`}>{children}</td>;
 }

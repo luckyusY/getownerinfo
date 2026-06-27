@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { ROLES } from "@/lib/constants";
 import MobileMenu from "@/components/MobileMenu";
+import HeaderNav from "@/components/HeaderNav";
 
 const DASHBOARD_PATHS = {
   [ROLES.ADMIN]: "/dashboard/admin",
@@ -9,14 +10,6 @@ const DASHBOARD_PATHS = {
   [ROLES.OWNER]: "/dashboard/owner",
   [ROLES.BUYER]: "/dashboard/buyer",
 };
-
-const NAV = [
-  ["Home", "/"],
-  ["Browse", "/listings"],
-  ["Requests", "/seekers"],
-  ["How it works", "/#how"],
-  ["Contact", "/contact"],
-];
 
 export default function SiteHeader() {
   const session = getSession();
@@ -42,13 +35,7 @@ export default function SiteHeader() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">
-          {NAV.map(([label, href]) => (
-            <Link key={label} href={href} className="nav-link rounded-lg px-3.5 py-2 text-sm font-bold text-ink-soft transition hover:bg-panel hover:text-ink">
-              {label}
-            </Link>
-          ))}
-        </nav>
+        <HeaderNav />
 
         <div className="flex items-center gap-2">
           <div className="hidden items-center gap-2 sm:flex">

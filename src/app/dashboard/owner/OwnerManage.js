@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/Toast";
 import { StatusBadge } from "@/components/ui/Badge";
 import { SectionHeading, Table, Tr, Td } from "@/components/ui/Dashboard";
 import EmptyState from "@/components/ui/EmptyState";
+import { AlertTriangle, Banknote, FileText, MessageSquareText, Plus, ShieldCheck } from "lucide-react";
 
 const REPORTABLE = ["active", "under_negotiation"];
 
@@ -113,23 +114,44 @@ export default function OwnerManage() {
       )}
 
       <section>
-        <SectionHeading title="Listings" />
+        <SectionHeading title="Listings" description="Track listing status, unlock activity, and Model A outcome reporting." />
         {listings.length === 0 ? (
-          <EmptyState title="No listings yet" hint="Create your first listing to start receiving unlocks." />
+          <EmptyState
+            title="No listings yet"
+            hint="Create your first listing to start receiving unlocks."
+            action={<a href="/dashboard/owner/listings/new" className="btn-primary"><Plus className="h-4 w-4" /> New listing</a>}
+          />
         ) : (
           <div className="space-y-3">
             {listings.map((l) => (
-              <div key={l.id} className="card !p-4">
+              <div key={l.id} className="card premium-hover !p-4">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                  <div>
-                    <p className="font-display text-lg font-semibold text-ink">{l.title}</p>
-                    <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-ink-faint">
-                      Model {l.model} - {formatRwf(l.price)} - {l.transactionType} - unlocks: {l.unlockCount ?? 0}
-                    </p>
-                    {l.reviewFlag && <p className="mt-1 text-xs font-semibold text-red-600">Flagged: {l.reviewReason}</p>}
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-display text-lg font-semibold text-ink">{l.title}</p>
+                      <StatusBadge status={l.status} />
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-2 text-xs font-bold text-ink-soft">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-panel px-2.5 py-1">
+                        <ShieldCheck className="h-3.5 w-3.5 text-brand" /> Model {l.model}
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-panel px-2.5 py-1">
+                        <Banknote className="h-3.5 w-3.5 text-clay" /> {formatRwf(l.price)}
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-panel px-2.5 py-1 capitalize">
+                        <FileText className="h-3.5 w-3.5" /> {l.transactionType}
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-panel px-2.5 py-1">
+                        <MessageSquareText className="h-3.5 w-3.5" /> {l.unlockCount ?? 0} unlocks
+                      </span>
+                    </div>
+                    {l.reviewFlag && (
+                      <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-red-600">
+                        <AlertTriangle className="h-3.5 w-3.5" /> Flagged: {l.reviewReason}
+                      </p>
+                    )}
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <StatusBadge status={l.status} />
                     {REPORTABLE.includes(l.status) && (
                       <button className="btn-outline" onClick={() => { setReportFor(reportFor === l.id ? null : l.id); setOutcome("sold"); setFinalAmount(""); }}>
                         Report deal
