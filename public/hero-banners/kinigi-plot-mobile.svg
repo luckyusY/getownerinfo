@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1125" viewBox="0 0 900 1125" role="img" aria-label="Kinigi plot mobile banner">
+  <rect width="900" height="1125" fill="#061c1f"/>
+  <image href="/sample-properties/kinigi-mountain.jfif" x="-300" y="0" width="1500" height="1125" preserveAspectRatio="xMidYMid slice"/>
+  <rect width="900" height="1125" fill="#061c1f" opacity="0.60"/>
+  <rect x="58" y="88" width="154" height="48" rx="24" fill="#faa603"/>
+  <text x="135" y="119" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="900" fill="#071c1f">HOT DEAL</text>
+  <text x="58" y="258" font-family="Georgia, 'Times New Roman', serif" font-size="86" font-weight="900" fill="#fff">Kinigi</text>
+  <text x="58" y="346" font-family="Georgia, 'Times New Roman', serif" font-size="86" font-weight="900" fill="#fff">plot</text>
+  <text x="58" y="412" font-family="Arial, Helvetica, sans-serif" font-size="29" fill="#e7f7fb">1,800 sqm near hotel activity</text>
+  <rect x="58" y="778" width="300" height="82" rx="12" fill="#15b0dd"/>
+  <text x="208" y="830" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="900" fill="#fff">EXPLORE PLOTS</text>
+  <text x="58" y="924" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="800" fill="#fff">Public details first. Contact after token.</text>
+</svg>

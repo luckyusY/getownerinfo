@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1125" viewBox="0 0 900 1125" role="img" aria-label="Verified vehicles mobile banner">
+  <rect width="900" height="1125" fill="#071c1f"/>
+  <image href="/sample-properties/changan-pickup.jfif" x="-280" y="0" width="1500" height="1125" preserveAspectRatio="xMidYMid slice"/>
+  <rect width="900" height="1125" fill="#071c1f" opacity="0.55"/>
+  <rect x="58" y="88" width="250" height="48" rx="24" fill="#fff"/>
+  <text x="183" y="119" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="900" fill="#071c1f">VEHICLES &amp; ASSETS</text>
+  <text x="58" y="258" font-family="Georgia, 'Times New Roman', serif" font-size="78" font-weight="900" fill="#fff">Verified</text>
+  <text x="58" y="340" font-family="Georgia, 'Times New Roman', serif" font-size="78" font-weight="900" fill="#fff">assets</text>
+  <text x="58" y="406" font-family="Arial, Helvetica, sans-serif" font-size="29" fill="#e7f7fb">Pickup 57M • Kia Niro 20M</text>
+  <rect x="58" y="778" width="332" height="82" rx="12" fill="#faa603"/>
+  <text x="224" y="830" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="900" fill="#071c1f">BROWSE VEHICLES</text>
+  <text x="58" y="924" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="800" fill="#fff">Same trusted unlock flow for assets.</text>
+</svg>

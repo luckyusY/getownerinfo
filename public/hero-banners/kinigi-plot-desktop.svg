@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="640" viewBox="0 0 1920 640" role="img" aria-label="Kinigi plot for sale banner">
+  <defs>
+    <linearGradient id="dark" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#061c1f"/>
+      <stop offset="0.55" stop-color="#082b2f" stop-opacity="0.92"/>
+      <stop offset="1" stop-color="#082b2f" stop-opacity="0.18"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#061c1f" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+  <rect width="1920" height="640" fill="#061c1f"/>
+  <image href="/sample-properties/kinigi-mountain.jfif" x="0" y="-360" width="1920" height="1440" preserveAspectRatio="xMidYMid slice"/>
+  <rect width="1920" height="640" fill="url(#dark)"/>
+  <rect x="1160" y="112" width="560" height="350" rx="34" fill="#fff" opacity="0.12" stroke="#fff" stroke-opacity="0.22"/>
+  <image href="/sample-properties/kinigi-plot.jfif" x="1190" y="142" width="500" height="290" preserveAspectRatio="xMidYMid slice"/>
+  <rect x="1190" y="142" width="500" height="290" fill="#061c1f" opacity="0.12"/>
+  <g transform="translate(118 92)">
+    <rect x="0" y="0" width="126" height="36" rx="18" fill="#faa603"/>
+    <text x="63" y="24" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="900" fill="#071c1f">HOT DEAL</text>
+    <text x="0" y="102" font-family="Georgia, 'Times New Roman', serif" font-size="82" font-weight="900" fill="#fff">Kinigi plot</text>
+    <text x="0" y="178" font-family="Georgia, 'Times New Roman', serif" font-size="82" font-weight="900" fill="#fff">near hotel activity</text>
+    <text x="0" y="228" font-family="Arial, Helvetica, sans-serif" font-size="25" fill="#d8ebef">1,800 sqm • Musanze district • tourism corridor</text>
+    <g transform="translate(0 284)" filter="url(#shadow)">
+      <rect x="0" y="0" width="260" height="92" rx="18" fill="#fff"/>
+      <text x="26" y="34" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="900" fill="#5c727d">PRICE</text>
+      <text x="26" y="70" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="900" fill="#071c1f">100M Rwf</text>
+    </g>
+    <g transform="translate(290 284)" filter="url(#shadow)">
+      <rect x="0" y="0" width="300" height="92" rx="18" fill="#fff"/>
+      <text x="26" y="34" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="900" fill="#5c727d">LOCATION</text>
+      <text x="26" y="70" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="900" fill="#071c1f">Kinigi</text>
+    </g>
+    <rect x="0" y="416" width="276" height="58" rx="8" fill="#15b0dd"/>
+    <text x="138" y="38" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="900" fill="#fff">EXPLORE PLOTS</text>
+  </g>
+  <text x="1680" y="520" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="900" fill="#fff">PUBLIC DETAILS FIRST • EXACT CONTACT AFTER TOKEN</text>
+</svg>
