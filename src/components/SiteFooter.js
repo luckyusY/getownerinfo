@@ -36,8 +36,9 @@ export default function SiteFooter() {
         <div className="grid gap-10 md:grid-cols-4">
           <div>
             <Link href="/" className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-sm font-bold text-white">g</span>
-              <span className="font-display text-xl font-semibold text-white">getowner<span className="text-brand-light">info</span></span>
+              <span className="flex h-12 w-[146px] items-center justify-center overflow-hidden rounded-lg bg-white px-2 shadow-sm">
+                <img src="/brand/logo-getownerinfo.png" alt="" className="h-10 w-auto object-contain" />
+              </span>
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/60">
               Connecting serious buyers and tenants directly with verified owners across Rwanda, with privacy and trust built in.

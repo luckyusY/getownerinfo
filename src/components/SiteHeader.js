@@ -45,9 +45,8 @@ export default function SiteHeader() {
       <div className="bg-gradient-to-b from-[#16a3cc] to-[#0b5f86] text-white">
         <div className="mx-auto grid w-full max-w-6xl grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-2.5 sm:gap-5">
           <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="getownerinfo home">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-base font-extrabold text-[#0b5f86]">g</span>
-            <span className="font-display text-xl font-extrabold tracking-tight text-white sm:text-2xl">
-              getowner<span className="text-[#9fdcef]">info</span>
+            <span className="flex h-11 w-[132px] items-center justify-center overflow-hidden rounded-lg bg-white px-2 shadow-sm">
+              <img src="/brand/logo-getownerinfo.png" alt="" className="h-9 w-auto object-contain" />
             </span>
           </Link>
 

@@ -49,8 +49,9 @@ export default function RegisterPage() {
     <div className="auth-shell flex items-center justify-center">
       <div className="w-full max-w-xl">
         <Link href="/" className="mb-6 flex items-center justify-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand text-base font-bold text-white">g</span>
-          <span className="font-display text-xl font-bold text-ink">getowner<span className="text-brand">info</span></span>
+          <span className="flex h-16 w-[176px] items-center justify-center overflow-hidden rounded-xl bg-white px-3 shadow-soft">
+            <img src="/brand/logo-getownerinfo.png" alt="Get Owner Info" className="h-14 w-auto object-contain" />
+          </span>
         </Link>
         <form onSubmit={onSubmit} className="card space-y-4 !p-7">
           <div>

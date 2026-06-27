@@ -29,8 +29,9 @@ export default async function DashboardLayout({ children }) {
       <header className="sticky top-0 z-40 border-b border-line/70 bg-surface/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
           <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-sm font-bold text-white">g</span>
-            <span className="font-display text-xl font-semibold text-ink">getowner<span className="text-brand">info</span></span>
+            <span className="flex h-11 w-[132px] items-center justify-center overflow-hidden rounded-lg bg-white px-2 shadow-sm ring-1 ring-line">
+              <img src="/brand/logo-getownerinfo.png" alt="Get Owner Info" className="h-9 w-auto object-contain" />
+            </span>
           </Link>
           <div className="flex items-center gap-3">
             <div className="hidden text-right sm:block">
