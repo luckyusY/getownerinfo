@@ -30,6 +30,15 @@ const CATEGORIES = [
   { label: "Business", slug: "business-industry", icon: BriefcaseBusiness },
 ];
 
+const CATEGORY_IMAGES = {
+  "real-estate": "/sample-properties/kagarama-balcony.jfif",
+  vehicles: "/sample-properties/changan-pickup.jfif",
+  "home-office-furniture": "/category-images/furniture.png",
+  "home-appliances": "/category-images/appliances.png",
+  "made-in-rwanda": "/category-images/made-in-rwanda.png",
+  "business-industry": "/category-images/business-industry.png",
+};
+
 const SAFETY = [
   { icon: Fingerprint, title: "Identity verified", body: "Owners submit ID and ownership proof. Our team verifies before a listing goes live." },
   { icon: Lock, title: "Privacy protected", body: "Contact and exact location stay hidden until a buyer pays the token fee." },
@@ -53,18 +62,6 @@ async function getHomeData() {
     Category.countDocuments({}),
   ]);
   const catName = Object.fromEntries(categories.map((c) => [c._id.toString(), c.name]));
-  const idToSlug = Object.fromEntries(categories.map((c) => [c._id.toString(), c.slug]));
-
-  // One real listing photo per category for the category thumbnails.
-  const withImg = await Listing.find({ status: LISTING_STATUS.ACTIVE, "images.0": { $exists: true } })
-    .select("category images")
-    .limit(120)
-    .lean();
-  const categoryImages = {};
-  for (const l of withImg) {
-    const slug = idToSlug[l.category?.toString()];
-    if (slug && !categoryImages[slug]) categoryImages[slug] = l.images?.[0]?.url;
-  }
 
   const liveListings = listings.map((l) => ({
     id: l._id.toString(),
@@ -83,11 +80,11 @@ async function getHomeData() {
     { label: "Contacts unlocked", value: compact(unlockCount) },
     { label: "Categories", value: String(catCount) },
   ];
-  return { featured, stats, categoryImages, usingSamples: liveListings.length === 0 };
+  return { featured, stats, usingSamples: liveListings.length === 0 };
 }
 
 export default async function HomePage() {
-  const { featured, stats, categoryImages, usingSamples } = await getHomeData();
+  const { featured, stats, usingSamples } = await getHomeData();
 
   const heroSlides = [
     {
@@ -125,7 +122,7 @@ export default async function HomePage() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             {CATEGORIES.map((c) => {
               const Icon = c.icon;
-              const img = categoryImages[c.slug];
+              const img = CATEGORY_IMAGES[c.slug];
               return (
                 <Link
                   key={c.slug}
@@ -136,6 +133,8 @@ export default async function HomePage() {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={img} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                   )}
+                  <div className="absolute inset-0 bg-brand/18 mix-blend-screen" />
+                  <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-brand/28 to-transparent" />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0a1f44]/92 via-[#0a1f44]/45 to-transparent" />
                   <div className="relative flex items-center gap-2 p-3">
                     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/20 backdrop-blur">
