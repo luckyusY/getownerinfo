@@ -2,7 +2,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import PropertyCard from "@/components/PropertyCard";
-import HeroSlider from "@/components/HeroSlider";
+import HomeHero from "@/components/HomeHero";
 import { connectDB } from "@/lib/db";
 import Listing from "@/models/Listing";
 import Category from "@/models/Category";
@@ -81,23 +81,35 @@ export default async function HomePage() {
       <SiteHeader />
 
       <main>
-        <HeroSlider />
+        <HomeHero
+          heroImage={featured[0]?.images?.[0]}
+          heroHref={featured[0]?.id ? `/listings/${featured[0].id}` : "/listings"}
+        />
 
-        <section className="mx-auto max-w-6xl px-4 py-8" data-reveal>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
-            {CATEGORIES.map((c) => {
+        {/* Shop by category */}
+        <section className="mx-auto max-w-6xl px-4 py-10" data-reveal>
+          <div className="mb-5 flex items-end justify-between">
+            <h2 className="font-display text-2xl font-bold text-ink sm:text-3xl">Shop by category</h2>
+            <Link href="/listings" className="text-sm font-bold text-brand hover:underline">View all</Link>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            {CATEGORIES.map((c, i) => {
               const Icon = c.icon;
+              const tone = i % 3 === 0 ? "bg-[#0b5f86]" : i % 3 === 1 ? "bg-ink" : "bg-[#0a4f6b]";
               return (
-              <Link
-                key={c.slug}
-                href={`/listings?category=${c.slug}`}
-                className="category-tile premium-hover"
-              >
-                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-xs font-bold text-brand">
-                  <Icon className="h-4 w-4" />
-                </span>
-                <span className="text-sm font-semibold text-ink">{c.label}</span>
-              </Link>
+                <Link
+                  key={c.slug}
+                  href={`/listings?category=${c.slug}`}
+                  className={`group relative flex min-h-[128px] flex-col justify-between overflow-hidden rounded-xl p-4 text-white transition duration-300 hover:-translate-y-1 hover:shadow-lift ${tone}`}
+                >
+                  <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/15">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <span>
+                    <span className="block text-[10px] font-extrabold uppercase tracking-wide text-[#ffcf57]">Category</span>
+                    <span className="block font-display text-sm font-bold leading-tight">{c.label}</span>
+                  </span>
+                </Link>
               );
             })}
           </div>
