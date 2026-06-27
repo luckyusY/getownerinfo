@@ -1,7 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import { Autoplay, EffectFade, Pagination } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
 import HeroSearch from "@/components/HeroSearch";
 
 const SLIDES = [
@@ -34,61 +37,109 @@ const SLIDES = [
   },
 ];
 
+const copyVariants = {
+  hidden: { opacity: 0, y: 18 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.62, ease: [0.22, 1, 0.36, 1], staggerChildren: 0.07 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.58, ease: [0.22, 1, 0.36, 1] } },
+};
+
 export default function HeroSlider() {
   const [active, setActive] = useState(0);
+  const [swiper, setSwiper] = useState(null);
   const slide = SLIDES[active];
-  const next = () => setActive((index) => (index + 1) % SLIDES.length);
-  const previous = () => setActive((index) => (index - 1 + SLIDES.length) % SLIDES.length);
-
-  useEffect(() => {
-    const timer = window.setInterval(next, 6500);
-    return () => window.clearInterval(timer);
-  }, []);
-
-  const progress = useMemo(() => `${((active + 1) / SLIDES.length) * 100}%`, [active]);
 
   return (
     <section className="relative overflow-hidden bg-ink text-white">
       <div className="absolute inset-0">
-        {SLIDES.map((item, index) => (
-          <img
-            key={item.title}
-            src={item.image}
-            alt=""
-            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
-              index === active ? "opacity-70" : "opacity-0"
-            }`}
-          />
-        ))}
-        <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/78 to-ink/28" />
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-paper to-transparent" />
+        <Swiper
+          modules={[Autoplay, EffectFade, Pagination]}
+          effect="fade"
+          loop
+          speed={850}
+          allowTouchMove={false}
+          autoplay={{ delay: 6200, disableOnInteraction: false }}
+          pagination={{ el: ".hero-swiper-pagination", clickable: true }}
+          onSwiper={setSwiper}
+          onSlideChange={(instance) => setActive(instance.realIndex)}
+          className="h-full"
+        >
+          {SLIDES.map((item) => (
+            <SwiperSlide key={item.title}>
+              <motion.img
+                src={item.image}
+                alt=""
+                className="h-full w-full object-cover"
+                initial={{ scale: 1.06 }}
+                animate={{ scale: active >= 0 ? 1 : 1.06 }}
+                transition={{ duration: 6.2, ease: "linear" }}
+              />
+            </SwiperSlide>
+          ))}
+        </Swiper>
+        <div className="absolute inset-0 z-10 bg-gradient-to-r from-ink via-ink/78 to-ink/28" />
+        <div className="absolute inset-x-0 bottom-0 z-10 h-32 bg-gradient-to-t from-paper to-transparent" />
       </div>
 
-      <div className="relative mx-auto grid min-h-[680px] max-w-6xl items-end gap-10 px-4 pb-12 pt-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:pb-16 lg:pt-20">
-        <div className="max-w-3xl animate-fade-up">
-          <span className="badge bg-white/10 text-white ring-1 ring-white/20">{slide.eyebrow}</span>
-          <h1 className="mt-5 max-w-3xl text-balance font-display text-4xl font-bold leading-[1.05] text-white sm:text-6xl">
-            {slide.title}
-          </h1>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/82 sm:text-lg">
-            {slide.body}
-          </p>
+      <div className="relative z-20 mx-auto grid min-h-[680px] max-w-6xl items-end gap-10 px-4 pb-12 pt-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:pb-16 lg:pt-20">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={slide.title}
+            variants={copyVariants}
+            initial="hidden"
+            animate="show"
+            exit={{ opacity: 0, y: -10, transition: { duration: 0.2 } }}
+            className="max-w-3xl"
+          >
+            <motion.span variants={itemVariants} className="badge bg-white/10 text-white ring-1 ring-white/20">
+              {slide.eyebrow}
+            </motion.span>
+            <motion.h1 variants={itemVariants} className="mt-5 max-w-3xl text-balance font-display text-4xl font-bold leading-[1.05] text-white sm:text-6xl">
+              {slide.title}
+            </motion.h1>
+            <motion.p variants={itemVariants} className="mt-5 max-w-2xl text-base leading-relaxed text-white/82 sm:text-lg">
+              {slide.body}
+            </motion.p>
+            <motion.div variants={itemVariants}>
+              <HeroSearch />
+            </motion.div>
+            <motion.div variants={itemVariants} className="mt-6 flex flex-wrap gap-3">
+              <Link href="/register" className="btn-primary magnetic-link px-6 py-3 text-base">List your property</Link>
+              <Link href="/listings" className="btn-outline magnetic-link border-white/30 bg-white/10 px-6 py-3 text-base text-white hover:border-white hover:text-white">
+                Browse listings
+              </Link>
+            </motion.div>
+          </motion.div>
+        </AnimatePresence>
 
-          <HeroSearch />
-
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/register" className="btn-primary px-6 py-3 text-base">List your property</Link>
-            <Link href="/listings" className="btn-outline border-white/30 bg-white/10 px-6 py-3 text-base text-white hover:border-white hover:text-white">
-              Browse listings
-            </Link>
-          </div>
-        </div>
-
-        <div className="hidden lg:block">
-          <div className="ml-auto max-w-md rounded-xl border border-white/20 bg-white/10 p-4 shadow-lift backdrop-blur-md">
+        <motion.div
+          className="hidden lg:block"
+          initial={{ opacity: 0, x: 32, rotate: 1 }}
+          animate={{ opacity: 1, x: 0, rotate: 0 }}
+          transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <div className="premium-hover ml-auto max-w-md rounded-xl border border-white/20 bg-white/10 p-4 shadow-lift backdrop-blur-md">
             <div className="overflow-hidden rounded-lg bg-white">
               <div className="relative aspect-[4/3]">
-                <img src={slide.image} alt="" className="h-full w-full object-cover" />
+                <AnimatePresence mode="wait">
+                  <motion.img
+                    key={slide.image}
+                    src={slide.image}
+                    alt=""
+                    className="h-full w-full object-cover"
+                    initial={{ opacity: 0, scale: 1.04 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.02 }}
+                    transition={{ duration: 0.45 }}
+                  />
+                </AnimatePresence>
                 <div className="absolute left-3 top-3 flex gap-2">
                   <span className="badge bg-brand text-white">{slide.badge}</span>
                   <span className="badge bg-gold text-ink">{slide.metric}</span>
@@ -106,15 +157,13 @@ export default function HeroSlider() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         <div className="absolute bottom-4 left-4 right-4 mx-auto flex max-w-6xl items-center justify-between gap-4">
-          <div className="h-1 flex-1 overflow-hidden rounded-full bg-white/20">
-            <div className="h-full rounded-full bg-brand transition-all duration-500" style={{ width: progress }} />
-          </div>
+          <div className="hero-swiper-pagination flex flex-1 items-center gap-2" />
           <div className="flex shrink-0 items-center gap-2">
-            <button type="button" aria-label="Previous hero slide" onClick={previous} className="hero-control">{"<"}</button>
-            <button type="button" aria-label="Next hero slide" onClick={next} className="hero-control">{">"}</button>
+            <button type="button" aria-label="Previous hero slide" onClick={() => swiper?.slidePrev()} className="hero-control">{"<"}</button>
+            <button type="button" aria-label="Next hero slide" onClick={() => swiper?.slideNext()} className="hero-control">{">"}</button>
           </div>
         </div>
       </div>

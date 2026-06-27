@@ -44,7 +44,7 @@ export default function SiteHeader() {
 
         <nav className="hidden items-center gap-1 md:flex">
           {NAV.map(([label, href]) => (
-            <Link key={label} href={href} className="rounded-lg px-3.5 py-2 text-sm font-bold text-ink-soft transition hover:bg-panel hover:text-ink">
+            <Link key={label} href={href} className="nav-link rounded-lg px-3.5 py-2 text-sm font-bold text-ink-soft transition hover:bg-panel hover:text-ink">
               {label}
             </Link>
           ))}

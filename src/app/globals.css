@@ -73,7 +73,7 @@
   }
   .btn-primary:hover:not(:disabled) {
     background: var(--brand-dark);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
   }
   .btn-outline {
     @apply btn bg-surface/80 text-ink;
@@ -82,9 +82,32 @@
   .btn-outline:hover:not(:disabled) {
     border-color: var(--brand);
     color: var(--brand);
+    transform: translateY(-2px);
   }
   .btn-ghost {
     @apply btn text-ink-soft hover:text-ink;
+  }
+
+  .nav-link {
+    position: relative;
+  }
+
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 5px;
+    height: 2px;
+    border-radius: 999px;
+    background: var(--brand);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 220ms ease;
+  }
+
+  .nav-link:hover::after {
+    transform: scaleX(1);
   }
 
   /* Surfaces */
@@ -93,6 +116,46 @@
     background: var(--surface);
     border: 1px solid var(--line);
     box-shadow: 0 1px 2px rgba(21, 33, 28, 0.04), 0 14px 36px -24px rgba(21, 33, 28, 0.22);
+  }
+
+  .premium-hover {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .premium-hover::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(21, 176, 221, 0.16), rgba(250, 166, 3, 0.12));
+    opacity: 0;
+    transform: scale(0.98);
+    transition: opacity 220ms ease, transform 220ms ease;
+  }
+
+  .premium-hover:hover::after {
+    opacity: 1;
+    transform: scale(1.015);
+  }
+
+  .magnetic-link {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .magnetic-link::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.24), transparent);
+    transform: translateX(-120%);
+    transition: transform 520ms ease;
+  }
+
+  .magnetic-link:hover::before {
+    transform: translateX(120%);
   }
 
   /* Forms */
@@ -105,8 +168,43 @@
     border-color: var(--brand);
     box-shadow: 0 0 0 3px rgba(21, 176, 221, 0.15);
   }
+  .input-wrap {
+    @apply flex min-h-11 w-full items-center gap-2 rounded-lg px-3.5 py-2.5 transition;
+    background: var(--surface);
+    border: 1px solid var(--line);
+  }
+  .input-wrap:hover {
+    border-color: rgba(21, 176, 221, 0.45);
+  }
+  .input-wrap:focus-within {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px rgba(21, 176, 221, 0.15);
+    transform: translateY(-1px);
+  }
+  .input-wrap-error {
+    border-color: rgba(220, 38, 38, 0.55);
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+  }
   .label {
     @apply mb-1.5 block text-sm font-bold text-ink-soft;
+  }
+  .segmented-option {
+    @apply flex min-h-16 items-center gap-3 rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink-soft shadow-soft transition duration-200 hover:-translate-y-0.5 hover:border-brand/40 hover:text-ink;
+  }
+  .segmented-option-active {
+    @apply border-brand bg-brand-50 text-brand;
+  }
+  .form-step {
+    @apply flex items-center gap-2 rounded-xl border border-line bg-surface px-3 py-2 text-ink-faint shadow-soft transition;
+  }
+  .form-step-current {
+    @apply border-brand bg-brand text-white;
+  }
+  .form-step-done {
+    @apply border-brand/30 bg-brand-50 text-brand;
+  }
+  .file-upload-box {
+    @apply flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-line bg-surface p-4 shadow-soft transition hover:-translate-y-0.5 hover:border-brand/50 hover:bg-brand-50/40;
   }
 
   /* Badges */
@@ -137,7 +235,22 @@
   }
 
   .category-tile {
-    @apply relative z-10 flex min-h-[108px] flex-col items-center justify-center gap-2 rounded-xl border border-line bg-surface p-4 text-center shadow-soft transition hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-lift;
+    @apply relative z-10 flex min-h-[108px] flex-col items-center justify-center gap-2 rounded-xl border border-line bg-surface p-4 text-center shadow-soft transition duration-300 hover:-translate-y-1 hover:border-brand/40 hover:shadow-lift;
+  }
+
+  .hero-swiper-pagination .swiper-pagination-bullet {
+    width: 100%;
+    max-width: 64px;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.24);
+    opacity: 1;
+    margin: 0 !important;
+    overflow: hidden;
+  }
+
+  .hero-swiper-pagination .swiper-pagination-bullet-active {
+    background: var(--brand);
   }
 
   /* Filter chips */
@@ -151,6 +264,12 @@
     border-color: var(--brand);
     background: var(--brand);
     color: #fff;
+  }
+
+  .chip:hover {
+    border-color: rgba(21, 176, 221, 0.5);
+    color: var(--ink);
+    transform: translateY(-1px);
   }
 
   /* Skeleton shimmer */

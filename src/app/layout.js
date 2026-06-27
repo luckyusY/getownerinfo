@@ -1,7 +1,11 @@
 import "./globals.css";
+import "swiper/css";
+import "swiper/css/effect-fade";
+import "swiper/css/pagination";
 import { Poppins, Nunito_Sans } from "next/font/google";
 import CookieBanner from "@/components/CookieBanner";
 import { ToastProvider } from "@/components/ui/Toast";
+import AppMotion from "@/components/AppMotion";
 
 // Match getownerinfo.com: Poppins headings, Nunito Sans body.
 const display = Poppins({
@@ -42,6 +46,7 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${display.variable} ${body.variable}`}>
       <body>
         <ToastProvider>
+          <AppMotion />
           {children}
           <CookieBanner />
         </ToastProvider>

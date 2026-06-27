@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { connectDB } from "@/lib/db";
@@ -24,8 +25,8 @@ export async function generateMetadata({ params }) {
     if (!l || l.status !== LISTING_STATUS.ACTIVE) return { title: "Listing" };
     return {
       title: l.title,
-      description: (l.description || `${l.title} — unlock verified owner contact with a token fee.`).slice(0, 160),
-      openGraph: { title: l.title, description: `${formatRwf(l.price)} · getownerinfo` },
+      description: (l.description || `${l.title} unlock verified owner contact with a token fee.`).slice(0, 160),
+      openGraph: { title: l.title, description: `${formatRwf(l.price)} - getownerinfo` },
     };
   } catch {
     return { title: "Listing" };
@@ -44,10 +45,9 @@ export default async function ListingDetail({ params }) {
 
   const category = await Category.findById(listing.category).lean();
   const pub = listing.toPublicJSON();
-
-  // Has the signed-in user already unlocked this listing?
   const session = getSession();
   let initialRevealed = null;
+
   if (session) {
     const unlock = await TokenUnlock.findOne({ user: session.sub, listing: listing._id });
     if (unlock) initialRevealed = buildRevealedContact(listing, unlock.watermark);
@@ -57,7 +57,10 @@ export default async function ListingDetail({ params }) {
     <div className="min-h-screen">
       <SiteHeader />
       <main className="mx-auto max-w-5xl px-4 py-8">
-        <Link href="/listings" className="text-sm text-ink-soft hover:text-ink">← Back to listings</Link>
+        <Link href="/listings" className="inline-flex items-center gap-2 text-sm font-semibold text-ink-soft hover:text-ink">
+          <ArrowLeft className="h-4 w-4" /> Back to listings
+        </Link>
+
         <div className="mt-4 grid gap-8 md:grid-cols-5">
           <div className="md:col-span-3">
             <Gallery images={pub.images || []} title={pub.title} />
@@ -67,8 +70,9 @@ export default async function ListingDetail({ params }) {
                 {pub.transactionType === "rent" ? "For rent" : "For sale"}
               </Badge>
               {pub.model === "A" && <Badge tone="brand">Exclusive</Badge>}
-              <span className="text-sm text-ink-faint">{category?.name} · {pub.itemType}</span>
+              <span className="text-sm text-ink-faint">{category?.name} - {pub.itemType}</span>
             </div>
+
             <h1 className="mt-2 font-display text-3xl font-semibold text-ink">{pub.title}</h1>
             <p className="mt-2 font-display text-3xl font-semibold text-brand">{formatRwf(pub.price)}</p>
 
@@ -82,7 +86,6 @@ export default async function ListingDetail({ params }) {
               </ul>
             )}
 
-            {/* Buyers can chat with the owner. Contact info is blocked pre-unlock. */}
             {session?.role === ROLES.BUYER && (
               <div className="mt-8">
                 <h2 className="mb-2 font-display text-lg font-semibold text-ink">Ask the owner</h2>
@@ -91,9 +94,8 @@ export default async function ListingDetail({ params }) {
             )}
           </div>
 
-          {/* Contact panel — locked until token unlock */}
           <aside className="md:col-span-2">
-            <div className="card sticky top-20">
+            <div className="card sticky top-20 premium-hover">
               <p className="font-display text-base font-semibold text-ink">Direct owner contact</p>
               <p className="mt-0.5 text-sm text-ink-soft">A token fee reveals the verified owner&apos;s details.</p>
               <div className="mt-4">

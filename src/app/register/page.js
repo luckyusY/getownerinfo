@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/Toast";
+import { Home, Mail, Phone, Search, Lock, User } from "lucide-react";
+import { FormField, SegmentedControl, SelectInput, SubmitButton, TextInput } from "@/components/ui/Form";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -58,61 +60,59 @@ export default function RegisterPage() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="label">Full name</label>
-              <input
+            <FormField label="Full name" required>
+              <TextInput
+                icon={User}
                 required
-                className="input"
+                placeholder="Your full name"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
               />
-            </div>
-            <div>
-              <label className="label">Phone</label>
-              <input
-                className="input"
+            </FormField>
+            <FormField label="Phone">
+              <TextInput
+                icon={Phone}
+                placeholder="+250 ..."
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
               />
-            </div>
+            </FormField>
           </div>
-          <div>
-            <label className="label">Email</label>
-            <input
+          <FormField label="Email" required>
+            <TextInput
+              icon={Mail}
               type="email"
               required
-              className="input"
+              placeholder="you@example.com"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
-          </div>
-          <div>
-            <label className="label">Password</label>
-            <input
+          </FormField>
+          <FormField label="Password" hint="At least 8 characters." required>
+            <TextInput
+              icon={Lock}
               type="password"
               required
               minLength={8}
-              className="input"
+              placeholder="Create a strong password"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
             />
-            <p className="mt-1 text-xs text-ink-faint">At least 8 characters.</p>
-          </div>
-          <div>
-            <label className="label">I want to</label>
-            <select
-              className="input"
+          </FormField>
+          <FormField label="I want to">
+            <SegmentedControl
               value={form.role}
-              onChange={(e) => setForm({ ...form, role: e.target.value })}
-            >
-              <option value="buyer">Find, rent, or buy</option>
-              <option value="owner">List my property or assets</option>
-            </select>
-          </div>
+              onChange={(role) => setForm({ ...form, role })}
+              options={[
+                { value: "buyer", label: "Find, rent, or buy", description: "Unlock verified owner contacts.", icon: Search },
+                { value: "owner", label: "List property or assets", description: "Publish and manage listings.", icon: Home },
+              ]}
+            />
+          </FormField>
 
-          <button type="submit" disabled={loading} className="btn-primary w-full">
+          <SubmitButton type="submit" loading={loading} className="w-full">
             {loading ? "Creating account..." : "Create account"}
-          </button>
+          </SubmitButton>
 
           <p className="text-center text-sm text-ink-soft">
             Already registered?{" "}

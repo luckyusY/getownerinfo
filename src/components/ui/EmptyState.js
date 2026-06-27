@@ -1,6 +1,6 @@
 export default function EmptyState({ icon = "i", title, hint, action }) {
   return (
-    <div className="card flex flex-col items-center justify-center py-14 text-center">
+    <div className="card dashboard-reveal flex flex-col items-center justify-center py-14 text-center">
       <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-brand-50 text-sm font-bold text-brand">
         {icon}
       </div>

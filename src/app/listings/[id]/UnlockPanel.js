@@ -2,23 +2,24 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { CheckCircle2, LockKeyhole } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 
 function money(n) {
-  return n == null ? "—" : new Intl.NumberFormat("en-RW").format(n) + " Rwf";
+  return n == null ? "-" : new Intl.NumberFormat("en-RW").format(n) + " Rwf";
 }
 
 function RevealedContact({ revealed }) {
   const c = revealed.contact || {};
   const loc = revealed.exactLocation || {};
   return (
-    <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
-      <div className="mb-2 inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2 py-0.5 text-xs font-medium text-white">
-        ✓ Access Unlocked
+    <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 shadow-soft">
+      <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-2.5 py-1 text-xs font-bold text-white">
+        <CheckCircle2 className="h-3.5 w-3.5" /> Access unlocked
       </div>
       <dl className="space-y-1 text-sm">
-        {c.ownerName && <Field k="Owner" v={`${c.ownerName} · ${c.ownerPhone || ""}`} />}
-        {c.keysManagerName && <Field k="Keys manager" v={`${c.keysManagerName} · ${c.keysManagerPhone || ""}`} />}
+        {c.ownerName && <Field k="Owner" v={`${c.ownerName} - ${c.ownerPhone || ""}`} />}
+        {c.keysManagerName && <Field k="Keys manager" v={`${c.keysManagerName} - ${c.keysManagerPhone || ""}`} />}
         {c.thirdPartyContact && <Field k="Caretaker" v={c.thirdPartyContact} />}
         {(loc.upi || loc.street) && (
           <Field
@@ -30,7 +31,7 @@ function RevealedContact({ revealed }) {
       </dl>
       {revealed.watermark && (
         <p className="mt-3 select-none text-[11px] italic text-emerald-700/70">
-          Issued to {revealed.watermark} — sharing is logged and prohibited.
+          Issued to {revealed.watermark}. Sharing is logged and prohibited.
         </p>
       )}
     </div>
@@ -39,9 +40,9 @@ function RevealedContact({ revealed }) {
 
 function Field({ k, v }) {
   return (
-    <div className="flex justify-between gap-3">
+    <div className="flex justify-between gap-3 border-b border-emerald-200/70 py-1.5 last:border-0">
       <dt className="text-emerald-700">{k}</dt>
-      <dd className="text-right font-medium text-emerald-900">{v}</dd>
+      <dd className="text-right font-semibold text-emerald-950">{v}</dd>
     </div>
   );
 }
@@ -50,7 +51,7 @@ export default function UnlockPanel({ listingId, loggedIn, area, initialRevealed
   const { toast } = useToast();
   const [revealed, setRevealed] = useState(initialRevealed || null);
   const [tier, setTier] = useState("buyer");
-  const [stage, setStage] = useState("idle"); // idle | otp
+  const [stage, setStage] = useState("idle");
   const [paymentId, setPaymentId] = useState(null);
   const [otp, setOtp] = useState("");
   const [devOtp, setDevOtp] = useState(null);
@@ -111,11 +112,13 @@ export default function UnlockPanel({ listingId, loggedIn, area, initialRevealed
 
   return (
     <div className="rounded-xl border border-dashed border-line bg-panel p-4 text-center">
-      <p className="text-sm font-semibold text-ink">🔒 Contact &amp; exact location locked</p>
-      <p className="mt-1 text-xs text-ink-faint">Approximate area: {area || "—"}</p>
+      <p className="inline-flex items-center justify-center gap-2 text-sm font-semibold text-ink">
+        <LockKeyhole className="h-4 w-4 text-brand" /> Contact &amp; exact location locked
+      </p>
+      <p className="mt-1 text-xs text-ink-faint">Approximate area: {area || "-"}</p>
 
       {!loggedIn ? (
-        <Link href="/login" className="btn-primary mt-3 inline-block w-full">Log in to unlock</Link>
+        <Link href="/login" className="btn-primary mt-3 inline-flex w-full justify-center">Log in to unlock</Link>
       ) : stage === "otp" ? (
         <div className="mt-3 space-y-2">
           <p className="text-xs text-ink-soft">Enter the 6-digit code sent to your email.</p>
@@ -125,10 +128,10 @@ export default function UnlockPanel({ listingId, loggedIn, area, initialRevealed
             maxLength={6}
             value={otp}
             onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-            placeholder="••••••"
+            placeholder="000000"
           />
           <button className="btn-primary w-full" disabled={loading || otp.length !== 6} onClick={() => verify()}>
-            {loading ? "Verifying…" : "Confirm & unlock"}
+            {loading ? "Verifying..." : "Confirm & unlock"}
           </button>
         </div>
       ) : (
@@ -139,7 +142,7 @@ export default function UnlockPanel({ listingId, loggedIn, area, initialRevealed
             <option value="client">Client</option>
           </select>
           <button className="btn-primary w-full" disabled={loading} onClick={initiate}>
-            {loading ? "Processing…" : `Pay ${money(fee)} & unlock`}
+            {loading ? "Processing..." : `Pay ${money(fee)} & unlock`}
           </button>
           <p className="text-[11px] text-ink-faint">Non-refundable token fee. Reveals owner contact &amp; exact location.</p>
         </div>

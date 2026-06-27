@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { formatRwf } from "@/lib/format";
 import Badge from "@/components/ui/Badge";
+import MotionCard from "@/components/MotionCard";
 
 /**
  * Presentational listing card, shared by the homepage and browse grid.
@@ -12,9 +12,9 @@ export default function PropertyCard({ listing, style }) {
   const transactionLabel = l.transactionType === "rent" ? "For rent" : "For sale";
 
   return (
-    <Link
+    <MotionCard
       href={`/listings/${l.id}`}
-      className="card group flex h-full flex-col !p-3 transition duration-300 hover:-translate-y-1 hover:border-brand/30 hover:shadow-lift"
+      className="card premium-hover group flex h-full flex-col !p-3 transition duration-300 hover:border-brand/30 hover:shadow-lift"
       style={style}
     >
       <div className="relative mb-3 aspect-[4/3] overflow-hidden rounded-xl bg-panel">
@@ -37,6 +37,6 @@ export default function PropertyCard({ listing, style }) {
           <p className="font-display text-xl font-bold text-brand">{formatRwf(l.price)}</p>
         </div>
       </div>
-    </Link>
+    </MotionCard>
   );
 }

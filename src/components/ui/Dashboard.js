@@ -2,7 +2,7 @@
 
 export function PageHeader({ title, subtitle, actions }) {
   return (
-    <div className="rounded-xl border border-line bg-surface px-5 py-5 shadow-soft sm:px-6">
+    <div className="dashboard-reveal rounded-xl border border-line bg-surface px-5 py-5 shadow-soft sm:px-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs font-bold uppercase tracking-wide text-brand">Dashboard</p>
@@ -28,7 +28,7 @@ export function StatCard({ label, value, hint, tone = "default" }) {
   const accent = tone === "brand" ? "text-brand" : tone === "danger" ? "text-red-600" : "text-ink";
   const bar = tone === "brand" ? "bg-brand" : tone === "danger" ? "bg-red-500" : "bg-ink";
   return (
-    <div className="card relative overflow-hidden !p-5">
+    <div className="card premium-hover dashboard-reveal relative overflow-hidden !p-5">
       <span className={`absolute inset-x-0 top-0 h-1 ${bar}`} />
       <p className="text-xs font-semibold uppercase tracking-wide text-ink-faint">{label}</p>
       <p className={`mt-2 font-display text-2xl font-bold ${accent}`}>{value}</p>
@@ -40,7 +40,7 @@ export function StatCard({ label, value, hint, tone = "default" }) {
 /** Table wrapper + header/cell helpers for consistent dashboard tables. */
 export function Table({ head, children }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-line bg-surface shadow-soft">
+    <div className="dashboard-reveal overflow-x-auto rounded-xl border border-line bg-surface shadow-soft">
       <table className="w-full min-w-[680px] text-sm">
         <thead className="bg-panel text-left text-xs uppercase tracking-wide text-ink-faint">
           <tr>{head.map((h) => <th key={h} className="px-4 py-3 font-semibold">{h}</th>)}</tr>

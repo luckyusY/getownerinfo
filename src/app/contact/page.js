@@ -1,5 +1,6 @@
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import { FormField, TextareaInput, TextInput } from "@/components/ui/Form";
 
 export const metadata = { title: "Contact - getownerinfo" };
 
@@ -35,11 +36,11 @@ export default function ContactPage() {
 
         <form className="mt-8 card space-y-4" action="#">
           <div className="grid gap-4 sm:grid-cols-2">
-            <div><label className="label">Your name</label><input className="input" /></div>
-            <div><label className="label">Email</label><input type="email" className="input" /></div>
+            <FormField label="Your name"><TextInput icon="user" /></FormField>
+            <FormField label="Email"><TextInput icon="mail" type="email" /></FormField>
           </div>
-          <div><label className="label">Message</label><textarea rows={4} className="input" /></div>
-          <button className="btn-primary">Send message</button>
+          <FormField label="Message"><TextareaInput icon="message" rows={4} /></FormField>
+          <button className="btn-primary magnetic-link">Send message</button>
           <p className="text-xs text-ink-faint">This demo form is not wired to email yet.</p>
         </form>
       </main>

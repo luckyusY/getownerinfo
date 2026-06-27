@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { BarChart3, ShieldCheck, SlidersHorizontal } from "lucide-react";
 
 export default function CookiePrefs() {
   const [prefs, setPrefs] = useState({ analytics: false, preferences: false });
@@ -30,10 +31,10 @@ export default function CookiePrefs() {
 
   return (
     <div className="mt-6 space-y-4">
-      <Row title="Essential" desc="Required for login, token unlocks and payment tracking." checked disabled />
-      <Row title="Analytics" desc="Helps improve search and recommendations." checked={prefs.analytics}
+      <Row icon={ShieldCheck} title="Essential" desc="Required for login, token unlocks and payment tracking." checked disabled />
+      <Row icon={BarChart3} title="Analytics" desc="Helps improve search and recommendations." checked={prefs.analytics}
         onChange={(v) => setPrefs({ ...prefs, analytics: v })} />
-      <Row title="Preferences" desc="Remembers saved settings and UI choices." checked={prefs.preferences}
+      <Row icon={SlidersHorizontal} title="Preferences" desc="Remembers saved settings and UI choices." checked={prefs.preferences}
         onChange={(v) => setPrefs({ ...prefs, preferences: v })} />
 
       <div className="flex items-center gap-3">
@@ -44,12 +45,17 @@ export default function CookiePrefs() {
   );
 }
 
-function Row({ title, desc, checked, disabled, onChange }) {
+function Row({ icon: Icon, title, desc, checked, disabled, onChange }) {
   return (
     <div className="card flex items-center justify-between gap-4">
-      <div>
+      <div className="flex items-center gap-3">
+        <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50 text-brand">
+          <Icon className="h-5 w-5" />
+        </span>
+        <div>
         <p className="font-bold text-ink">{title}</p>
         <p className="text-sm text-ink-faint">{desc}</p>
+        </div>
       </div>
       <input type="checkbox" className="h-5 w-5" checked={checked} disabled={disabled}
         onChange={(e) => onChange?.(e.target.checked)} />

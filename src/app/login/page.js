@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/Toast";
+import { Mail, Lock } from "lucide-react";
+import { FormField, TextInput, SubmitButton } from "@/components/ui/Form";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -46,30 +48,30 @@ export default function LoginPage() {
             <p className="mt-1 text-sm text-ink-soft">Sign in to manage listings, unlocks, messages, and payments.</p>
           </div>
 
-          <div>
-            <label className="label">Email</label>
-            <input
+          <FormField label="Email" required>
+            <TextInput
+              icon={Mail}
               type="email"
               required
-              className="input"
               value={form.email}
+              placeholder="you@example.com"
               onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
-          </div>
-          <div>
-            <label className="label">Password</label>
-            <input
+          </FormField>
+          <FormField label="Password" required>
+            <TextInput
+              icon={Lock}
               type="password"
               required
-              className="input"
               value={form.password}
+              placeholder="Enter your password"
               onChange={(e) => setForm({ ...form, password: e.target.value })}
             />
-          </div>
+          </FormField>
 
-          <button type="submit" disabled={loading} className="btn-primary w-full">
+          <SubmitButton type="submit" loading={loading} className="w-full">
             {loading ? "Signing in..." : "Sign in"}
-          </button>
+          </SubmitButton>
 
           <p className="text-center text-sm text-ink-soft">
             No account?{" "}

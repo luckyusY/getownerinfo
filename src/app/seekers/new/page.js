@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/Toast";
 import { useRouter } from "next/navigation";
+import { Banknote, CalendarDays, MapPin, MessageSquareText, Phone, Tags, User } from "lucide-react";
+import { FormField, FormSection, SegmentedControl, SelectInput, SubmitButton, TextareaInput, TextInput } from "@/components/ui/Form";
 
 export default function NewSeekerPage() {
   const router = useRouter();
@@ -54,50 +56,73 @@ export default function NewSeekerPage() {
   }
 
   return (
-    <div className="mx-auto max-w-xl px-4 py-10">
-      <h1 className="font-display text-2xl font-bold text-ink">Post a request</h1>
-      <p className="mt-1 text-sm text-ink-soft">
-        Tell owners what you&apos;re looking for. A non-refundable post fee applies; your
-        contact stays hidden until someone pays the view token.
-      </p>
+    <div className="mx-auto max-w-3xl px-4 py-10">
+      <FormSection
+        eyebrow="Buyer request"
+        title="Post a request"
+        description="Tell owners what you are looking for. Your contact stays hidden until someone pays the view token."
+      >
+        <form onSubmit={submit} className="space-y-5">
+          <FormField label="Category" required>
+            <SelectInput icon={Tags} value={form.categorySlug} onChange={(e) => setForm({ ...form, categorySlug: e.target.value })} required>
+              <option value="">Select category</option>
+              {catalog.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
+            </SelectInput>
+          </FormField>
 
-      <form onSubmit={submit} className="mt-5 card space-y-4">
-        <div>
-          <label className="label">Category</label>
-          <select className="input" value={form.categorySlug} onChange={(e) => setForm({ ...form, categorySlug: e.target.value })} required>
-            <option value="">Select…</option>
-            {catalog.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
-          </select>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div><label className="label">Budget min (Rwf)</label>
-            <input type="number" className="input" value={form.budgetMin} onChange={(e) => setForm({ ...form, budgetMin: e.target.value })} /></div>
-          <div><label className="label">Budget max (Rwf)</label>
-            <input type="number" className="input" value={form.budgetMax} onChange={(e) => setForm({ ...form, budgetMax: e.target.value })} /></div>
-        </div>
-        <div><label className="label">Preferred location</label>
-          <input className="input" value={form.preferredLocation} onChange={(e) => setForm({ ...form, preferredLocation: e.target.value })} /></div>
-        <div><label className="label">Quantity / type</label>
-          <input className="input" value={form.quantityType} onChange={(e) => setForm({ ...form, quantityType: e.target.value })} /></div>
-        <div><label className="label">What exactly do you want? *</label>
-          <textarea className="input" rows={3} value={form.details} onChange={(e) => setForm({ ...form, details: e.target.value })} required /></div>
-        <div><label className="label">Validity</label>
-          <select className="input" value={form.validityDays} onChange={(e) => setForm({ ...form, validityDays: e.target.value })}>
-            {[7, 14, 30].map((d) => <option key={d} value={d}>{d} days</option>)}
-          </select></div>
-        <div className="grid grid-cols-2 gap-3">
-          <div><label className="label">Contact name</label>
-            <input className="input" value={form.contact.name} onChange={(e) => setForm({ ...form, contact: { ...form.contact, name: e.target.value } })} placeholder="(defaults to your name)" /></div>
-          <div><label className="label">Contact phone</label>
-            <input className="input" value={form.contact.phone} onChange={(e) => setForm({ ...form, contact: { ...form.contact, phone: e.target.value } })} /></div>
-        </div>
-        <div><label className="label">Preferred contact time</label>
-          <input className="input" value={form.contact.preferredContactTime} onChange={(e) => setForm({ ...form, contact: { ...form.contact, preferredContactTime: e.target.value } })} placeholder="e.g. weekdays after 5pm" /></div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField label="Budget min (Rwf)">
+              <TextInput icon={Banknote} type="number" value={form.budgetMin} onChange={(e) => setForm({ ...form, budgetMin: e.target.value })} />
+            </FormField>
+            <FormField label="Budget max (Rwf)">
+              <TextInput icon={Banknote} type="number" value={form.budgetMax} onChange={(e) => setForm({ ...form, budgetMax: e.target.value })} />
+            </FormField>
+          </div>
 
-        <button className="btn-primary w-full" disabled={loading || !form.categorySlug || form.details.length < 3}>
-          {loading ? "Posting…" : "Pay post fee & publish"}
-        </button>
-      </form>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField label="Preferred location">
+              <TextInput icon={MapPin} value={form.preferredLocation} onChange={(e) => setForm({ ...form, preferredLocation: e.target.value })} />
+            </FormField>
+            <FormField label="Quantity / type">
+              <TextInput icon={Tags} value={form.quantityType} onChange={(e) => setForm({ ...form, quantityType: e.target.value })} />
+            </FormField>
+          </div>
+
+          <FormField label="What exactly do you want?" required>
+            <TextareaInput icon={MessageSquareText} rows={4} value={form.details} onChange={(e) => setForm({ ...form, details: e.target.value })} required />
+          </FormField>
+
+          <FormField label="Validity">
+            <SegmentedControl
+              value={Number(form.validityDays)}
+              onChange={(validityDays) => setForm({ ...form, validityDays })}
+              columns="sm:grid-cols-3"
+              options={[
+                { value: 7, label: "7 days", description: "Short search", icon: CalendarDays },
+                { value: 14, label: "14 days", description: "Balanced", icon: CalendarDays },
+                { value: 30, label: "30 days", description: "Maximum reach", icon: CalendarDays },
+              ]}
+            />
+          </FormField>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField label="Contact name" hint="Defaults to your account name if left blank.">
+              <TextInput icon={User} value={form.contact.name} onChange={(e) => setForm({ ...form, contact: { ...form.contact, name: e.target.value } })} />
+            </FormField>
+            <FormField label="Contact phone">
+              <TextInput icon={Phone} value={form.contact.phone} onChange={(e) => setForm({ ...form, contact: { ...form.contact, phone: e.target.value } })} />
+            </FormField>
+          </div>
+
+          <FormField label="Preferred contact time">
+            <TextInput icon={CalendarDays} value={form.contact.preferredContactTime} onChange={(e) => setForm({ ...form, contact: { ...form.contact, preferredContactTime: e.target.value } })} placeholder="e.g. weekdays after 5pm" />
+          </FormField>
+
+          <SubmitButton className="w-full" loading={loading} disabled={!form.categorySlug || form.details.length < 3}>
+            {loading ? "Posting..." : "Pay post fee & publish"}
+          </SubmitButton>
+        </form>
+      </FormSection>
     </div>
   );
 }
