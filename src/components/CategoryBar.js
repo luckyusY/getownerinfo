@@ -14,8 +14,10 @@ const LINKS = [
 ];
 
 const RIGHT = [
+  ["Top listings", "/listings"],
   ["List your property", "/dashboard/owner/listings/new"],
-  ["FAQ", "/faq"],
+  ["Pricing", "/pricing"],
+  ["Support", "/support"],
 ];
 
 export default function CategoryBar() {
@@ -35,7 +37,7 @@ export default function CategoryBar() {
   }, []);
 
   return (
-    <div className="hidden bg-[#0a4f6b] text-white md:block">
+    <div className="hidden bg-[#0a55a4] text-white md:block">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4">
         <div className="flex items-center">
           {/* Categories dropdown */}

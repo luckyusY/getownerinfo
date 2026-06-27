@@ -2,7 +2,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import PropertyCard from "@/components/PropertyCard";
-import HomeHero from "@/components/HomeHero";
+import HeroCarousel from "@/components/HeroCarousel";
 import { connectDB } from "@/lib/db";
 import Listing from "@/models/Listing";
 import Category from "@/models/Category";
@@ -76,15 +76,32 @@ async function getHomeData() {
 export default async function HomePage() {
   const { featured, stats, usingSamples } = await getHomeData();
 
+  const heroSlides = [
+    {
+      eyebrow: "getownerinfo Rwanda",
+      title: "Find the real owner. Skip the brokers.",
+      body: "Property, vehicles and assets across Rwanda — unlock direct owner contact in seconds.",
+      ctaLabel: "Browse listings",
+      href: "/listings",
+      image: featured[0]?.images?.[0] || "https://picsum.photos/seed/goi-hero-feature/900/640",
+    },
+    ...featured.slice(0, 3).map((l) => ({
+      eyebrow: l.categoryName,
+      title: l.title,
+      body: `From a verified owner${l.location?.area ? ` in ${l.location.area}` : ""}.`,
+      price: l.price,
+      ctaLabel: "View listing",
+      href: `/listings/${l.id}`,
+      image: l.images?.[0],
+    })),
+  ];
+
   return (
     <div className="min-h-screen">
       <SiteHeader />
 
       <main>
-        <HomeHero
-          heroImage={featured[0]?.images?.[0]}
-          heroHref={featured[0]?.id ? `/listings/${featured[0].id}` : "/listings"}
-        />
+        <HeroCarousel slides={heroSlides} />
 
         {/* Shop by category */}
         <section className="mx-auto max-w-6xl px-4 py-10" data-reveal>
@@ -93,22 +110,23 @@ export default async function HomePage() {
             <Link href="/listings" className="text-sm font-bold text-brand hover:underline">View all</Link>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            {CATEGORIES.map((c, i) => {
+            {CATEGORIES.map((c) => {
               const Icon = c.icon;
-              const tone = i % 3 === 0 ? "bg-[#0b5f86]" : i % 3 === 1 ? "bg-ink" : "bg-[#0a4f6b]";
               return (
                 <Link
                   key={c.slug}
                   href={`/listings?category=${c.slug}`}
-                  className={`group relative flex min-h-[128px] flex-col justify-between overflow-hidden rounded-xl p-4 text-white transition duration-300 hover:-translate-y-1 hover:shadow-lift ${tone}`}
+                  className="group relative flex min-h-[140px] flex-col justify-end overflow-hidden rounded-xl text-white shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-lift"
                 >
-                  <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/15">
-                    <Icon className="h-5 w-5" />
-                  </span>
-                  <span>
-                    <span className="block text-[10px] font-extrabold uppercase tracking-wide text-[#ffcf57]">Category</span>
-                    <span className="block font-display text-sm font-bold leading-tight">{c.label}</span>
-                  </span>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={`https://picsum.photos/seed/goi-cat-${c.slug}/400/300`} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a1f44]/90 via-[#0a1f44]/40 to-transparent" />
+                  <div className="relative flex items-center gap-2 p-3">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/20 backdrop-blur">
+                      <Icon className="h-4 w-4" />
+                    </span>
+                    <span className="font-display text-sm font-bold leading-tight">{c.label}</span>
+                  </div>
                 </Link>
               );
             })}

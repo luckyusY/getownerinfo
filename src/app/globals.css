@@ -289,6 +289,18 @@
     transform: scale(1.15);
   }
 
+  /* Adorama-style hero pagination dots */
+  .adorama-hero .swiper-pagination-bullet {
+    width: 9px;
+    height: 9px;
+    background: #0a1f44;
+    opacity: 0.3;
+  }
+  .adorama-hero .swiper-pagination-bullet-active {
+    background: #f24f13;
+    opacity: 1;
+  }
+
   @media (max-width: 640px) {
     .hero-swiper .swiper-button-prev,
     .hero-swiper .swiper-button-next {
