@@ -16,6 +16,9 @@ export default function ListingsExplorer({ initialCategory = "" }) {
   const [txn, setTxn] = useState("all");
   const [model, setModel] = useState("all");
   const [q, setQ] = useState("");
+  const [sort, setSort] = useState("new");
+  const [priceMin, setPriceMin] = useState("");
+  const [priceMax, setPriceMax] = useState("");
 
   useEffect(() => {
     fetch("/api/catalog").then((r) => r.json()).then((j) => {
@@ -41,11 +44,19 @@ export default function ListingsExplorer({ initialCategory = "" }) {
     return () => { clearTimeout(t); ctrl.abort(); };
   }, [category, model, q]);
 
-  const visible = useMemo(
-    () => listings.filter((l) => txn === "all" || l.transactionType === txn),
-    [listings, txn]
-  );
-  const activeCount = [category, txn !== "all" ? txn : "", model !== "all" ? model : "", q.trim()].filter(Boolean).length;
+  const visible = useMemo(() => {
+    const min = Number(priceMin) || 0;
+    const max = Number(priceMax) || Infinity;
+    const filtered = listings.filter(
+      (l) => (txn === "all" || l.transactionType === txn) && l.price >= min && l.price <= max
+    );
+    const sorted = [...filtered];
+    if (sort === "price_asc") sorted.sort((a, b) => a.price - b.price);
+    else if (sort === "price_desc") sorted.sort((a, b) => b.price - a.price);
+    return sorted; // "new" keeps API order (newest first)
+  }, [listings, txn, priceMin, priceMax, sort]);
+
+  const activeCount = [category, txn !== "all" ? txn : "", model !== "all" ? model : "", q.trim(), priceMin, priceMax].filter(Boolean).length;
   const activeCategory = cats.find((c) => c.slug === category)?.name;
 
   function resetFilters() {
@@ -53,6 +64,9 @@ export default function ListingsExplorer({ initialCategory = "" }) {
     setTxn("all");
     setModel("all");
     setQ("");
+    setPriceMin("");
+    setPriceMax("");
+    setSort("new");
   }
 
   return (
@@ -121,9 +135,34 @@ export default function ListingsExplorer({ initialCategory = "" }) {
                 {activeCount ? `Filtered by ${[activeCategory, txn !== "all" ? txn : "", model !== "all" ? `Model ${model}` : "", q.trim() && `"${q.trim()}"`].filter(Boolean).join(", ")}` : "Showing the newest active listings first"}
               </p>
             </div>
-            <button className="btn-outline min-h-9 px-3 py-1.5" onClick={resetFilters} disabled={!activeCount}>
-              <SlidersHorizontal className="h-4 w-4" /> Clear filters
-            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="number" inputMode="numeric" placeholder="Min Rwf" value={priceMin}
+                  onChange={(e) => setPriceMin(e.target.value)}
+                  className="w-24 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-sm font-semibold text-ink outline-none focus:border-brand"
+                  aria-label="Minimum price"
+                />
+                <span className="text-ink-faint">–</span>
+                <input
+                  type="number" inputMode="numeric" placeholder="Max Rwf" value={priceMax}
+                  onChange={(e) => setPriceMax(e.target.value)}
+                  className="w-24 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-sm font-semibold text-ink outline-none focus:border-brand"
+                  aria-label="Maximum price"
+                />
+              </div>
+              <select
+                value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort listings"
+                className="rounded-lg border border-line bg-surface px-2.5 py-1.5 text-sm font-semibold text-ink outline-none focus:border-brand"
+              >
+                <option value="new">Newest</option>
+                <option value="price_asc">Price: low to high</option>
+                <option value="price_desc">Price: high to low</option>
+              </select>
+              <button className="btn-outline min-h-9 px-3 py-1.5" onClick={resetFilters} disabled={!activeCount}>
+                <SlidersHorizontal className="h-4 w-4" /> Clear
+              </button>
+            </div>
           </div>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {visible.map((l, i) => (

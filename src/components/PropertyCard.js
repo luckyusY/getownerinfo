@@ -24,7 +24,7 @@ export default function PropertyCard({ listing, style }) {
       <div className="relative mb-3 aspect-[4/3] overflow-hidden rounded-xl bg-panel">
         {l.images?.[0] ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={l.images[0]} alt={l.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+          <img src={l.images[0]} alt={l.title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
         ) : (
           <div className="flex h-full flex-col items-center justify-center gap-2 text-xs text-ink-faint">
             <Camera className="h-6 w-6" />

@@ -15,6 +15,7 @@ const COLS = [
     links: [
       ["Browse listings", "/listings"],
       ["Seeker requests", "/seekers"],
+      ["Pricing", "/pricing"],
       ["List your property", "/dashboard/owner/listings/new"],
       ["My account", "/dashboard"],
     ],

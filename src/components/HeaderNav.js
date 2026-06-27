@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { HelpCircle, Home, Inbox, LayoutGrid, MessageCircle } from "lucide-react";
+import { HelpCircle, Home, Inbox, LayoutGrid, MessageCircle, Tag } from "lucide-react";
 
 export const MAIN_NAV = [
   { label: "Home", href: "/", icon: Home },
   { label: "Browse", href: "/listings", icon: LayoutGrid },
   { label: "Requests", href: "/seekers", icon: Inbox },
+  { label: "Pricing", href: "/pricing", icon: Tag },
   { label: "How it works", href: "/#how", icon: HelpCircle },
   { label: "Contact", href: "/contact", icon: MessageCircle },
 ];

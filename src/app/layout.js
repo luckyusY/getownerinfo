@@ -42,6 +42,10 @@ export const metadata = {
   twitter: { card: "summary_large_image", title: "getownerinfo", description: "Find the real owner. Skip the brokers." },
 };
 
+export const viewport = {
+  themeColor: "#15b0dd",
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable}`}>
