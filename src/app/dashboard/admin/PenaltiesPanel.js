@@ -5,6 +5,7 @@ import { formatRwf } from "@/lib/format";
 import { useToast } from "@/components/ui/Toast";
 import { StatusBadge } from "@/components/ui/Badge";
 import { SectionHeading, Table, Tr, Td } from "@/components/ui/Dashboard";
+import EmptyState from "@/components/ui/EmptyState";
 
 const OFFENSES = [
   "late_status_update", "under_reporting", "early_withdrawal", "false_not_concluded",
@@ -69,34 +70,42 @@ export default function PenaltiesPanel() {
   }
 
   return (
-    <div className="mt-10">
+    <section className="mt-10">
       <SectionHeading
-        title={`Penalties — outstanding ${formatRwf(summary.outstanding)}`}
+        title={`Penalties - outstanding ${formatRwf(summary.outstanding)}`}
         action={<button className="btn-outline" onClick={() => setShowForm((s) => !s)}>{showForm ? "Cancel" : "Issue penalty"}</button>}
       />
 
       {showForm && (
-        <div className="mb-4 grid gap-3 card sm:grid-cols-2">
-          <div><label className="label">Offender email</label>
-            <input className="input" value={form.userEmail} onChange={(e) => setForm({ ...form, userEmail: e.target.value })} /></div>
-          <div><label className="label">Offense</label>
+        <div className="mb-4 grid gap-3 rounded-xl border border-line bg-surface p-5 shadow-soft sm:grid-cols-2">
+          <div>
+            <label className="label">Offender email</label>
+            <input className="input" value={form.userEmail} onChange={(e) => setForm({ ...form, userEmail: e.target.value })} />
+          </div>
+          <div>
+            <label className="label">Offense</label>
             <select className="input" value={form.offenseType} onChange={(e) => setForm({ ...form, offenseType: e.target.value })}>
               {OFFENSES.map((o) => <option key={o} value={o}>{o.replace(/_/g, " ")}</option>)}
-            </select></div>
-          <div><label className="label">Expected amount (Rwf, basis for 50%)</label>
-            <input type="number" className="input" value={form.expectedAmount} onChange={(e) => setForm({ ...form, expectedAmount: e.target.value })} /></div>
-          <div><label className="label">Reason</label>
-            <input className="input" value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} /></div>
+            </select>
+          </div>
+          <div>
+            <label className="label">Expected amount (Rwf, basis for 50%)</label>
+            <input type="number" className="input" value={form.expectedAmount} onChange={(e) => setForm({ ...form, expectedAmount: e.target.value })} />
+          </div>
+          <div>
+            <label className="label">Reason</label>
+            <input className="input" value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} />
+          </div>
           <div className="sm:col-span-2">
             <button className="btn-primary" disabled={busy || !form.userEmail || form.reason.length < 3} onClick={issue}>
-              {busy ? "Issuing…" : "Issue penalty"}
+              {busy ? "Issuing..." : "Issue penalty"}
             </button>
           </div>
         </div>
       )}
 
       {penalties.length === 0 ? (
-        <p className="text-sm text-ink-soft">No penalties issued.</p>
+        <EmptyState title="No penalties issued" hint="Confirmed abuse and waived penalties will appear here." />
       ) : (
         <Table head={["User", "Offense", "Amount", "Status", ""]}>
           {penalties.map((p) => (
@@ -110,6 +119,6 @@ export default function PenaltiesPanel() {
           ))}
         </Table>
       )}
-    </div>
+    </section>
   );
 }

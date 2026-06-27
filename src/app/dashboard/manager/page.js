@@ -24,12 +24,15 @@ export default async function ManagerDashboard() {
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
         <StatCard label="Awaiting verification" value={pending} tone={pending ? "brand" : "default"} />
         <StatCard label="Active listings" value={active} />
-        <StatCard label="Assigned to you" value="—" hint="Assignment coming soon" />
+        <StatCard label="Assigned to you" value="-" hint="Assignment coming soon" />
       </div>
 
-      <div className="mt-8 card text-sm text-ink-soft">
-        Listing assignment and document verification tools appear here as the platform grows.
-        For now you can review the public listings catalogue.
+      <div className="mt-8 rounded-xl border border-dashed border-line bg-surface px-5 py-8 text-sm leading-relaxed text-ink-soft shadow-soft">
+        <p className="font-semibold text-ink">Verification workspace</p>
+        <p className="mt-1">
+          Listing assignment and document verification tools appear here as the platform grows.
+          For now you can review the public listings catalogue.
+        </p>
       </div>
     </div>
   );

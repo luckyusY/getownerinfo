@@ -2,12 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-/**
- * Shared chat thread.
- * @param {string} listingId
- * @param {"buyer"|"owner"} side   - which side the current user is on
- * @param {string} [buyerId]       - required when side === "owner"
- */
 export default function ChatBox({ listingId, side, buyerId }) {
   const [messages, setMessages] = useState([]);
   const [unlocked, setUnlocked] = useState(false);
@@ -48,7 +42,7 @@ export default function ChatBox({ listingId, side, buyerId }) {
       const j = await res.json();
       if (!j.success) throw new Error(j.error);
       if (j.data.blocked) {
-        setNotice(`⚠ Message blocked — it looked like it shared ${j.data.reasons.join(", ")}. Contact details can only be shared after the buyer unlocks.`);
+        setNotice(`Message blocked: it looked like it shared ${j.data.reasons.join(", ")}. Contact details can only be shared after the buyer unlocks.`);
       } else {
         setText("");
         await load();
@@ -61,17 +55,17 @@ export default function ChatBox({ listingId, side, buyerId }) {
   }
 
   return (
-    <div className="rounded-xl border border-line bg-white">
-      <div className="flex items-center justify-between border-b border-line/70 px-4 py-2">
-        <span className="text-sm font-medium text-ink">Messages</span>
-        <span className={`text-xs ${unlocked ? "text-emerald-600" : "text-amber-600"}`}>
-          {unlocked ? "Contact sharing unlocked" : "Pre-unlock — contact info is blocked"}
+    <div className="rounded-xl border border-line bg-surface shadow-soft">
+      <div className="flex items-center justify-between gap-3 border-b border-line/70 px-4 py-3">
+        <span className="text-sm font-bold text-ink">Messages</span>
+        <span className={`text-xs font-bold ${unlocked ? "text-emerald-600" : "text-amber-600"}`}>
+          {unlocked ? "Contact sharing unlocked" : "Pre-unlock: contact info is blocked"}
         </span>
       </div>
 
       <div className="max-h-72 space-y-2 overflow-y-auto px-4 py-3">
         {loading ? (
-          <p className="text-sm text-ink-faint">Loading…</p>
+          <p className="text-sm text-ink-faint">Loading...</p>
         ) : messages.length === 0 ? (
           <p className="text-sm text-ink-faint">No messages yet. Ask about availability.</p>
         ) : (
@@ -79,12 +73,12 @@ export default function ChatBox({ listingId, side, buyerId }) {
             const mine = m.senderSide === side;
             return (
               <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
+                <div className={`max-w-[80%] rounded-xl px-3 py-2 text-sm ${
                   m.blocked ? "border border-dashed border-red-300 bg-red-50 text-red-600"
                   : mine ? "bg-brand text-white" : "bg-panel text-ink"
                 }`}>
                   {m.body}
-                  {m.blocked && <span className="mt-1 block text-[11px]">Blocked ({m.blockedReasons.join(", ")}) — not delivered</span>}
+                  {m.blocked && <span className="mt-1 block text-[11px]">Blocked ({m.blockedReasons.join(", ")}) - not delivered</span>}
                   {m.onBehalf && <span className="mt-1 block text-[11px] opacity-70">(sent by staff)</span>}
                 </div>
               </div>
@@ -94,16 +88,16 @@ export default function ChatBox({ listingId, side, buyerId }) {
         <div ref={endRef} />
       </div>
 
-      {notice && <p className="mx-4 mb-2 rounded bg-amber-50 px-3 py-2 text-xs text-amber-700">{notice}</p>}
+      {notice && <p className="mx-4 mb-2 rounded-lg bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-700">{notice}</p>}
 
       <form onSubmit={send} className="flex gap-2 border-t border-line/70 p-3">
         <input
           className="input"
-          placeholder={unlocked ? "Type a message…" : "Ask about availability (no contact info yet)"}
+          placeholder={unlocked ? "Type a message" : "Ask about availability (no contact info yet)"}
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
-        <button className="btn-primary" disabled={sending || !text.trim()}>{sending ? "…" : "Send"}</button>
+        <button className="btn-primary" disabled={sending || !text.trim()}>{sending ? "Sending..." : "Send"}</button>
       </form>
     </div>
   );

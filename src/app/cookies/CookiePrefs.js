@@ -26,7 +26,7 @@ export default function CookiePrefs() {
     setTimeout(() => setSaved(false), 2500);
   }
 
-  if (loading) return <p className="mt-6 text-sm text-ink-faint">Loading…</p>;
+  if (loading) return <p className="mt-6 text-sm text-ink-faint">Loading...</p>;
 
   return (
     <div className="mt-6 space-y-4">
@@ -38,7 +38,7 @@ export default function CookiePrefs() {
 
       <div className="flex items-center gap-3">
         <button className="btn-primary" onClick={save}>Save preferences</button>
-        {saved && <span className="text-sm text-emerald-600">Saved ✓</span>}
+        {saved && <span className="text-sm font-semibold text-emerald-600">Saved</span>}
       </div>
     </div>
   );
@@ -46,9 +46,9 @@ export default function CookiePrefs() {
 
 function Row({ title, desc, checked, disabled, onChange }) {
   return (
-    <div className="card flex items-center justify-between">
+    <div className="card flex items-center justify-between gap-4">
       <div>
-        <p className="font-medium text-ink">{title}</p>
+        <p className="font-bold text-ink">{title}</p>
         <p className="text-sm text-ink-faint">{desc}</p>
       </div>
       <input type="checkbox" className="h-5 w-5" checked={checked} disabled={disabled}

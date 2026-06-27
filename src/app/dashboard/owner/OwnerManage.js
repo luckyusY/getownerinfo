@@ -74,11 +74,10 @@ export default function OwnerManage() {
     }
   }
 
-  if (loading) return <p className="mt-8 text-sm text-ink-soft">Loading…</p>;
+  if (loading) return <p className="mt-8 text-sm font-semibold text-ink-soft">Loading workspace...</p>;
 
   return (
     <div className="mt-8 space-y-8">
-      {/* Penalties */}
       {penalties.length > 0 && (
         <section>
           <SectionHeading title="Penalties" />
@@ -96,7 +95,6 @@ export default function OwnerManage() {
         </section>
       )}
 
-      {/* Commissions */}
       {commissions.length > 0 && (
         <section>
           <SectionHeading title="Commissions (Model A)" />
@@ -104,7 +102,7 @@ export default function OwnerManage() {
             {commissions.map((c) => (
               <Tr key={c.id}>
                 <Td className="font-semibold text-ink">{c.listingTitle}</Td>
-                <Td className="capitalize text-ink-soft">{c.dealOutcome} · {formatRwf(c.finalAmount)}</Td>
+                <Td className="capitalize text-ink-soft">{c.dealOutcome} - {formatRwf(c.finalAmount)}</Td>
                 <Td className="font-semibold text-ink">{formatRwf(c.total)}</Td>
                 <Td><StatusBadge status={c.status} /></Td>
                 <Td>{c.status !== "paid" && <button className="btn-primary" disabled={busy} onClick={() => payCommission(c.id)}>Pay</button>}</Td>
@@ -114,22 +112,23 @@ export default function OwnerManage() {
         </section>
       )}
 
-      {/* Listings */}
       <section>
         <SectionHeading title="Listings" />
         {listings.length === 0 ? (
-          <EmptyState icon="▤" title="No listings yet" hint="Create your first listing to start receiving unlocks." />
+          <EmptyState title="No listings yet" hint="Create your first listing to start receiving unlocks." />
         ) : (
           <div className="space-y-3">
             {listings.map((l) => (
               <div key={l.id} className="card !p-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                   <div>
-                    <p className="font-semibold text-ink">{l.title}</p>
-                    <p className="text-xs text-ink-faint">Model {l.model} · {formatRwf(l.price)} · {l.transactionType} · unlocks: {l.unlockCount ?? 0}</p>
-                    {l.reviewFlag && <p className="mt-1 text-xs text-red-600">⚑ Flagged: {l.reviewReason}</p>}
+                    <p className="font-display text-lg font-semibold text-ink">{l.title}</p>
+                    <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-ink-faint">
+                      Model {l.model} - {formatRwf(l.price)} - {l.transactionType} - unlocks: {l.unlockCount ?? 0}
+                    </p>
+                    {l.reviewFlag && <p className="mt-1 text-xs font-semibold text-red-600">Flagged: {l.reviewReason}</p>}
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <StatusBadge status={l.status} />
                     {REPORTABLE.includes(l.status) && (
                       <button className="btn-outline" onClick={() => { setReportFor(reportFor === l.id ? null : l.id); setOutcome("sold"); setFinalAmount(""); }}>
@@ -140,7 +139,7 @@ export default function OwnerManage() {
                 </div>
 
                 {reportFor === l.id && (
-                  <div className="mt-3 grid gap-3 rounded-xl bg-panel p-3 sm:grid-cols-3">
+                  <div className="mt-4 grid gap-3 rounded-xl border border-line bg-panel/70 p-4 sm:grid-cols-3">
                     <div>
                       <label className="label">Outcome</label>
                       <select className="input" value={outcome} onChange={(e) => setOutcome(e.target.value)}>
@@ -157,7 +156,7 @@ export default function OwnerManage() {
                     )}
                     <div className="flex items-end">
                       <button className="btn-primary w-full" disabled={busy || (outcome !== "not_concluded" && !finalAmount)} onClick={() => submitOutcome(l.id)}>
-                        {busy ? "Submitting…" : "Submit outcome"}
+                        {busy ? "Submitting..." : "Submit outcome"}
                       </button>
                     </div>
                     {l.model === "A" && outcome !== "not_concluded" && (

@@ -4,12 +4,11 @@ import { createContext, useContext, useCallback, useState } from "react";
 
 const ToastCtx = createContext(null);
 
-// Safe even if a component renders outside the provider (no-op fallback).
 export function useToast() {
   return useContext(ToastCtx) || { toast: () => {} };
 }
 
-const ICONS = { success: "✓", error: "✕", info: "ℹ", warning: "⚠" };
+const ICONS = { success: "OK", error: "!", info: "i", warning: "!" };
 const STYLES = {
   success: "border-emerald-200 bg-emerald-50 text-emerald-800",
   error: "border-red-200 bg-red-50 text-red-800",
@@ -47,11 +46,11 @@ export function ToastProvider({ children }) {
             role="status"
             className={`pointer-events-auto flex animate-fade-up items-start gap-3 rounded-xl border px-3.5 py-3 shadow-lift ${STYLES[t.type]}`}
           >
-            <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white ${ICON_BG[t.type]}`}>
+            <span className={`mt-0.5 flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 text-[9px] font-bold text-white ${ICON_BG[t.type]}`}>
               {ICONS[t.type]}
             </span>
             <p className="flex-1 text-sm font-medium leading-snug">{t.message}</p>
-            <button onClick={() => remove(t.id)} className="shrink-0 text-current/60 hover:text-current" aria-label="Dismiss">✕</button>
+            <button onClick={() => remove(t.id)} className="shrink-0 text-current/60 hover:text-current" aria-label="Dismiss">x</button>
           </div>
         ))}
       </div>

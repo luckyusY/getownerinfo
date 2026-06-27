@@ -1,15 +1,16 @@
 import { guardRole } from "@/lib/guardRole";
 import { ROLES } from "@/lib/constants";
+import { PageHeader } from "@/components/ui/Dashboard";
 import OwnerMessages from "./OwnerMessages";
 
 export default function OwnerMessagesPage() {
   guardRole(ROLES.OWNER);
   return (
     <div>
-      <h1 className="text-2xl font-bold text-ink">Messages</h1>
-      <p className="mt-1 text-sm text-ink-soft">
-        Replies are filtered until the buyer unlocks — don&apos;t share contact details early.
-      </p>
+      <PageHeader
+        title="Messages"
+        subtitle="Replies are filtered until the buyer unlocks. Do not share contact details early."
+      />
       <OwnerMessages />
     </div>
   );

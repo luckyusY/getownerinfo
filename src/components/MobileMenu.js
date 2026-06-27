@@ -22,7 +22,7 @@ export default function MobileMenu({ loggedIn, dashboardPath }) {
         aria-label="Menu"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
-        className="flex h-9 w-9 items-center justify-center rounded-lg border border-line text-ink"
+        className="flex h-10 w-10 items-center justify-center rounded-lg border border-line bg-surface text-ink shadow-soft"
       >
         <span className="relative block h-3 w-4">
           <span className={`absolute left-0 top-0 h-0.5 w-4 bg-current transition ${open ? "translate-y-[5px] rotate-45" : ""}`} />
@@ -37,7 +37,7 @@ export default function MobileMenu({ loggedIn, dashboardPath }) {
           <nav className="absolute inset-x-0 top-full z-50 border-b border-line bg-surface px-4 py-3 shadow-lift">
             <div className="flex flex-col">
               {NAV.map(([label, href]) => (
-                <Link key={label} href={href} onClick={() => setOpen(false)} className="rounded-lg px-3 py-2.5 text-sm font-semibold text-ink-soft hover:bg-panel hover:text-ink">
+                <Link key={label} href={href} onClick={() => setOpen(false)} className="rounded-lg px-3 py-2.5 text-sm font-bold text-ink-soft hover:bg-panel hover:text-ink">
                   {label}
                 </Link>
               ))}

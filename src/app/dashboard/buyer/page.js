@@ -40,7 +40,6 @@ export default async function BuyerDashboard() {
         <SectionHeading title="Unlocked contacts" />
         {unlocks.length === 0 ? (
           <EmptyState
-            icon="🔓"
             title="No unlocks yet"
             hint="Unlock a listing's verified owner contact to see it here."
             action={<Link href="/listings" className="btn-primary">Browse listings</Link>}

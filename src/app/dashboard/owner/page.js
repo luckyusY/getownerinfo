@@ -41,10 +41,10 @@ export default async function OwnerDashboard() {
 
       {outstanding > 0 && (
         <div className="mt-4 flex items-center gap-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          <span className="text-lg">⚠</span>
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-xs font-bold">!</span>
           <span>
-            You owe <strong>{formatRwf(outstanding)}</strong> in commission/penalties. Settle it below —
-            new exclusive (Model A) listings are blocked until it&apos;s cleared.
+            You owe <strong>{formatRwf(outstanding)}</strong> in commission/penalties. Settle it below.
+            New exclusive (Model A) listings are blocked until it is cleared.
           </span>
         </div>
       )}

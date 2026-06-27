@@ -24,10 +24,10 @@ export default async function DashboardLayout({ children }) {
   const initials = user.name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-paper">
       {/* Top bar */}
-      <header className="sticky top-0 z-40 border-b border-line/70 bg-paper/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+      <header className="sticky top-0 z-40 border-b border-line/70 bg-surface/90 backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
           <Link href="/" className="flex items-center gap-2">
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-sm font-bold text-white">g</span>
             <span className="font-display text-xl font-semibold text-ink">getowner<span className="text-brand">info</span></span>
@@ -44,13 +44,13 @@ export default async function DashboardLayout({ children }) {
       </header>
 
       {/* Sidebar + content */}
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6 md:flex-row">
-        <aside className="md:w-56 md:shrink-0">
+      <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-6 md:flex-row md:py-8">
+        <aside className="md:w-64 md:shrink-0">
           <div className="md:sticky md:top-20">
             <DashboardNav role={user.role} />
           </div>
         </aside>
-        <main className="min-w-0 flex-1">{children}</main>
+        <main className="min-w-0 flex-1 pb-10">{children}</main>
       </div>
     </div>
   );

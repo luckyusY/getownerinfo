@@ -13,14 +13,16 @@
   --brand-dark: #1187b0;
   --clay: #faa603;
   --gold: #faa603;
+  --success: #14855a;
+  --danger: #c2413d;
 }
 
 @layer base {
   body {
     background-color: var(--paper);
-    /* Clean, with a faint sky-blue wash up top. */
     background-image:
-      radial-gradient(1100px 420px at 50% -10%, rgba(21, 176, 221, 0.08), transparent 60%);
+      radial-gradient(900px 360px at 50% -8%, rgba(21, 176, 221, 0.08), transparent 62%),
+      linear-gradient(180deg, rgba(255,255,255,0.72), rgba(247,248,250,0) 220px);
     background-attachment: fixed;
     color: var(--ink-soft);
     font-family: var(--font-body), system-ui, sans-serif;
@@ -62,7 +64,7 @@
 @layer components {
   /* Buttons */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-primary {
     @apply btn text-white;
@@ -74,7 +76,7 @@
     transform: translateY(-1px);
   }
   .btn-outline {
-    @apply btn bg-surface/70 text-ink;
+    @apply btn bg-surface/80 text-ink;
     border: 1px solid var(--line);
   }
   .btn-outline:hover:not(:disabled) {
@@ -87,15 +89,15 @@
 
   /* Surfaces */
   .card {
-    @apply rounded-2xl p-6;
+    @apply rounded-xl p-6;
     background: var(--surface);
     border: 1px solid var(--line);
-    box-shadow: 0 1px 2px rgba(21, 33, 28, 0.04), 0 10px 30px -18px rgba(21, 33, 28, 0.18);
+    box-shadow: 0 1px 2px rgba(21, 33, 28, 0.04), 0 14px 36px -24px rgba(21, 33, 28, 0.22);
   }
 
   /* Forms */
   .input {
-    @apply w-full rounded-xl px-3.5 py-2.5 text-sm text-ink outline-none transition;
+    @apply w-full rounded-lg px-3.5 py-2.5 text-sm font-semibold text-ink outline-none transition;
     background: var(--surface);
     border: 1px solid var(--line);
   }
@@ -104,12 +106,38 @@
     box-shadow: 0 0 0 3px rgba(21, 176, 221, 0.15);
   }
   .label {
-    @apply mb-1.5 block text-sm font-semibold text-ink-soft;
+    @apply mb-1.5 block text-sm font-bold text-ink-soft;
   }
 
   /* Badges */
   .badge {
     @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
+  }
+
+  .page-shell {
+    @apply mx-auto max-w-6xl px-4 py-10 sm:py-14;
+  }
+
+  .page-hero {
+    @apply rounded-xl border border-line bg-surface p-6 shadow-soft sm:p-8;
+  }
+
+  .eyebrow {
+    @apply text-xs font-bold uppercase tracking-wide text-brand;
+  }
+
+  .auth-shell {
+    @apply min-h-screen bg-paper px-4 py-10;
+    background-image:
+      radial-gradient(720px 320px at 50% 0%, rgba(21, 176, 221, 0.13), transparent 62%);
+  }
+
+  .hero-control {
+    @apply flex h-10 w-10 items-center justify-center rounded-lg border border-white/25 bg-white/10 text-xl font-semibold text-white backdrop-blur transition hover:bg-white/20;
+  }
+
+  .category-tile {
+    @apply relative z-10 flex min-h-[108px] flex-col items-center justify-center gap-2 rounded-xl border border-line bg-surface p-4 text-center shadow-soft transition hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-lift;
   }
 
   /* Filter chips */

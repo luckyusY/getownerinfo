@@ -13,11 +13,14 @@ export default function ListingsPage({ searchParams }) {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <main className="mx-auto max-w-6xl px-4 py-10">
-        <h1 className="font-display text-4xl font-semibold text-ink">Browse listings</h1>
-        <p className="mt-1 text-ink-soft">
-          Contact details and exact location are unlocked with a token fee.
-        </p>
+      <main className="page-shell">
+        <section className="page-hero">
+          <p className="eyebrow">Marketplace</p>
+          <h1 className="mt-2 font-display text-4xl font-semibold text-ink">Browse verified listings</h1>
+          <p className="mt-2 max-w-2xl text-ink-soft">
+            Explore property, vehicles, and assets. Contact details and exact location unlock with a token fee.
+          </p>
+        </section>
         <div className="mt-6">
           <ListingsExplorer initialCategory={searchParams?.category || ""} />
         </div>
