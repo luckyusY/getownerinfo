@@ -53,7 +53,7 @@ async function getHomeData() {
     Category.countDocuments({}),
   ]);
   const catName = Object.fromEntries(categories.map((c) => [c._id.toString(), c.name]));
-  const featured = listings.map((l) => ({
+  const liveListings = listings.map((l) => ({
     id: l._id.toString(),
     title: l.title,
     images: (l.images || []).map((m) => m.url),
@@ -63,13 +63,14 @@ async function getHomeData() {
     location: { area: l.location?.area || null },
     categoryName: catName[l.category?.toString()] || "Listing",
   }));
+  const featured = [...SAMPLE_LISTINGS, ...liveListings].slice(0, 6);
   const stats = [
     { label: "Active listings", value: compact(activeCount) },
     { label: "Verified owners", value: compact(ownerCount) },
     { label: "Contacts unlocked", value: compact(unlockCount) },
     { label: "Categories", value: String(catCount) },
   ];
-  return { featured: featured.length ? featured : SAMPLE_LISTINGS, stats, usingSamples: featured.length === 0 };
+  return { featured, stats, usingSamples: liveListings.length === 0 };
 }
 
 export default async function HomePage() {
@@ -82,7 +83,7 @@ export default async function HomePage() {
       <main>
         <HeroSlider />
 
-        <section className="mx-auto -mt-8 max-w-6xl px-4 pb-8" data-reveal>
+        <section className="mx-auto max-w-6xl px-4 py-8" data-reveal>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
             {CATEGORIES.map((c) => {
               const Icon = c.icon;
@@ -148,9 +149,9 @@ export default async function HomePage() {
           <section className="mx-auto max-w-6xl px-4 py-8" data-reveal>
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <h2 className="font-display text-3xl font-bold text-ink">{usingSamples ? "Example listings" : "Featured listings"}</h2>
+                <h2 className="font-display text-3xl font-bold text-ink">{usingSamples ? "Reference listings" : "Featured listings"}</h2>
                 <p className="mt-1 text-ink-soft">
-                  {usingSamples ? "Sample property and vehicle references from local listing folders." : "Fresh, verified properties and assets."}
+                  {usingSamples ? "Property and vehicle references from the local listing folders you provided." : "Your reference properties first, followed by fresh verified listings."}
                 </p>
               </div>
               <Link href="/listings" className="btn-outline">View all</Link>
