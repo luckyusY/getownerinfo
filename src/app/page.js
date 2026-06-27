@@ -9,7 +9,7 @@ import Category from "@/models/Category";
 import User from "@/models/User";
 import TokenUnlock from "@/models/TokenUnlock";
 import { LISTING_STATUS, ROLES } from "@/lib/constants";
-import { BriefcaseBusiness, Car, FileCheck2, Fingerprint, Handshake, Home, KeyRound, Lock, MapPin, Refrigerator, ScrollText, SearchCheck, ShieldCheck, Sofa, Store } from "lucide-react";
+import { BriefcaseBusiness, Car, FileCheck2, Fingerprint, Handshake, Home, KeyRound, Lock, Refrigerator, ScrollText, SearchCheck, ShieldCheck, Sofa, Store } from "lucide-react";
 import { SAMPLE_LISTINGS } from "@/data/sampleListings";
 import { POPULAR_LOCATIONS } from "@/data/locations";
 
@@ -130,22 +130,15 @@ export default async function HomePage() {
               <Link
                 key={location.name}
                 href={location.href}
-                className="card premium-hover group overflow-hidden !p-0"
+                aria-label={`Browse verified listings in ${location.name}, ${location.district}`}
+                className="group block overflow-hidden rounded-xl border border-line bg-ink shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-lift"
               >
-                <div className="relative aspect-[16/9] overflow-hidden bg-panel">
-                  <img src={location.image} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-ink/10 transition group-hover:bg-ink/0" />
-                  <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/92 px-2.5 py-1 text-[11px] font-bold text-ink shadow-soft">
-                    <MapPin className="h-3.5 w-3.5 text-brand" /> {location.district}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between gap-3 p-4">
-                  <div>
-                    <h3 className="font-display text-xl font-bold text-ink">{location.name}</h3>
-                    <p className="mt-1 text-xs font-semibold text-ink-faint">Browse verified listings in this area</p>
-                  </div>
-                  <span className="shrink-0 rounded-full bg-brand-50 px-3 py-1.5 text-xs font-bold text-brand">View</span>
-                </div>
+                <img
+                  src={location.image}
+                  alt=""
+                  className="aspect-[16/9] h-full w-full object-cover transition duration-500 group-hover:scale-[1.025]"
+                />
+                <span className="sr-only">{location.name}</span>
               </Link>
             ))}
           </div>

@@ -1,6 +1,7 @@
 import "./globals.css";
 import "swiper/css";
 import "swiper/css/effect-fade";
+import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Poppins, Nunito_Sans } from "next/font/google";
 import CookieBanner from "@/components/CookieBanner";
