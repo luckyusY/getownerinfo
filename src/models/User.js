@@ -15,6 +15,9 @@ const UserSchema = new Schema(
     },
     phone: { type: String, trim: true },
     passwordHash: { type: String, required: true },
+    googleId: { type: String, trim: true, sparse: true, index: true },
+    avatarUrl: { type: String, trim: true },
+    authProviders: { type: [String], default: ["password"] },
     role: {
       type: String,
       enum: ALL_ROLES,
@@ -47,6 +50,7 @@ UserSchema.methods.toSafeJSON = function () {
     name: this.name,
     email: this.email,
     phone: this.phone,
+    avatarUrl: this.avatarUrl,
     role: this.role,
     isVerified: this.isVerified,
     penaltyBalance: this.penaltyBalance,

@@ -42,8 +42,8 @@ export default function SiteHeader() {
       <div className="bg-gradient-to-b from-[#16a3cc] to-[#0b5f86] text-white">
         <div className="mx-auto grid w-full max-w-6xl grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-2.5 sm:gap-5">
           <Link href="/" className="flex shrink-0 items-center" aria-label="getownerinfo home">
-            <span className="flex h-14 w-[166px] items-center justify-center overflow-hidden rounded-full bg-white px-4 shadow-[0_10px_24px_rgba(3,18,30,0.16)] ring-1 ring-white/70">
-              <img src="/brand/logo-getownerinfo-cropped-white.png" alt="" className="h-12 w-auto object-contain" />
+            <span className="flex h-12 w-[146px] items-center justify-center overflow-hidden rounded-full bg-white px-3 shadow-[0_10px_24px_rgba(3,18,30,0.16)] ring-1 ring-white/70 sm:h-14 sm:w-[166px] sm:px-4">
+              <img src="/brand/logo-getownerinfo-cropped-white.png" alt="" className="h-10 w-auto object-contain sm:h-12" />
             </span>
           </Link>
 

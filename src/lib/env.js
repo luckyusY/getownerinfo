@@ -35,5 +35,9 @@ export const env = {
     apiKey: process.env.AFRIPAY_API_KEY || "",
     secret: process.env.AFRIPAY_SECRET || "",
   },
+  google: {
+    clientId: process.env.GOOGLE_CLIENT_ID || "",
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+  },
   appUrl: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
 };

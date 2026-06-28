@@ -2,13 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/Toast";
 import { Mail, Lock } from "lucide-react";
 import { FormField, TextInput, SubmitButton } from "@/components/ui/Form";
+import GoogleAuthButton from "@/components/GoogleAuthButton";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
@@ -35,14 +37,19 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="auth-shell flex items-center justify-center">
+    <div className="auth-shell flex items-center justify-center py-6 sm:py-10">
       <div className="w-full max-w-md">
-        <Link href="/" className="mb-6 flex items-center justify-center gap-2">
-          <span className="flex h-20 w-[210px] items-center justify-center overflow-hidden rounded-2xl bg-white px-4 shadow-soft">
-            <img src="/brand/logo-getownerinfo-cropped-white.png" alt="Get Owner Info" className="h-16 w-auto object-contain" />
+        {searchParams.get("error") && (
+          <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+            {searchParams.get("error")}
+          </div>
+        )}
+        <Link href="/" className="mb-5 flex items-center justify-center gap-2 sm:mb-6">
+          <span className="flex h-16 w-[180px] items-center justify-center overflow-hidden rounded-2xl bg-white px-4 shadow-soft sm:h-20 sm:w-[210px]">
+            <img src="/brand/logo-getownerinfo-cropped-white.png" alt="Get Owner Info" className="h-12 w-auto object-contain sm:h-16" />
           </span>
         </Link>
-        <form onSubmit={onSubmit} className="card space-y-4 !p-7">
+        <form onSubmit={onSubmit} className="card space-y-4 !p-5 sm:!p-7">
           <div>
             <p className="eyebrow">Secure access</p>
             <h1 className="mt-1 font-display text-2xl font-bold text-ink">Welcome back</h1>
@@ -69,6 +76,11 @@ export default function LoginPage() {
               onChange={(e) => setForm({ ...form, password: e.target.value })}
             />
           </FormField>
+
+          <GoogleAuthButton />
+          <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-wide text-ink-faint">
+            <span className="h-px flex-1 bg-line" /> Or use email <span className="h-px flex-1 bg-line" />
+          </div>
 
           <SubmitButton type="submit" loading={loading} className="w-full">
             {loading ? "Signing in..." : "Sign in"}
