@@ -6,6 +6,7 @@ import MobileMenu from "@/components/MobileMenu";
 import HeaderSearch from "@/components/HeaderSearch";
 import CategoryBar from "@/components/CategoryBar";
 import AccountDropdown from "@/components/AccountDropdown";
+import NotificationBell from "@/components/NotificationBell";
 import GoogleOneTap from "@/components/GoogleOneTap";
 
 const DASHBOARD_PATHS = {
@@ -56,11 +57,15 @@ export default function SiteHeader() {
             <a href="tel:+250788385831" aria-label="Call support" className="text-white sm:hidden"><Phone className="h-5 w-5" /></a>
             <a href="https://wa.me/250788385831" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="text-white sm:hidden"><MessageCircle className="h-5 w-5" /></a>
 
+            {session && <NotificationBell />}
+
             <AccountDropdown session={session} dashboardPath={dashboardPath || "/dashboard"} />
 
-            <Link href="/dashboard/buyer" aria-label="Saved listings" className="hidden text-white hover:text-[#9fdcef] sm:block">
-              <Heart className="h-6 w-6" />
-            </Link>
+            {session?.role === ROLES.BUYER && (
+              <Link href="/dashboard/buyer" aria-label="Saved listings" className="hidden text-white hover:text-[#9fdcef] sm:block">
+                <Heart className="h-6 w-6" />
+              </Link>
+            )}
             <MobileMenu loggedIn={!!session} dashboardPath={dashboardPath || "/dashboard"} session={session} />
           </div>
         </div>

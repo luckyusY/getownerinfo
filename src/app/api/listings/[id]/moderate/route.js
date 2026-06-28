@@ -2,6 +2,7 @@ import { z } from "zod";
 import { connectDB } from "@/lib/db";
 import Listing from "@/models/Listing";
 import { audit } from "@/models/AuditLog";
+import { notifyUser } from "@/models/Notification";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { ROLES, LISTING_STATUS } from "@/lib/constants";
 
@@ -48,6 +49,24 @@ export async function POST(req, { params }) {
     targetId: listing._id,
     meta: { reason: parsed.data.reason },
   });
+
+  if (parsed.data.action === "approve") {
+    await notifyUser({
+      user: listing.owner,
+      type: "listing_approved",
+      title: "Listing approved",
+      body: `“${listing.title}” is now live.`,
+      link: `/listings/${listing._id.toString()}`,
+    });
+  } else {
+    await notifyUser({
+      user: listing.owner,
+      type: "listing_rejected",
+      title: "Listing needs changes",
+      body: `“${listing.title}” was rejected: ${listing.rejectionReason}`,
+      link: "/dashboard/owner",
+    });
+  }
 
   return ok({ listing: listing.toFullJSON({ includeProof: true }) });
 }

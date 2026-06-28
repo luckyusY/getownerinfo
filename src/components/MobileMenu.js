@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Building2, CarFront, LayoutDashboard, LogIn, MapPin, UserPlus } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Building2, CarFront, LayoutDashboard, LogIn, LogOut, MapPin, UserPlus } from "lucide-react";
 import { MAIN_NAV } from "@/components/HeaderNav";
 import { POPULAR_LOCATIONS } from "@/data/locations";
+import { useToast } from "@/components/ui/Toast";
 
 const SECONDARY_NAV = [
   ["About", "/about"],
@@ -21,8 +22,18 @@ function isActive(pathname, href) {
 export default function MobileMenu({ loggedIn, dashboardPath, session }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const { toast } = useToast();
   const displayName = session?.name || "My account";
   const displayInitial = displayName.trim().charAt(0).toUpperCase() || "U";
+
+  async function handleLogout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    toast("Signed out", { type: "info" });
+    setOpen(false);
+    router.push("/");
+    router.refresh();
+  }
 
   return (
     <div className="md:hidden">
@@ -112,6 +123,13 @@ export default function MobileMenu({ loggedIn, dashboardPath, session }) {
                   <Link href={dashboardPath} onClick={() => setOpen(false)} className="btn-primary w-full">
                     <LayoutDashboard className="h-4 w-4" /> Dashboard
                   </Link>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-bold text-red-600 transition hover:bg-red-100"
+                  >
+                    <LogOut className="h-4 w-4" /> Log out
+                  </button>
                 </div>
               ) : (
                 <>

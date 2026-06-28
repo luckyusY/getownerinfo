@@ -6,6 +6,7 @@ import Message from "@/models/Message";
 import TokenUnlock from "@/models/TokenUnlock";
 import { scanMessage } from "@/lib/contentFilter";
 import { audit } from "@/models/AuditLog";
+import { notifyUser } from "@/models/Notification";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { ROLES } from "@/lib/constants";
 
@@ -109,6 +110,19 @@ export async function POST(req, { params }) {
   conversation.lastMessageAt = new Date();
   conversation.lastMessagePreview = parsed.data.body.slice(0, 80);
   await conversation.save();
+
+  // Notify the recipient (the other side of the conversation).
+  const recipient = senderSide === "buyer" ? listing.owner : conversation.buyer;
+  const recipientLink = senderSide === "buyer"
+    ? "/dashboard/owner/messages"
+    : `/listings/${listing._id.toString()}`;
+  await notifyUser({
+    user: recipient,
+    type: "message",
+    title: "New message",
+    body: `About “${listing.title}”: ${parsed.data.body.slice(0, 60)}`,
+    link: recipientLink,
+  });
 
   if (onBehalf) {
     await audit({

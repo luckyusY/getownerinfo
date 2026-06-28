@@ -1,6 +1,7 @@
 import Listing from "@/models/Listing";
 import TokenUnlock from "@/models/TokenUnlock";
 import { audit } from "@/models/AuditLog";
+import { notifyUser } from "@/models/Notification";
 import { PAYMENT_STATUS } from "@/lib/constants";
 
 // Fields a token unlock reveals (spec). National ID / ownership docs are NEVER here.
@@ -47,6 +48,14 @@ export async function finalizeUnlock({ payment, listing, user }) {
       targetType: "Listing",
       targetId: listing._id,
       meta: { paymentId: payment._id.toString(), tier: payment.tier, amount: payment.amount },
+    });
+
+    await notifyUser({
+      user: listing.owner,
+      type: "unlock",
+      title: "A buyer unlocked your contact",
+      body: `${user.name} unlocked “${listing.title}”.`,
+      link: `/listings/${listing._id.toString()}`,
     });
   }
   return unlock;

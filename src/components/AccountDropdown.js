@@ -2,23 +2,56 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   ChevronDown,
   CircleUser,
   Heart,
   LayoutDashboard,
+  ListChecks,
   LogIn,
+  LogOut,
   MessageCircle,
+  MessagesSquare,
   PlusCircle,
   ShieldCheck,
   UserPlus,
 } from "lucide-react";
+import { useToast } from "@/components/ui/Toast";
+
+const ROLE_LINKS = {
+  buyer: [{ href: "/dashboard/buyer", icon: Heart, label: "Saved listings" }],
+  owner: [
+    { href: "/dashboard/owner", icon: ListChecks, label: "My listings" },
+    { href: "/dashboard/owner/messages", icon: MessagesSquare, label: "Messages" },
+    { href: "/dashboard/owner/listings/new", icon: PlusCircle, label: "New listing" },
+  ],
+  platform_listing_manager: [],
+  admin: [],
+};
 
 export default function AccountDropdown({ session, dashboardPath = "/dashboard" }) {
   const [open, setOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const menuRef = useRef(null);
   const pathname = usePathname();
+  const router = useRouter();
+  const { toast } = useToast();
+
+  async function handleLogout() {
+    setLoggingOut(true);
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      toast("Signed out", { type: "info" });
+      setOpen(false);
+      router.push("/");
+      router.refresh();
+    } catch {
+      toast("Could not sign out. Try again.", { type: "error" });
+    } finally {
+      setLoggingOut(false);
+    }
+  }
 
   useEffect(() => {
     setOpen(false);
@@ -105,8 +138,20 @@ export default function AccountDropdown({ session, dashboardPath = "/dashboard" 
               </div>
             </div>
             <MenuLink href={dashboardPath} icon={LayoutDashboard} label="Dashboard" />
-            <MenuLink href="/dashboard/buyer" icon={Heart} label="Saved listings" />
+            {(ROLE_LINKS[session.role] || []).map((item) => (
+              <MenuLink key={item.href} href={item.href} icon={item.icon} label={item.label} />
+            ))}
             <MenuLink href="/contact" icon={MessageCircle} label="Support" />
+            <button
+              type="button"
+              role="menuitem"
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="flex w-full items-center gap-3 border-t border-line px-4 py-3 text-left text-sm font-bold text-red-600 transition hover:bg-red-50 focus:bg-red-50 focus:outline-none disabled:opacity-60"
+            >
+              <LogOut className="h-4 w-4" />
+              {loggingOut ? "Signing out…" : "Log out"}
+            </button>
           </>
         ) : (
           <>
