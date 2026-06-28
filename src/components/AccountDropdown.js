@@ -79,7 +79,7 @@ export default function AccountDropdown({ session, dashboardPath = "/dashboard" 
   const displayInitial = displayName.trim().charAt(0).toUpperCase() || "U";
 
   return (
-    <div ref={menuRef} className="relative hidden sm:block">
+    <div ref={menuRef} className="relative hidden md:block">
       <button
         type="button"
         aria-haspopup="menu"

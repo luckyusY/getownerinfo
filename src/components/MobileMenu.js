@@ -41,7 +41,7 @@ export default function MobileMenu({ loggedIn, dashboardPath, session }) {
         aria-label="Menu"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
-        className="flex h-10 w-10 items-center justify-center rounded-lg border border-line bg-surface text-ink shadow-soft transition hover:border-brand/40 hover:text-brand"
+        className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-white shadow-sm transition hover:bg-brand-dark"
       >
         <span className="relative block h-3 w-4">
           <span className={`absolute left-0 top-0 h-0.5 w-4 bg-current transition ${open ? "translate-y-[5px] rotate-45" : ""}`} />
@@ -52,8 +52,8 @@ export default function MobileMenu({ loggedIn, dashboardPath, session }) {
 
       {open && (
         <>
-          <div className="fixed inset-0 top-[57px] z-40 bg-ink/30 backdrop-blur-[1px]" onClick={() => setOpen(false)} />
-          <nav className="absolute inset-x-3 top-full z-50 rounded-b-xl border border-line bg-surface p-3 shadow-lift">
+          <div className="fixed inset-0 top-[98px] z-40 bg-ink/30 backdrop-blur-[1px]" onClick={() => setOpen(false)} />
+          <nav className="fixed inset-x-3 top-[98px] z-50 max-h-[calc(100dvh-110px)] overflow-y-auto rounded-xl border border-line bg-surface p-3 shadow-lift">
             <div className="grid gap-1">
               {MAIN_NAV.map(({ label, href, icon: Icon }) => {
                 const active = isActive(pathname, href);
