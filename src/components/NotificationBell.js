@@ -61,7 +61,7 @@ export default function NotificationBell() {
         onClick={toggle}
         aria-label={`Notifications${unread ? `, ${unread} unread` : ""}`}
         aria-expanded={open}
-        className="relative grid h-9 w-9 place-items-center rounded-full text-white transition hover:bg-white/10"
+        className="relative grid h-9 w-9 place-items-center rounded-full text-ink transition hover:bg-black/5 md:text-white md:hover:bg-white/10"
       >
         <Bell className="h-5 w-5" />
         {unread > 0 && (

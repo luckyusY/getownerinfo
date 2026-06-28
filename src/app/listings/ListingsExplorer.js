@@ -8,7 +8,7 @@ import EmptyState from "@/components/ui/EmptyState";
 import { BadgeCheck, Filter, RotateCcw, Search, SlidersHorizontal, Sparkles } from "lucide-react";
 import { RWANDA_LOCATIONS } from "@/data/locations";
 
-export default function ListingsExplorer({ initialCategory = "", initialLocation = "" }) {
+export default function ListingsExplorer({ initialCategory = "", initialLocation = "", initialQuery = "" }) {
   const [cats, setCats] = useState([]);
   const [catMap, setCatMap] = useState({});
   const [listings, setListings] = useState([]);
@@ -18,7 +18,7 @@ export default function ListingsExplorer({ initialCategory = "", initialLocation
   const [location, setLocation] = useState(initialLocation);
   const [txn, setTxn] = useState("all");
   const [model, setModel] = useState("all");
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState(initialQuery);
   const [sort, setSort] = useState("new");
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");

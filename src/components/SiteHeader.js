@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { Heart, Search } from "lucide-react";
+import { Heart } from "lucide-react";
 import { getSession } from "@/lib/auth";
 import { ROLES } from "@/lib/constants";
 import MobileMenu from "@/components/MobileMenu";
 import HeaderSearch from "@/components/HeaderSearch";
+import MobileSearch from "@/components/MobileSearch";
 import CategoryBar from "@/components/CategoryBar";
 import AccountDropdown from "@/components/AccountDropdown";
 import NotificationBell from "@/components/NotificationBell";
@@ -52,11 +53,7 @@ export default function SiteHeader() {
           <HeaderSearch />
 
           <div className="flex items-center justify-end gap-2 sm:gap-5">
-            {session && (
-              <div className="hidden md:block">
-                <NotificationBell />
-              </div>
-            )}
+            {session && <NotificationBell />}
 
             <AccountDropdown session={session} dashboardPath={dashboardPath || "/dashboard"} />
 
@@ -69,13 +66,7 @@ export default function SiteHeader() {
           </div>
         </div>
         <div className="px-3 pb-2 md:hidden">
-          <Link
-            href="/listings"
-            className="flex h-10 items-center gap-2 rounded-full border border-line bg-panel px-4 text-sm font-bold text-ink-soft shadow-sm"
-          >
-            <Search className="h-4 w-4 text-brand" />
-            Search listings, areas, property
-          </Link>
+          <MobileSearch />
         </div>
       </div>
 
