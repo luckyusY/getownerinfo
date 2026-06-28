@@ -14,7 +14,6 @@ import {
   Headphones, Home, KeyRound, Lock, PackageCheck, Refrigerator, ScrollText,
   SearchCheck, ShieldCheck, Sofa, Store, Truck,
 } from "lucide-react";
-import { SAMPLE_LISTINGS } from "@/data/sampleListings";
 import { POPULAR_LOCATIONS } from "@/data/locations";
 
 export const dynamic = "force-dynamic";
@@ -75,7 +74,7 @@ async function getHomeData() {
     location: { area: l.location?.area || null },
     categoryName: catName[l.category?.toString()] || "Listing",
   }));
-  const featured = [...SAMPLE_LISTINGS, ...liveListings].slice(0, 6);
+  const featured = liveListings.slice(0, 6);
   const stats = [
     { label: "Active listings", value: compact(activeCount) },
     { label: "Verified owners", value: compact(ownerCount) },
@@ -237,21 +236,23 @@ export default async function HomePage() {
                 key={location.name}
                 href={location.href}
                 aria-label={`Browse verified listings in ${location.name}, ${location.district}`}
-                className="group relative flex aspect-[16/10] flex-col justify-end overflow-hidden rounded-xl bg-ink shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-lift"
+                className="group relative flex min-h-[214px] flex-col justify-between overflow-hidden rounded-xl bg-gradient-to-br from-[#062f46] via-[#0b6f91] to-[#16a3cc] p-5 text-white shadow-soft ring-1 ring-cyan-100/20 transition duration-300 hover:-translate-y-1 hover:shadow-lift"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={location.photo} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#03121e] via-[#03121e]/72 to-[#03121e]/15" />
-                <div className="absolute left-3 top-3 flex w-[calc(100%-1.5rem)] items-start justify-between">
-                  <span className="rounded-md bg-brand px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide text-white shadow-sm">Top {String(i + 1).padStart(2, "0")}</span>
-                  <span className="rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-brand">getownerinfo</span>
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_78%_12%,rgba(255,255,255,0.24),transparent_26%),radial-gradient(circle_at_18%_90%,rgba(6,24,31,0.55),transparent_38%)]" />
+                <div className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full border border-cyan-100/20" />
+                <div className="pointer-events-none absolute -bottom-14 left-8 h-40 w-40 rounded-full border border-white/10" />
+
+                <div className="relative flex items-start justify-between gap-3">
+                  <span className="rounded-md bg-white/16 px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide text-white shadow-sm ring-1 ring-white/15 backdrop-blur">Top {String(i + 1).padStart(2, "0")}</span>
+                  <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-[#0b6f91] shadow-sm">getownerinfo</span>
                 </div>
-                <div className="relative p-4 sm:p-5">
-                  <p className="text-xs font-bold uppercase tracking-wide text-brand-light">{location.eyebrow}</p>
-                  <h3 className="mt-0.5 font-display text-2xl font-extrabold uppercase tracking-tight text-white sm:text-3xl">{location.name}</h3>
-                  <span className="mt-2 block h-1 w-12 rounded-full bg-brand" />
-                  <p className="mt-2.5 max-w-xs text-sm font-medium text-white/90">{location.tagline}</p>
-                  <p className="mt-2 border-t border-white/20 pt-2 text-[11px] font-bold uppercase tracking-wide text-white/85">{location.district}, Rwanda · Verified listings · Rent &amp; sale</p>
+
+                <div className="relative">
+                  <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-100">{location.eyebrow}</p>
+                  <h3 className="mt-1 font-display text-3xl font-extrabold uppercase tracking-tight text-white sm:text-4xl">{location.name}</h3>
+                  <span className="mt-3 block h-1 w-14 rounded-full bg-cyan-100 shadow-[0_0_22px_rgba(207,250,254,0.55)]" />
+                  <p className="mt-3 max-w-sm text-sm font-semibold leading-6 text-white/88">{location.tagline}</p>
+                  <p className="mt-4 border-t border-white/18 pt-3 text-[11px] font-black uppercase tracking-wide text-white/82">{location.district}, Rwanda - Verified listings - Rent &amp; sale</p>
                 </div>
               </Link>
             ))}
