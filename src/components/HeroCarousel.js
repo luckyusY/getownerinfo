@@ -16,7 +16,7 @@ export default function HeroCarousel({ slides = [] }) {
   if (slides.length === 0) return null;
 
   return (
-    <section className="adorama-hero relative border-b border-line bg-white">
+    <section className="adorama-hero relative border-b border-[#d5e2ee] bg-[#f4f8fb]">
       <Swiper
         modules={[Autoplay, Navigation, Pagination, A11y]}
         loop={slides.length > 1}
@@ -24,25 +24,43 @@ export default function HeroCarousel({ slides = [] }) {
         autoplay={{ delay: 6000, disableOnInteraction: false, pauseOnMouseEnter: true }}
         navigation={{ prevEl: ".hero-prev", nextEl: ".hero-next" }}
         pagination={{ clickable: true }}
-        className="h-[clamp(360px,38vw,460px)]"
+        className="h-[clamp(360px,34vw,430px)]"
       >
         {slides.map((s, i) => (
           <SwiperSlide key={i}>
-            <div className="relative h-full w-full bg-gradient-to-r from-[#fdf0e6] via-[#eaf3fb] to-[#e6f7f3]">
-              <div className="mx-auto grid h-full max-w-6xl grid-cols-1 items-center gap-6 px-6 sm:px-10 md:grid-cols-2">
-                <div className="z-10">
-                  {s.eyebrow && <p className="text-sm font-extrabold uppercase tracking-wide text-[#0b6c87]">{s.eyebrow}</p>}
-                  <h2 className="mt-2 font-display text-3xl font-extrabold leading-[1.05] text-[#071c1f] sm:text-4xl lg:text-5xl">{s.title}</h2>
-                  {s.body && <p className="mt-3 max-w-md text-sm text-[#071c1f]/75 sm:text-base">{s.body}</p>}
-                  {s.price != null && <p className="mt-2 font-display text-2xl font-bold text-[#0b5f86]">{money(s.price)}</p>}
-                  <Link href={s.href} className="mt-5 inline-flex items-center rounded-md bg-[#0b5f86] px-7 py-3 text-sm font-extrabold uppercase tracking-wide text-white shadow-md transition hover:bg-[#094f6b]">
+            <div className="relative h-full w-full overflow-hidden bg-[#f8fbf6]">
+              <div className="absolute inset-0 opacity-70 [background-image:radial-gradient(circle_at_16%_22%,rgba(22,163,204,0.12),transparent_24%),radial-gradient(circle_at_84%_28%,rgba(255,196,0,0.17),transparent_25%),linear-gradient(135deg,rgba(11,95,134,0.08)_0,transparent_40%)]" />
+              <div className="mx-auto grid h-full max-w-6xl grid-cols-1 items-center gap-6 px-5 sm:px-8 md:grid-cols-[0.9fr_1.1fr]">
+                <div className="z-10 max-w-xl">
+                  {s.eyebrow && <p className="w-fit rounded-full bg-white px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-[#071c1f] shadow-sm">{s.eyebrow}</p>}
+                  <h2 className="mt-3 font-display text-[clamp(2.25rem,4.2vw,4.8rem)] font-black leading-[0.92] text-[#071c1f]">{s.title}</h2>
+                  {s.body && <p className="mt-3 max-w-md text-sm font-semibold leading-6 text-[#071c1f]/72 sm:text-base">{s.body}</p>}
+                  <div className="mt-5 flex flex-wrap gap-3">
+                    {s.price != null && (
+                      <span className="rounded-md bg-white px-5 py-3 shadow-md">
+                        <span className="block text-[10px] font-black uppercase tracking-wide text-[#607280]">Price</span>
+                        <span className="font-display text-2xl font-black leading-none text-[#071c1f]">{money(s.price)}</span>
+                      </span>
+                    )}
+                    <span className="rounded-md bg-white px-5 py-3 shadow-md">
+                      <span className="block text-[10px] font-black uppercase tracking-wide text-[#607280]">Access</span>
+                      <span className="font-display text-2xl font-black leading-none text-[#071c1f]">Verified</span>
+                    </span>
+                  </div>
+                  <Link href={s.href} className="mt-5 inline-flex items-center rounded-sm bg-[#d71920] px-8 py-3 text-sm font-black uppercase tracking-wide text-white shadow-md transition hover:bg-[#b9161c]">
                     {s.ctaLabel || "Shop now"}
                   </Link>
                 </div>
                 <div className="relative hidden h-full items-center justify-center md:flex">
                   {s.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={s.image} alt={s.title} loading={i === 0 ? "eager" : "lazy"} className="max-h-[78%] w-auto rounded-xl object-cover shadow-2xl" />
+                    <div className="relative flex h-[78%] w-[82%] items-center justify-center">
+                      <div className="absolute inset-3 rounded-[28px] bg-white shadow-2xl ring-1 ring-black/5" />
+                      <img src={s.image} alt={s.title} loading={i === 0 ? "eager" : "lazy"} className="relative h-[88%] w-[86%] rounded-sm object-cover shadow-lg" />
+                      <div className="absolute bottom-2 right-0 rounded-xl bg-white px-6 py-5 shadow-xl">
+                        <p className="text-xs font-black text-[#071c1f]">Real listing photos</p>
+                      </div>
+                    </div>
                   ) : null}
                 </div>
               </div>
@@ -52,10 +70,10 @@ export default function HeroCarousel({ slides = [] }) {
       </Swiper>
 
       {/* Arrows */}
-      <button className="hero-prev absolute left-2 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/70 text-[#071c1f] shadow-md backdrop-blur transition hover:bg-white" aria-label="Previous">
+      <button className="hero-prev absolute left-0 top-1/2 z-20 grid h-14 w-10 -translate-y-1/2 place-items-center rounded-r-full bg-[#071c1f]/28 text-white shadow-md backdrop-blur transition hover:bg-[#071c1f]/42" aria-label="Previous">
         <ChevronLeft className="h-6 w-6" />
       </button>
-      <button className="hero-next absolute right-2 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/70 text-[#071c1f] shadow-md backdrop-blur transition hover:bg-white" aria-label="Next">
+      <button className="hero-next absolute right-0 top-1/2 z-20 grid h-14 w-10 -translate-y-1/2 place-items-center rounded-l-full bg-[#071c1f]/28 text-white shadow-md backdrop-blur transition hover:bg-[#071c1f]/42" aria-label="Next">
         <ChevronRight className="h-6 w-6" />
       </button>
     </section>

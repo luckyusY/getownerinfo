@@ -52,7 +52,7 @@ export default function HeaderSearch() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           aria-label="Search listings"
-          placeholder="Search property, vehicles, area…"
+          placeholder="Search property, vehicles, area..."
           className="min-w-0 flex-1 bg-transparent px-4 text-sm font-semibold text-ink outline-none placeholder:text-ink-faint"
         />
         <button type="submit" aria-label="Search" className="mr-1.5 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#0b5f86] text-white transition hover:bg-[#094f6b]">
