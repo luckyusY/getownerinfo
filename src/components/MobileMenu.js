@@ -7,6 +7,7 @@ import { Building2, CarFront, LayoutDashboard, LogIn, LogOut, MapPin, UserPlus }
 import { MAIN_NAV } from "@/components/HeaderNav";
 import { POPULAR_LOCATIONS } from "@/data/locations";
 import { useToast } from "@/components/ui/Toast";
+import StartSellingButton from "@/components/StartSellingButton";
 
 const SECONDARY_NAV = [
   ["About", "/about"],
@@ -123,6 +124,11 @@ export default function MobileMenu({ loggedIn, dashboardPath, session }) {
                   <Link href={dashboardPath} onClick={() => setOpen(false)} className="btn-primary w-full">
                     <LayoutDashboard className="h-4 w-4" /> Dashboard
                   </Link>
+                  {session?.role === "buyer" && (
+                    <StartSellingButton className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-brand/25 bg-brand-50 px-4 py-2.5 text-sm font-bold text-brand transition hover:bg-brand-100">
+                      Start selling
+                    </StartSellingButton>
+                  )}
                   <button
                     type="button"
                     onClick={handleLogout}

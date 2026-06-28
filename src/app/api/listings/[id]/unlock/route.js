@@ -24,7 +24,7 @@ const schema = z.object({ tier: z.enum(["buyer", "tenant", "client"]).default("b
 
 // POST /api/listings/:id/unlock — begin (and possibly complete) a token unlock.
 export async function POST(req, { params }) {
-  const guard = requireAuth([ROLES.BUYER, ROLES.ADMIN]);
+  const guard = requireAuth([ROLES.BUYER, ROLES.OWNER, ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   let body = {};

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, BadgeCheck, CalendarDays, Eye, KeyRound, Lock, MapPin } from "lucide-react";
+import { ArrowLeft, BadgeCheck, CalendarDays, Eye, KeyRound, LayoutDashboard, Lock, MapPin, Store, UserPlus } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { connectDB } from "@/lib/db";
@@ -55,6 +55,9 @@ export default async function ListingDetail({ params }) {
   const category = await Category.findById(listing.category).lean();
   const pub = listing.toPublicJSON();
   const session = getSession();
+  const isListingOwner = !!session && listing.owner.toString() === session.sub;
+  const canMessageAsBuyer = !!session && !isListingOwner && [ROLES.BUYER, ROLES.OWNER].includes(session.role);
+  const canUnlock = !!session && !isListingOwner && [ROLES.BUYER, ROLES.OWNER, ROLES.ADMIN].includes(session.role);
   let initialRevealed = null;
 
   if (session) {
@@ -153,7 +156,29 @@ export default async function ListingDetail({ params }) {
               </ul>
             )}
 
-            {session?.role === ROLES.BUYER && (
+            {!session && (
+              <div className="mt-8 rounded-xl border border-brand/20 bg-brand-50 p-4">
+                <h2 className="font-display text-lg font-bold text-ink">Ready to contact the real owner?</h2>
+                <p className="mt-1 text-sm text-ink-soft">Create an account to save listings, unlock verified contact details, or list your own property later.</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link href="/login" className="btn-primary"><UserPlus className="h-4 w-4" /> Sign in to unlock</Link>
+                  <Link href="/register?role=owner" className="btn-outline"><Store className="h-4 w-4" /> List your property</Link>
+                </div>
+              </div>
+            )}
+
+            {isListingOwner && (
+              <div className="mt-8 rounded-xl border border-line bg-panel p-4">
+                <h2 className="font-display text-lg font-bold text-ink">This is your listing</h2>
+                <p className="mt-1 text-sm text-ink-soft">Manage buyer interest, messages, and outcome reporting from your owner dashboard.</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link href="/dashboard/owner" className="btn-primary"><LayoutDashboard className="h-4 w-4" /> Manage listings</Link>
+                  <Link href="/dashboard/owner/messages" className="btn-outline">Messages</Link>
+                </div>
+              </div>
+            )}
+
+            {canMessageAsBuyer && (
               <div className="mt-8">
                 <h2 className="mb-2 font-display text-lg font-semibold text-ink">Ask the owner</h2>
                 <ChatBox listingId={listing._id.toString()} side="buyer" />
@@ -163,19 +188,32 @@ export default async function ListingDetail({ params }) {
 
           <aside className="md:col-span-2">
             <div className="card sticky top-20 premium-hover">
-              <p className="font-display text-base font-semibold text-ink">Direct owner contact</p>
-              <p className="mt-0.5 text-sm text-ink-soft">A token fee reveals the verified owner&apos;s details.</p>
-              <div className="mt-4">
-                <UnlockPanel
-                  listingId={listing._id.toString()}
-                  loggedIn={!!session}
-                  area={pub.location?.area}
-                  initialRevealed={initialRevealed}
-                  tokenFees={category?.tokenFee || null}
-                />
-              </div>
+              {isListingOwner ? (
+                <>
+                  <p className="font-display text-base font-semibold text-ink">Owner controls</p>
+                  <p className="mt-0.5 text-sm text-ink-soft">Track unlocks and report deals from your dashboard.</p>
+                  <div className="mt-4 grid gap-2">
+                    <Link href="/dashboard/owner" className="btn-primary"><LayoutDashboard className="h-4 w-4" /> Dashboard</Link>
+                    <Link href="/dashboard/owner/listings/new" className="btn-outline">Create another listing</Link>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="font-display text-base font-semibold text-ink">Direct owner contact</p>
+                  <p className="mt-0.5 text-sm text-ink-soft">A token fee reveals the verified owner&apos;s details.</p>
+                  <div className="mt-4">
+                    <UnlockPanel
+                      listingId={listing._id.toString()}
+                      loggedIn={canUnlock}
+                      area={pub.location?.area}
+                      initialRevealed={initialRevealed}
+                      tokenFees={category?.tokenFee || null}
+                    />
+                  </div>
+                </>
+              )}
 
-              {!initialRevealed && (
+              {!isListingOwner && !initialRevealed && (
                 <div className="mt-4 border-t border-line pt-4">
                   <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-ink-faint">
                     <Lock className="h-3.5 w-3.5" /> What you unlock

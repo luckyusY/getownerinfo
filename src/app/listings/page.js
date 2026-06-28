@@ -1,3 +1,4 @@
+import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ListingsExplorer from "./ListingsExplorer";
@@ -20,6 +21,11 @@ export default function ListingsPage({ searchParams }) {
           <p className="mt-2 max-w-2xl text-ink-soft">
             Explore property, vehicles, and assets. Contact details and exact location unlock with a token fee.
           </p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <Link href="/listings" className="btn-primary">Browse listings</Link>
+            <Link href="/seekers/new" className="btn-outline">Post what you need</Link>
+            <Link href="/register?role=owner" className="btn-outline">List your property</Link>
+          </div>
         </section>
         <div className="mt-6">
           <ListingsExplorer initialCategory={searchParams?.category || ""} initialLocation={searchParams?.location || ""} />

@@ -42,11 +42,12 @@ export async function POST(req, { params }) {
   let senderSide;
   let onBehalf = false;
 
-  if (role === ROLES.BUYER) {
+  const ownsListing = listing.owner.toString() === sub;
+
+  if (role === ROLES.BUYER || (role === ROLES.OWNER && !ownsListing)) {
     buyerId = sub;
     senderSide = "buyer";
   } else if (role === ROLES.OWNER) {
-    if (listing.owner.toString() !== sub) return fail("Not your listing", 403);
     if (!parsed.data.buyerId) return fail("buyerId is required to reply", 422);
     buyerId = parsed.data.buyerId;
     senderSide = "owner";
@@ -149,11 +150,12 @@ export async function GET(req, { params }) {
   if (!listing) return fail("Listing not found", 404);
 
   const { searchParams } = new URL(req.url);
-  let buyerId = role === ROLES.BUYER ? sub : searchParams.get("buyerId");
+  const ownsListing = listing.owner.toString() === sub;
+  let buyerId = role === ROLES.BUYER || (role === ROLES.OWNER && !ownsListing) ? sub : searchParams.get("buyerId");
   if (!buyerId) return fail("buyerId is required", 422);
 
   // Authorization: buyer sees own; owner sees own listing; staff sees all.
-  if (role === ROLES.OWNER && listing.owner.toString() !== sub) return fail("Forbidden", 403);
+  if (role === ROLES.OWNER && ownsListing && !searchParams.get("buyerId")) return fail("buyerId is required", 422);
   if (role === ROLES.BUYER && buyerId !== sub) return fail("Forbidden", 403);
 
   const conversation = await Conversation.findOne({ listing: listing._id, buyer: buyerId });

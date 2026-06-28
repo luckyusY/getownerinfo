@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import PropertyCard from "@/components/PropertyCard";
 import { ListingCardSkeleton } from "@/components/ui/Skeleton";
 import EmptyState from "@/components/ui/EmptyState";
@@ -133,7 +134,12 @@ export default function ListingsExplorer({ initialCategory = "", initialLocation
           icon="?"
           title="No listings match"
           hint="Try clearing a filter, using a broader category, or searching a different term."
-          action={<button className="btn-outline" onClick={resetFilters}><RotateCcw className="h-4 w-4" /> Reset filters</button>}
+          action={
+            <div className="flex flex-wrap justify-center gap-2">
+              <button className="btn-outline" onClick={resetFilters}><RotateCcw className="h-4 w-4" /> Reset filters</button>
+              <Link href="/seekers/new" className="btn-primary">Post what you need</Link>
+            </div>
+          }
         />
       ) : (
         <>

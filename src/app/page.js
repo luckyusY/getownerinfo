@@ -40,6 +40,30 @@ const STEPS = [
   { icon: Handshake, title: "Deal directly", body: "Call the owner, view, and negotiate. No brokers, no inflated middle-man fees." },
 ];
 
+const JOURNEYS = [
+  {
+    icon: SearchCheck,
+    title: "I want to buy or rent",
+    body: "Search verified listings, save options, then unlock owner contact only when you are serious.",
+    href: "/listings",
+    cta: "Browse listings",
+  },
+  {
+    icon: Store,
+    title: "I want to sell or rent out",
+    body: "Create one account, submit proof, and publish property or assets after review.",
+    href: "/register?role=owner",
+    cta: "List your property",
+  },
+  {
+    icon: Headphones,
+    title: "I cannot find what I need",
+    body: "Post a request so owners and managers can see exactly what you are looking for.",
+    href: "/seekers/new",
+    cta: "Post what you need",
+  },
+];
+
 const SAFETY = [
   { icon: Fingerprint, title: "Identity verified", body: "Owners submit ID and ownership proof. Our team verifies before a listing goes live." },
   { icon: Lock, title: "Privacy protected", body: "Contact and exact location stay hidden until a buyer pays the token fee." },
@@ -199,6 +223,31 @@ export default async function HomePage() {
                     <p className="mt-0.5 text-xs font-semibold leading-4 text-ink-soft">{item.body}</p>
                   </span>
                 </div>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-4 py-8" data-reveal>
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="eyebrow">Choose your path</p>
+              <h2 className="mt-2 font-display text-3xl font-bold text-ink">What are you here to do?</h2>
+              <p className="mt-1 max-w-2xl text-sm text-ink-soft">Buy, sell, rent, or request. You can buy and sell with one account.</p>
+            </div>
+          </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            {JOURNEYS.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link key={item.title} href={item.href} className="card premium-hover group !p-5">
+                  <span className="grid h-12 w-12 place-items-center rounded-xl bg-brand-50 text-brand transition group-hover:bg-brand group-hover:text-white">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <h3 className="mt-4 font-display text-xl font-bold text-ink">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-ink-soft">{item.body}</p>
+                  <span className="mt-4 inline-flex text-sm font-black text-brand group-hover:text-brand-dark">{item.cta}</span>
+                </Link>
               );
             })}
           </div>

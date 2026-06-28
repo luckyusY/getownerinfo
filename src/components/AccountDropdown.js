@@ -18,6 +18,7 @@ import {
   UserPlus,
 } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
+import StartSellingButton from "@/components/StartSellingButton";
 
 const ROLE_LINKS = {
   buyer: [{ href: "/dashboard/buyer", icon: Heart, label: "Saved listings" }],
@@ -138,9 +139,15 @@ export default function AccountDropdown({ session, dashboardPath = "/dashboard" 
               </div>
             </div>
             <MenuLink href={dashboardPath} icon={LayoutDashboard} label="Dashboard" />
+            {session.role === "buyer" && (
+              <StartSellingButton className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-bold text-ink transition hover:bg-brand-50 focus:bg-brand-50 focus:outline-none">
+                Start selling
+              </StartSellingButton>
+            )}
             {(ROLE_LINKS[session.role] || []).map((item) => (
               <MenuLink key={item.href} href={item.href} icon={item.icon} label={item.label} />
             ))}
+            {session.role === "owner" && <MenuLink href="/listings" icon={Heart} label="Browse as buyer" />}
             <MenuLink href="/contact" icon={MessageCircle} label="Support" />
             <button
               type="button"
