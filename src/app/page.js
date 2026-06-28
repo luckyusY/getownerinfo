@@ -64,15 +64,6 @@ async function getHomeData() {
     Category.countDocuments({}),
   ]);
   const catName = Object.fromEntries(categories.map((c) => [c._id.toString(), c.name]));
-  const idToSlug = Object.fromEntries(categories.map((c) => [c._id.toString(), c.slug]));
-
-  const withImg = await Listing.find({ status: LISTING_STATUS.ACTIVE, "images.0": { $exists: true } })
-    .select("category images").limit(120).lean();
-  const categoryImages = {};
-  for (const l of withImg) {
-    const slug = idToSlug[l.category?.toString()];
-    if (slug && !categoryImages[slug]) categoryImages[slug] = l.images?.[0]?.url;
-  }
 
   const liveListings = listings.map((l) => ({
     id: l._id.toString(),
@@ -91,11 +82,11 @@ async function getHomeData() {
     { label: "Contacts unlocked", value: compact(unlockCount) },
     { label: "Categories", value: String(catCount) },
   ];
-  return { featured, stats, categoryImages };
+  return { featured, stats };
 }
 
 export default async function HomePage() {
-  const { featured, stats, categoryImages } = await getHomeData();
+  const { featured, stats } = await getHomeData();
 
   const heroSlides = [
     {
@@ -104,7 +95,7 @@ export default async function HomePage() {
       body: "Start from trusted public details, known locations, and verified listing photos before you unlock direct owner contact.",
       ctaLabel: "Browse listings",
       href: "/listings",
-      image: "/hero-slides/kigali-convention-marketplace.png",
+      image: "/hero-slides/kigali-convention-marketplace.webp",
       layout: "banner",
       metaLabel: "Kigali",
       metaValue: "Verified",
@@ -115,7 +106,7 @@ export default async function HomePage() {
       body: "Explore neighborhoods first, compare public details, then reveal the precise owner contact only when the opportunity is serious.",
       ctaLabel: "Explore locations",
       href: "#locations",
-      image: "/hero-slides/kigali-locations-aerial.png",
+      image: "/hero-slides/kigali-locations-aerial.webp",
       layout: "banner",
       metaLabel: "Area",
       metaValue: "First",
@@ -126,7 +117,7 @@ export default async function HomePage() {
       body: "Use a protected token flow to reveal owner details, inspect the asset, and negotiate without broker noise.",
       ctaLabel: "List your property",
       href: "/register?role=owner",
-      image: "/hero-slides/kigali-owner-secure.png",
+      image: "/hero-slides/kigali-owner-secure.webp",
       layout: "banner",
       metaLabel: "Direct",
       metaValue: "Owner",
@@ -158,31 +149,27 @@ export default async function HomePage() {
               <h2 className="text-xs font-black uppercase tracking-[0.16em] text-white">Shop by category</h2>
               <Link href="/listings" className="text-xs font-black uppercase tracking-wide text-cyan-100 hover:text-white">View all</Link>
             </div>
-          <div className="grid auto-cols-[152px] grid-flow-col gap-2 overflow-x-auto pb-1 sm:auto-cols-fr sm:grid-flow-row sm:grid-cols-3 lg:grid-cols-6">
-            {CATEGORIES.map((c) => {
-              const Icon = c.icon;
-              const img = categoryImages[c.slug];
-              return (
-                <Link
-                  key={c.slug}
-                  href={`/listings?category=${c.slug}`}
-                  className="group relative flex min-h-[116px] flex-col justify-end overflow-hidden rounded-md bg-gradient-to-br from-[#16a3cc] to-[#0b5f86] text-white shadow-soft ring-1 ring-white/10 transition duration-300 hover:-translate-y-1 hover:shadow-lift sm:min-h-[128px]"
-                >
-                  {img && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={img} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#03121e]/92 via-[#03121e]/40 to-transparent" />
-                  <div className="relative flex items-center gap-2 p-3">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/20 backdrop-blur">
-                      <Icon className="h-4 w-4" />
+            <div className="grid auto-cols-[152px] grid-flow-col gap-2 overflow-x-auto pb-1 sm:auto-cols-fr sm:grid-flow-row sm:grid-cols-3 lg:grid-cols-6">
+              {CATEGORIES.map((c) => {
+                const Icon = c.icon;
+                return (
+                  <Link
+                    key={c.slug}
+                    href={`/listings?category=${c.slug}`}
+                    className="group relative flex min-h-[104px] flex-col justify-between overflow-hidden rounded-md bg-gradient-to-br from-[#16a3cc] via-[#0b7fa8] to-[#0b5f86] p-3 text-white shadow-soft ring-1 ring-white/10 transition duration-300 hover:-translate-y-1 hover:shadow-lift sm:min-h-[118px]"
+                  >
+                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_78%_18%,rgba(255,255,255,0.22),transparent_28%)] opacity-80" />
+                    <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/16 text-white ring-1 ring-white/15 backdrop-blur">
+                      <Icon className="h-5 w-5" />
                     </span>
-                    <span className="font-display text-sm font-black leading-tight text-white drop-shadow">{c.label}</span>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
+                    <div className="relative">
+                      <span className="font-display text-sm font-black leading-tight text-white drop-shadow">{c.label}</span>
+                      <span className="mt-2 block h-0.5 w-8 rounded-full bg-cyan-100/80 transition-all duration-300 group-hover:w-12" />
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </section>
 

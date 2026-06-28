@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { heroImage, thumbImage } from "@/lib/imageUrl";
 
 export default function Gallery({ images = [], title }) {
   const [active, setActive] = useState(0);
@@ -11,7 +12,7 @@ export default function Gallery({ images = [], title }) {
     <div>
       <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-panel shadow-soft">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={images[active]} alt={title} className="h-full w-full object-cover" />
+        <img src={heroImage(images[active])} alt={title} decoding="async" className="h-full w-full object-cover" />
       </div>
       {images.length > 1 && (
         <div className="mt-3 flex gap-2.5">
@@ -24,7 +25,7 @@ export default function Gallery({ images = [], title }) {
               }`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt="" className="h-full w-full object-cover" />
+              <img src={thumbImage(src)} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
             </button>
           ))}
         </div>

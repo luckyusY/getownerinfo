@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { heroImage, thumbImage } from "@/lib/imageUrl";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { A11y, Autoplay, Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
@@ -40,6 +41,8 @@ export default function HeroCarousel({ slides = [] }) {
                     src={s.image}
                     alt=""
                     loading={i === 0 ? "eager" : "lazy"}
+                    decoding="async"
+                    fetchPriority={i === 0 ? "high" : "auto"}
                     className="absolute inset-0 h-full w-full object-cover object-[66%_center] sm:object-center"
                   />
                 ) : null}
@@ -72,7 +75,7 @@ export default function HeroCarousel({ slides = [] }) {
             ) : (
               <div className="relative h-full w-full overflow-hidden bg-[#f8fbf6]">
                 {gallery[0] ? (
-                  <img src={gallery[0]} alt="" loading={i === 0 ? "eager" : "lazy"} className="absolute inset-0 h-full w-full object-cover md:hidden" />
+                  <img src={heroImage(gallery[0])} alt="" loading={i === 0 ? "eager" : "lazy"} decoding="async" className="absolute inset-0 h-full w-full object-cover md:hidden" />
                 ) : null}
                 <div className="absolute inset-0 bg-gradient-to-b from-[#02181d]/40 via-[#02181d]/72 to-[#02181d]/94 md:hidden" />
                 <div className="absolute inset-0 opacity-70 [background-image:radial-gradient(circle_at_16%_22%,rgba(22,163,204,0.16),transparent_26%),radial-gradient(circle_at_84%_28%,rgba(11,95,134,0.14),transparent_27%),linear-gradient(135deg,rgba(21,176,221,0.10)_0,transparent_42%)]" />
@@ -103,13 +106,13 @@ export default function HeroCarousel({ slides = [] }) {
                         <div className="relative h-[82%] w-[90%] max-w-[560px] rounded-[28px] bg-white p-3 shadow-2xl ring-1 ring-black/5">
                           <div className="grid h-full grid-cols-[1.35fr_0.65fr] gap-2 overflow-hidden rounded-[20px] bg-[#e9f6fa]">
                             <div className="relative overflow-hidden rounded-l-[20px]">
-                              <img src={gallery[0]} alt={s.title} loading={i === 0 ? "eager" : "lazy"} className="h-full w-full object-cover" />
+                              <img src={heroImage(gallery[0])} alt={s.title} loading={i === 0 ? "eager" : "lazy"} decoding="async" className="h-full w-full object-cover" />
                               <div className="absolute inset-0 bg-gradient-to-t from-[#071c1f]/26 to-transparent" />
                             </div>
                             <div className="grid gap-2">
                               {gallery.slice(1, 4).map((src, idx) => (
                                 <div key={`${src}-${idx}`} className="relative min-h-0 overflow-hidden bg-[#dceef3] last:rounded-br-[20px] first:rounded-tr-[20px]">
-                                  <img src={src} alt="" loading="lazy" className="h-full w-full object-cover transition duration-500 hover:scale-105" />
+                                  <img src={thumbImage(src)} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 hover:scale-105" />
                                   {idx === 2 && gallery.length > 4 ? (
                                     <div className="absolute inset-0 grid place-items-center bg-[#071c1f]/58 text-lg font-black text-white">
                                       +{gallery.length - 4}
@@ -131,7 +134,7 @@ export default function HeroCarousel({ slides = [] }) {
                         // eslint-disable-next-line @next/next/no-img-element
                         <div className="relative flex h-[78%] w-[82%] items-center justify-center">
                           <div className="absolute inset-3 rounded-[28px] bg-white shadow-2xl ring-1 ring-black/5" />
-                          <img src={gallery[0]} alt={s.title} loading={i === 0 ? "eager" : "lazy"} className="relative h-[88%] w-[86%] rounded-sm object-cover shadow-lg" />
+                          <img src={heroImage(gallery[0])} alt={s.title} loading={i === 0 ? "eager" : "lazy"} decoding="async" className="relative h-[88%] w-[86%] rounded-sm object-cover shadow-lg" />
                           <div className="absolute bottom-2 right-0 rounded-xl bg-white px-6 py-5 shadow-xl">
                             <p className="text-xs font-black text-[#071c1f]">{s.caption || "Real listing photos"}</p>
                           </div>
