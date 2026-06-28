@@ -29,7 +29,7 @@ export default function HeroCarousel({ slides = [] }) {
         {slides.map((s, i) => (
           <SwiperSlide key={i}>
             <div className="relative h-full w-full overflow-hidden bg-[#f8fbf6]">
-              <div className="absolute inset-0 opacity-70 [background-image:radial-gradient(circle_at_16%_22%,rgba(22,163,204,0.12),transparent_24%),radial-gradient(circle_at_84%_28%,rgba(255,196,0,0.17),transparent_25%),linear-gradient(135deg,rgba(11,95,134,0.08)_0,transparent_40%)]" />
+              <div className="absolute inset-0 opacity-70 [background-image:radial-gradient(circle_at_16%_22%,rgba(22,163,204,0.16),transparent_26%),radial-gradient(circle_at_84%_28%,rgba(11,95,134,0.14),transparent_27%),linear-gradient(135deg,rgba(21,176,221,0.10)_0,transparent_42%)]" />
               <div className="mx-auto grid h-full max-w-6xl grid-cols-1 items-center gap-6 px-5 sm:px-8 md:grid-cols-[0.9fr_1.1fr]">
                 <div className="z-10 max-w-xl">
                   {s.eyebrow && <p className="w-fit rounded-full bg-white px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-[#071c1f] shadow-sm">{s.eyebrow}</p>}
@@ -47,7 +47,7 @@ export default function HeroCarousel({ slides = [] }) {
                       <span className="font-display text-2xl font-black leading-none text-[#071c1f]">Verified</span>
                     </span>
                   </div>
-                  <Link href={s.href} className="mt-5 inline-flex items-center rounded-sm bg-[#d71920] px-8 py-3 text-sm font-black uppercase tracking-wide text-white shadow-md transition hover:bg-[#b9161c]">
+                  <Link href={s.href} className="mt-5 inline-flex items-center rounded-md bg-[#0b5f86] px-8 py-3 text-sm font-black uppercase tracking-wide text-white shadow-md transition hover:bg-[#094f6b]">
                     {s.ctaLabel || "Shop now"}
                   </Link>
                 </div>
