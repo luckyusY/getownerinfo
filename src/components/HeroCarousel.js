@@ -24,7 +24,7 @@ export default function HeroCarousel({ slides = [] }) {
         autoplay={{ delay: 6000, disableOnInteraction: false, pauseOnMouseEnter: true }}
         navigation={{ prevEl: ".hero-prev", nextEl: ".hero-next" }}
         pagination={{ clickable: true }}
-        className="h-[clamp(360px,34vw,430px)]"
+        className="h-[clamp(390px,36vw,500px)]"
       >
         {slides.map((s, i) => (
           <SwiperSlide key={i}>
@@ -39,22 +39,29 @@ export default function HeroCarousel({ slides = [] }) {
                     className="absolute inset-0 h-full w-full object-cover"
                   />
                 ) : null}
-                <div className="absolute inset-0 bg-gradient-to-r from-[#02181d]/96 via-[#02181d]/78 to-[#02181d]/8" />
-                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#041c22]/50 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#02181d]/98 via-[#02181d]/86 to-[#02181d]/10" />
+                <div className="absolute inset-y-0 left-0 w-[62%] bg-[radial-gradient(circle_at_10%_24%,rgba(22,163,204,0.28),transparent_34%)]" />
+                <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#041c22]/60 to-transparent" />
                 <div className="mx-auto flex h-full max-w-6xl items-center px-5 sm:px-8">
-                  <div className="relative z-10 max-w-xl text-white">
-                    {s.eyebrow && <p className="w-fit rounded-full bg-white/92 px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-[#071c1f] shadow-sm">{s.eyebrow}</p>}
-                    <h2 className="mt-3 font-display text-[clamp(2.2rem,4.2vw,4.75rem)] font-black leading-[0.92] text-white">{s.title}</h2>
-                    {s.body && <p className="mt-3 max-w-md text-sm font-semibold leading-6 text-white/78 sm:text-base">{s.body}</p>}
-                    <div className="mt-5 flex flex-wrap gap-3">
-                      <span className="rounded-md border border-cyan-200/25 bg-white/10 px-5 py-3 shadow-md backdrop-blur">
-                        <span className="block text-[10px] font-black uppercase tracking-wide text-cyan-100">{s.metaLabel || "Access"}</span>
-                        <span className="font-display text-2xl font-black leading-none text-white">{s.metaValue || "Verified"}</span>
+                  <div className="relative z-10 max-w-[560px] border-l-4 border-[#16a3cc] pl-5 text-white sm:pl-6">
+                    {s.eyebrow && (
+                      <p className="inline-flex rounded-full border border-cyan-200/25 bg-cyan-300/14 px-3 py-1 text-[11px] font-black uppercase leading-none text-cyan-50 shadow-sm backdrop-blur">
+                        {s.eyebrow}
+                      </p>
+                    )}
+                    <h2 className="mt-4 max-w-[11.5ch] text-balance font-display text-[clamp(2.15rem,3.55vw,4.05rem)] font-black leading-[1.01] text-white drop-shadow-[0_3px_18px_rgba(0,0,0,0.28)]">
+                      {s.title}
+                    </h2>
+                    {s.body && <p className="mt-4 max-w-[500px] text-[15px] font-semibold leading-7 text-cyan-50/88 sm:text-base">{s.body}</p>}
+                    <div className="mt-6 flex flex-wrap items-center gap-3">
+                      <span className="rounded-lg border border-cyan-200/25 bg-white/9 px-4 py-3 shadow-md backdrop-blur-md">
+                        <span className="block text-[10px] font-black uppercase leading-none text-cyan-100">{s.metaLabel || "Access"}</span>
+                        <span className="mt-1 block font-display text-[1.45rem] font-black leading-none text-white">{s.metaValue || "Verified"}</span>
                       </span>
+                      <Link href={s.href} className="inline-flex min-h-12 items-center rounded-md bg-[#16a3cc] px-7 text-sm font-black uppercase text-white shadow-[0_14px_34px_rgba(22,163,204,0.28)] transition hover:-translate-y-0.5 hover:bg-[#0b8db4] hover:shadow-[0_18px_40px_rgba(22,163,204,0.34)]">
+                        {s.ctaLabel || "Shop now"}
+                      </Link>
                     </div>
-                    <Link href={s.href} className="mt-5 inline-flex items-center rounded-md bg-[#16a3cc] px-8 py-3 text-sm font-black uppercase tracking-wide text-white shadow-md transition hover:bg-[#0b8db4]">
-                      {s.ctaLabel || "Shop now"}
-                    </Link>
                   </div>
                 </div>
               </div>
