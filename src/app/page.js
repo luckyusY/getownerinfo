@@ -139,6 +139,8 @@ export default async function HomePage() {
       ctaLabel: "View listing",
       href: l.href || `/listings/${l.id}`,
       image: l.images?.[0],
+      images: l.images || [],
+      caption: `${l.images?.length || 1} real listing photo${(l.images?.length || 1) === 1 ? "" : "s"}${l.location?.area ? ` from ${l.location.area}` : ""}`,
     })),
   ];
 

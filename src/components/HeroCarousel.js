@@ -26,7 +26,11 @@ export default function HeroCarousel({ slides = [] }) {
         pagination={{ clickable: true }}
         className="h-[clamp(390px,36vw,500px)]"
       >
-        {slides.map((s, i) => (
+        {slides.map((s, i) => {
+          const gallery = s.images?.length ? s.images : s.image ? [s.image] : [];
+          const hasGallery = gallery.length > 1;
+
+          return (
           <SwiperSlide key={i}>
             {s.layout === "banner" ? (
               <div className="relative h-full w-full overflow-hidden bg-[#041c22]">
@@ -90,22 +94,53 @@ export default function HeroCarousel({ slides = [] }) {
                     </Link>
                   </div>
                   <div className="relative hidden h-full items-center justify-center md:flex">
-                    {s.image ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <div className="relative flex h-[78%] w-[82%] items-center justify-center">
-                        <div className="absolute inset-3 rounded-[28px] bg-white shadow-2xl ring-1 ring-black/5" />
-                        <img src={s.image} alt={s.title} loading={i === 0 ? "eager" : "lazy"} className="relative h-[88%] w-[86%] rounded-sm object-cover shadow-lg" />
-                        <div className="absolute bottom-2 right-0 rounded-xl bg-white px-6 py-5 shadow-xl">
-                          <p className="text-xs font-black text-[#071c1f]">Real listing photos</p>
+                    {gallery.length ? (
+                      hasGallery ? (
+                        <div className="relative h-[82%] w-[90%] max-w-[560px] rounded-[28px] bg-white p-3 shadow-2xl ring-1 ring-black/5">
+                          <div className="grid h-full grid-cols-[1.35fr_0.65fr] gap-2 overflow-hidden rounded-[20px] bg-[#e9f6fa]">
+                            <div className="relative overflow-hidden rounded-l-[20px]">
+                              <img src={gallery[0]} alt={s.title} loading={i === 0 ? "eager" : "lazy"} className="h-full w-full object-cover" />
+                              <div className="absolute inset-0 bg-gradient-to-t from-[#071c1f]/26 to-transparent" />
+                            </div>
+                            <div className="grid gap-2">
+                              {gallery.slice(1, 4).map((src, idx) => (
+                                <div key={`${src}-${idx}`} className="relative min-h-0 overflow-hidden bg-[#dceef3] last:rounded-br-[20px] first:rounded-tr-[20px]">
+                                  <img src={src} alt="" loading="lazy" className="h-full w-full object-cover transition duration-500 hover:scale-105" />
+                                  {idx === 2 && gallery.length > 4 ? (
+                                    <div className="absolute inset-0 grid place-items-center bg-[#071c1f]/58 text-lg font-black text-white">
+                                      +{gallery.length - 4}
+                                    </div>
+                                  ) : null}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="absolute left-6 top-6 rounded-full bg-[#16a3cc] px-3 py-1.5 text-[11px] font-black uppercase tracking-wide text-white shadow-lg">
+                            {gallery.length} photos
+                          </div>
+                          <div className="absolute -bottom-4 right-5 max-w-[260px] rounded-2xl bg-white px-5 py-4 shadow-xl ring-1 ring-black/5">
+                            <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#0b5f86]">Gallery preview</p>
+                            <p className="mt-1 text-sm font-black leading-5 text-[#071c1f]">{s.caption || "Real listing photos"}</p>
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <div className="relative flex h-[78%] w-[82%] items-center justify-center">
+                          <div className="absolute inset-3 rounded-[28px] bg-white shadow-2xl ring-1 ring-black/5" />
+                          <img src={gallery[0]} alt={s.title} loading={i === 0 ? "eager" : "lazy"} className="relative h-[88%] w-[86%] rounded-sm object-cover shadow-lg" />
+                          <div className="absolute bottom-2 right-0 rounded-xl bg-white px-6 py-5 shadow-xl">
+                            <p className="text-xs font-black text-[#071c1f]">{s.caption || "Real listing photos"}</p>
+                          </div>
+                        </div>
+                      )
                     ) : null}
                   </div>
                 </div>
               </div>
             )}
           </SwiperSlide>
-        ))}
+          );
+        })}
       </Swiper>
 
       {/* Arrows */}
