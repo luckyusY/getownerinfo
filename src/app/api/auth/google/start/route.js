@@ -7,9 +7,18 @@ import { ROLES } from "@/lib/constants";
 const STATE_COOKIE = "goi_google_oauth_state";
 const ROLE_COOKIE = "goi_google_oauth_role";
 
+function getRequestOrigin(req) {
+  const url = new URL(req.url);
+  const proto = req.headers.get("x-forwarded-proto") || url.protocol.replace(":", "");
+  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || url.host;
+  return `${proto}://${host}`;
+}
+
 export async function GET(req) {
+  const origin = getRequestOrigin(req);
+
   if (!env.google.clientId || !env.google.clientSecret) {
-    const url = new URL("/login", env.appUrl);
+    const url = new URL("/login", origin);
     url.searchParams.set("error", "Google login is not configured yet.");
     return NextResponse.redirect(url);
   }
@@ -18,7 +27,7 @@ export async function GET(req) {
   const role = requestUrl.searchParams.get("role");
   const safeRole = role === ROLES.OWNER ? ROLES.OWNER : ROLES.BUYER;
   const state = crypto.randomBytes(24).toString("hex");
-  const redirectUri = new URL("/api/auth/google/callback", env.appUrl).toString();
+  const redirectUri = new URL("/api/auth/google/callback", origin).toString();
 
   cookies().set(STATE_COOKIE, state, {
     httpOnly: true,
@@ -45,4 +54,3 @@ export async function GET(req) {
 
   return NextResponse.redirect(googleUrl);
 }
-

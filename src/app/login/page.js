@@ -7,6 +7,7 @@ import { useToast } from "@/components/ui/Toast";
 import { Mail, Lock } from "lucide-react";
 import { FormField, TextInput, SubmitButton } from "@/components/ui/Form";
 import GoogleAuthButton from "@/components/GoogleAuthButton";
+import GoogleOneTap from "@/components/GoogleOneTap";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -38,6 +39,7 @@ export default function LoginPage() {
 
   return (
     <div className="auth-shell flex items-center justify-center py-6 sm:py-10">
+      <GoogleOneTap />
       <div className="w-full max-w-md">
         {searchParams.get("error") && (
           <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">

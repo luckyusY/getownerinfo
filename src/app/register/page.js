@@ -7,6 +7,7 @@ import { useToast } from "@/components/ui/Toast";
 import { Home, Mail, Phone, Search, Lock, User } from "lucide-react";
 import { FormField, SegmentedControl, SelectInput, SubmitButton, TextInput } from "@/components/ui/Form";
 import GoogleAuthButton from "@/components/GoogleAuthButton";
+import GoogleOneTap from "@/components/GoogleOneTap";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -17,7 +18,7 @@ export default function RegisterPage() {
     email: "",
     phone: "",
     password: "",
-    role: "buyer",
+    role: searchParams.get("role") === "owner" ? "owner" : "buyer",
   });
   const [loading, setLoading] = useState(false);
 
@@ -49,6 +50,7 @@ export default function RegisterPage() {
 
   return (
     <div className="auth-shell flex items-center justify-center py-6 sm:py-10">
+      <GoogleOneTap role={form.role} />
       <div className="w-full max-w-xl">
         {searchParams.get("error") && (
           <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
