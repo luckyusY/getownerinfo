@@ -99,34 +99,34 @@ export default async function HomePage() {
 
   const heroSlides = [
     {
-      eyebrow: "Step 01 - Browse verified listings",
-      title: "Start with real listings, not broker noise.",
-      body: "Explore verified property, vehicles, plots, furniture and assets with clean public details before you spend a token.",
+      eyebrow: "Kigali verified marketplace",
+      title: "Browse real listings across Kigali.",
+      body: "Start from trusted public details, known locations, and verified listing photos before you unlock direct owner contact.",
       ctaLabel: "Browse listings",
       href: "/listings",
-      image: "/hero-slides/how-browse-verified.png",
+      image: "/hero-slides/kigali-convention-marketplace.png",
       layout: "banner",
-      metaLabel: "Verified",
-      metaValue: "Listings",
+      metaLabel: "Kigali",
+      metaValue: "Verified",
     },
     {
-      eyebrow: "Step 02 - Unlock owner contact",
-      title: "Use a token only when you are serious.",
-      body: "Pay the token fee to reveal exact owner contact and location through a protected, accountable access flow.",
-      ctaLabel: "See token pricing",
-      href: "/pricing",
-      image: "/hero-slides/how-unlock-contact.png",
+      eyebrow: "Popular locations",
+      title: "Search by area before exact address.",
+      body: "Explore neighborhoods first, compare public details, then reveal the precise owner contact only when the opportunity is serious.",
+      ctaLabel: "Explore locations",
+      href: "#locations",
+      image: "/hero-slides/kigali-locations-aerial.png",
       layout: "banner",
-      metaLabel: "Secure",
-      metaValue: "Unlock",
+      metaLabel: "Area",
+      metaValue: "First",
     },
     {
-      eyebrow: "Step 03 - Deal directly",
-      title: "Meet the owner and close with confidence.",
-      body: "Call, inspect, negotiate and complete the deal directly with the verified owner. No inflated middle-man path.",
+      eyebrow: "Secure owner access",
+      title: "Unlock contact and deal directly.",
+      body: "Use a protected token flow to reveal owner details, inspect the asset, and negotiate without broker noise.",
       ctaLabel: "List your property",
       href: "/register?role=owner",
-      image: "/hero-slides/how-deal-direct.png",
+      image: "/hero-slides/kigali-owner-secure.png",
       layout: "banner",
       metaLabel: "Direct",
       metaValue: "Owner",
@@ -152,12 +152,13 @@ export default async function HomePage() {
         <HeroCarousel slides={heroSlides} />
 
         {/* Shop by category */}
-        <section className="mx-auto max-w-6xl px-4 py-10" data-reveal>
-          <div className="mb-5 flex items-end justify-between">
-            <h2 className="font-display text-2xl font-bold text-ink sm:text-3xl">Shop by category</h2>
-            <Link href="/listings" className="text-sm font-bold text-brand hover:underline">View all</Link>
-          </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <section className="relative z-20 -mt-12 bg-[#003b79] px-4 pb-4 pt-3 shadow-[0_-18px_44px_rgba(0,59,121,0.22)] sm:-mt-16 sm:pb-5" data-reveal>
+          <div className="mx-auto max-w-6xl">
+            <div className="mb-3 flex items-center justify-between gap-3 text-white">
+              <h2 className="text-xs font-black uppercase tracking-[0.16em] text-white">Shop by category</h2>
+              <Link href="/listings" className="text-xs font-black uppercase tracking-wide text-cyan-100 hover:text-white">View all</Link>
+            </div>
+          <div className="grid auto-cols-[152px] grid-flow-col gap-2 overflow-x-auto pb-1 sm:auto-cols-fr sm:grid-flow-row sm:grid-cols-3 lg:grid-cols-6">
             {CATEGORIES.map((c) => {
               const Icon = c.icon;
               const img = categoryImages[c.slug];
@@ -165,7 +166,7 @@ export default async function HomePage() {
                 <Link
                   key={c.slug}
                   href={`/listings?category=${c.slug}`}
-                  className="group relative flex min-h-[140px] flex-col justify-end overflow-hidden rounded-xl bg-gradient-to-br from-[#16a3cc] to-[#0b5f86] text-white shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-lift"
+                  className="group relative flex min-h-[116px] flex-col justify-end overflow-hidden rounded-md bg-gradient-to-br from-[#16a3cc] to-[#0b5f86] text-white shadow-soft ring-1 ring-white/10 transition duration-300 hover:-translate-y-1 hover:shadow-lift sm:min-h-[128px]"
                 >
                   {img && (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -176,11 +177,12 @@ export default async function HomePage() {
                     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/20 backdrop-blur">
                       <Icon className="h-4 w-4" />
                     </span>
-                    <span className="font-display text-sm font-bold leading-tight">{c.label}</span>
+                    <span className="font-display text-sm font-black leading-tight text-white drop-shadow">{c.label}</span>
                   </div>
                 </Link>
               );
             })}
+          </div>
           </div>
         </section>
 
