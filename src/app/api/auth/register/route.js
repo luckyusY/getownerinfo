@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
-import { hashPassword, signToken, setAuthCookie } from "@/lib/auth";
+import { hashPassword, signToken, setAuthCookie, createSessionPayload } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
 import { ROLES } from "@/lib/constants";
 
@@ -45,7 +45,7 @@ export async function POST(req) {
     passwordHash: await hashPassword(password),
   });
 
-  const token = signToken({ sub: user._id.toString(), role: user.role });
+  const token = signToken(createSessionPayload(user));
   setAuthCookie(token);
 
   return ok({ user: user.toSafeJSON() }, 201);

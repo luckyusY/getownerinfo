@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
-import { verifyPassword, signToken, setAuthCookie } from "@/lib/auth";
+import { verifyPassword, signToken, setAuthCookie, createSessionPayload } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
 
 const schema = z.object({
@@ -32,7 +32,7 @@ export async function POST(req) {
     return fail("This account is disabled. Contact support.", 403);
   }
 
-  const token = signToken({ sub: user._id.toString(), role: user.role });
+  const token = signToken(createSessionPayload(user));
   setAuthCookie(token);
 
   return ok({ user: user.toSafeJSON() });

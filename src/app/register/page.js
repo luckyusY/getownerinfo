@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/Toast";
@@ -21,6 +21,10 @@ export default function RegisterPage() {
     role: searchParams.get("role") === "owner" ? "owner" : "buyer",
   });
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    router.prefetch("/dashboard");
+  }, [router]);
 
   async function onSubmit(e) {
     e.preventDefault();

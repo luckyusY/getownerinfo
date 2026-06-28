@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { connectDB } from "@/lib/db";
 import { env } from "@/lib/env";
-import { hashPassword, signToken, setAuthCookie } from "@/lib/auth";
+import { hashPassword, signToken, setAuthCookie, createSessionPayload } from "@/lib/auth";
 import { ROLES } from "@/lib/constants";
 import User from "@/models/User";
 
@@ -98,6 +98,6 @@ export async function GET(req) {
     return redirectWithError("This account is disabled. Contact support.", origin);
   }
 
-  setAuthCookie(signToken({ sub: user._id.toString(), role: user.role }));
+  setAuthCookie(signToken(createSessionPayload(user)));
   return NextResponse.redirect(new URL("/dashboard", origin));
 }

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { connectDB } from "@/lib/db";
 import { ok, fail } from "@/lib/api";
 import { env } from "@/lib/env";
-import { hashPassword, signToken, setAuthCookie } from "@/lib/auth";
+import { hashPassword, signToken, setAuthCookie, createSessionPayload } from "@/lib/auth";
 import { ROLES } from "@/lib/constants";
 import User from "@/models/User";
 
@@ -65,6 +65,6 @@ export async function POST(req) {
     return fail("This account is disabled. Contact support.", 403);
   }
 
-  setAuthCookie(signToken({ sub: user._id.toString(), role: user.role }));
+  setAuthCookie(signToken(createSessionPayload(user)));
   return ok({ user: user.toSafeJSON() });
 }

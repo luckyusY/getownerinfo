@@ -18,9 +18,11 @@ function isActive(pathname, href) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export default function MobileMenu({ loggedIn, dashboardPath }) {
+export default function MobileMenu({ loggedIn, dashboardPath, session }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const displayName = session?.name || "My account";
+  const displayInitial = displayName.trim().charAt(0).toUpperCase() || "U";
 
   return (
     <div className="md:hidden">
@@ -95,9 +97,22 @@ export default function MobileMenu({ loggedIn, dashboardPath }) {
 
             <div className="mt-3 flex gap-2 border-t border-line pt-3">
               {loggedIn ? (
-                <Link href={dashboardPath} onClick={() => setOpen(false)} className="btn-primary flex-1">
-                  <LayoutDashboard className="h-4 w-4" /> Dashboard
-                </Link>
+                <div className="w-full">
+                  <div className="mb-3 flex items-center gap-3 rounded-lg bg-brand-50 p-3">
+                    {session?.avatarUrl ? (
+                      <img src={session.avatarUrl} alt="" className="h-10 w-10 rounded-full object-cover" />
+                    ) : (
+                      <span className="grid h-10 w-10 place-items-center rounded-full bg-brand text-sm font-black text-white">{displayInitial}</span>
+                    )}
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-black text-ink">{displayName}</p>
+                      <p className="truncate text-xs font-semibold capitalize text-ink-soft">{session?.role || "account"}</p>
+                    </div>
+                  </div>
+                  <Link href={dashboardPath} onClick={() => setOpen(false)} className="btn-primary w-full">
+                    <LayoutDashboard className="h-4 w-4" /> Dashboard
+                  </Link>
+                </div>
               ) : (
                 <>
                   <Link href="/login" onClick={() => setOpen(false)} className="btn-outline flex-1">

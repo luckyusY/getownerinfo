@@ -17,6 +17,16 @@ export function signToken(payload) {
   return jwt.sign(payload, env.jwtSecret, { expiresIn: env.jwtExpiresIn });
 }
 
+export function createSessionPayload(user) {
+  return {
+    sub: user._id.toString(),
+    role: user.role,
+    name: user.name,
+    email: user.email,
+    avatarUrl: user.avatarUrl || "",
+  };
+}
+
 export function verifyToken(token) {
   try {
     return jwt.verify(token, env.jwtSecret);
