@@ -19,13 +19,14 @@ import {
   PAYMENT_TYPES,
   PAYMENT_STATUS,
   VAT_RATE,
+  SELLER_ROLES,
 } from "@/lib/constants";
 
 const schema = z.object({ tier: z.enum(["buyer", "tenant", "client"]).default("buyer") });
 
 // POST /api/listings/:id/unlock — begin (and possibly complete) a token unlock.
 export async function POST(req, { params }) {
-  const guard = requireAuth([ROLES.BUYER, ROLES.OWNER, ROLES.ADMIN]);
+  const guard = requireAuth([ROLES.BUYER, ...SELLER_ROLES, ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   // Per-account throttle on top of the daily unlock cap below — this one also

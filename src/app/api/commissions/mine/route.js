@@ -2,11 +2,11 @@ import { connectDB } from "@/lib/db";
 import Commission from "@/models/Commission";
 import Listing from "@/models/Listing";
 import { ok, requireAuth } from "@/lib/api";
-import { ROLES } from "@/lib/constants";
+import { ROLES, SELLER_ROLES } from "@/lib/constants";
 
 // GET /api/commissions/mine — owner's commission invoices.
 export async function GET() {
-  const guard = requireAuth([ROLES.OWNER, ROLES.ADMIN]);
+  const guard = requireAuth([...SELLER_ROLES, ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   await connectDB();

@@ -4,15 +4,15 @@ import User from "@/models/User";
 import { hashPassword, signToken, setAuthCookie, createSessionPayload } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
 import { enforceRateLimit } from "@/lib/rateLimit";
-import { ROLES } from "@/lib/constants";
+import { ROLES, PUBLIC_SIGNUP_ROLES } from "@/lib/constants";
 
 const schema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
   phone: z.string().min(7).optional(),
   password: z.string().min(8),
-  // Public signup is limited to owner or buyer. admin/manager are seeded.
-  role: z.enum([ROLES.OWNER, ROLES.BUYER]).default(ROLES.BUYER),
+  // Public signup is limited to owner/agent/buyer. admin/manager are seeded.
+  role: z.enum(PUBLIC_SIGNUP_ROLES).default(ROLES.BUYER),
 });
 
 export async function POST(req) {

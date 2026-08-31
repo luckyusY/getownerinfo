@@ -1,10 +1,10 @@
 import { guardRole } from "@/lib/guardRole";
-import { ROLES } from "@/lib/constants";
+import { ROLES, SELLER_ROLES } from "@/lib/constants";
 import { PageHeader } from "@/components/ui/Dashboard";
 import OwnerMessages from "./OwnerMessages";
 
 export default function OwnerMessagesPage() {
-  guardRole(ROLES.OWNER);
+  guardRole(SELLER_ROLES);
   return (
     <div>
       <PageHeader

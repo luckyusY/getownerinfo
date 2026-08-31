@@ -8,7 +8,7 @@ import { scanMessage } from "@/lib/contentFilter";
 import { audit } from "@/models/AuditLog";
 import { notifyUser } from "@/models/Notification";
 import { ok, fail, requireAuth } from "@/lib/api";
-import { ROLES } from "@/lib/constants";
+import { ROLES, SELLER_ROLES, isSeller } from "@/lib/constants";
 
 const sendSchema = z.object({
   body: z.string().min(1).max(2000),
@@ -20,7 +20,7 @@ const STAFF = [ROLES.ADMIN, ROLES.MANAGER];
 
 // POST /api/conversations/:listingId/messages — send a message.
 export async function POST(req, { params }) {
-  const guard = requireAuth([ROLES.BUYER, ROLES.OWNER, ...STAFF]);
+  const guard = requireAuth([ROLES.BUYER, ...SELLER_ROLES, ...STAFF]);
   if (guard.error) return guard.error;
 
   let body;
@@ -44,10 +44,10 @@ export async function POST(req, { params }) {
 
   const ownsListing = listing.owner.toString() === sub;
 
-  if (role === ROLES.BUYER || (role === ROLES.OWNER && !ownsListing)) {
+  if (role === ROLES.BUYER || (isSeller(role) && !ownsListing)) {
     buyerId = sub;
     senderSide = "buyer";
-  } else if (role === ROLES.OWNER) {
+  } else if (isSeller(role)) {
     if (!parsed.data.buyerId) return fail("buyerId is required to reply", 422);
     buyerId = parsed.data.buyerId;
     senderSide = "owner";
@@ -141,7 +141,7 @@ export async function POST(req, { params }) {
 
 // GET /api/conversations/:listingId/messages?buyerId=... — fetch a thread.
 export async function GET(req, { params }) {
-  const guard = requireAuth([ROLES.BUYER, ROLES.OWNER, ...STAFF]);
+  const guard = requireAuth([ROLES.BUYER, ...SELLER_ROLES, ...STAFF]);
   if (guard.error) return guard.error;
   const { role, sub } = guard.session;
 
@@ -151,11 +151,11 @@ export async function GET(req, { params }) {
 
   const { searchParams } = new URL(req.url);
   const ownsListing = listing.owner.toString() === sub;
-  let buyerId = role === ROLES.BUYER || (role === ROLES.OWNER && !ownsListing) ? sub : searchParams.get("buyerId");
+  let buyerId = role === ROLES.BUYER || (isSeller(role) && !ownsListing) ? sub : searchParams.get("buyerId");
   if (!buyerId) return fail("buyerId is required", 422);
 
   // Authorization: buyer sees own; owner sees own listing; staff sees all.
-  if (role === ROLES.OWNER && ownsListing && !searchParams.get("buyerId")) return fail("buyerId is required", 422);
+  if (isSeller(role) && ownsListing && !searchParams.get("buyerId")) return fail("buyerId is required", 422);
   if (role === ROLES.BUYER && buyerId !== sub) return fail("Forbidden", 403);
 
   const conversation = await Conversation.findOne({ listing: listing._id, buyer: buyerId });

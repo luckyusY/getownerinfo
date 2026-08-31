@@ -61,7 +61,10 @@ const ListingSchema = new Schema(
     modelReason: String,
 
     durationMonths: { type: Number, default: 1 },
-    expiresAt: { type: Date },
+    expiresAt: { type: Date, index: true },
+    // Set once the "expiring soon" warning has been sent, so the daily job
+    // doesn't re-notify the owner every run.
+    expiryWarnedAt: { type: Date, default: null },
 
     title: { type: String, required: true },
     description: String,

@@ -7,7 +7,7 @@ import Favorite from "@/models/Favorite";
 import SeekerRequest from "@/models/SeekerRequest";
 import Conversation from "@/models/Conversation";
 import { guardRole } from "@/lib/guardRole";
-import { ROLES } from "@/lib/constants";
+import { ROLES, SELLER_ROLES } from "@/lib/constants";
 import { formatRwf } from "@/lib/format";
 import { PageHeader, StatCard } from "@/components/ui/Dashboard";
 import OwnerManage from "./OwnerManage";
@@ -15,7 +15,7 @@ import VerificationCard from "./VerificationCard";
 import { BadgeCheck, Eye, Heart, ListPlus, MessageSquareText, Search, ShieldCheck } from "lucide-react";
 
 export default async function OwnerDashboard() {
-  const session = guardRole(ROLES.OWNER);
+  const session = guardRole(SELLER_ROLES);
   await connectDB();
   const [user, total, active, pending, rejected, unlocks, conversations, savedCount, requestCount] = await Promise.all([
     User.findById(session.sub).lean(),

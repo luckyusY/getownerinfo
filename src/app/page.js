@@ -9,6 +9,7 @@ import Category from "@/models/Category";
 import User from "@/models/User";
 import TokenUnlock from "@/models/TokenUnlock";
 import { LISTING_STATUS, ROLES } from "@/lib/constants";
+import { publicListingFilter } from "@/lib/listingQuery";
 import {
   BadgeDollarSign, BriefcaseBusiness, Car, FileCheck2, Fingerprint, Handshake,
   Headphones, Home, KeyRound, Lock, PackageCheck, Refrigerator, ScrollText,
@@ -79,9 +80,9 @@ function compact(n) {
 async function getHomeData() {
   await connectDB();
   const [listings, categories, activeCount, ownerCount, unlockCount, catCount] = await Promise.all([
-    Listing.find({ status: LISTING_STATUS.ACTIVE }).sort({ createdAt: -1 }).limit(6).lean(),
+    Listing.find(publicListingFilter()).sort({ createdAt: -1 }).limit(6).lean(),
     Category.find({}).lean(),
-    Listing.countDocuments({ status: LISTING_STATUS.ACTIVE }),
+    Listing.countDocuments(publicListingFilter()),
     User.countDocuments({ role: ROLES.OWNER }),
     TokenUnlock.countDocuments({}),
     Category.countDocuments({}),

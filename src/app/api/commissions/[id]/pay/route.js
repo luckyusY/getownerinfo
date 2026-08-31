@@ -5,11 +5,11 @@ import User from "@/models/User";
 import { safeInitiate, safeVerify } from "@/lib/payments";
 import { audit } from "@/models/AuditLog";
 import { ok, fail, requireAuth } from "@/lib/api";
-import { ROLES, PAYMENT_TYPES, PAYMENT_STATUS } from "@/lib/constants";
+import { ROLES, PAYMENT_TYPES, PAYMENT_STATUS, SELLER_ROLES } from "@/lib/constants";
 
 // POST /api/commissions/:id/pay — owner settles a commission invoice.
 export async function POST(_req, { params }) {
-  const guard = requireAuth([ROLES.OWNER, ROLES.ADMIN]);
+  const guard = requireAuth([...SELLER_ROLES, ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   await connectDB();

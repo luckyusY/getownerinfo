@@ -10,7 +10,7 @@ import { DEFAULT_SETTINGS } from "@/data/catalog";
 import { computeCommission } from "@/lib/pricing";
 import { audit } from "@/models/AuditLog";
 import { ok, fail, requireAuth } from "@/lib/api";
-import { ROLES, LISTING_STATUS, LISTING_MODELS, DEAL_OUTCOMES } from "@/lib/constants";
+import { ROLES, LISTING_STATUS, LISTING_MODELS, DEAL_OUTCOMES, SELLER_ROLES } from "@/lib/constants";
 
 const schema = z.object({
   outcome: z.enum([DEAL_OUTCOMES.SOLD, DEAL_OUTCOMES.RENTED, DEAL_OUTCOMES.NOT_CONCLUDED]),
@@ -21,7 +21,7 @@ const schema = z.object({
 // POST /api/listings/:id/outcome — owner reports the off-platform deal result.
 // For Model A sold/rented, the system auto-calculates and invoices commission.
 export async function POST(req, { params }) {
-  const guard = requireAuth([ROLES.OWNER, ROLES.ADMIN]);
+  const guard = requireAuth([...SELLER_ROLES, ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   let body;

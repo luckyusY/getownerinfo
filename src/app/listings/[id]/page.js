@@ -10,7 +10,8 @@ import User from "@/models/User";
 import TokenUnlock from "@/models/TokenUnlock";
 import { getSession } from "@/lib/auth";
 import { buildRevealedContact } from "@/lib/unlockService";
-import { LISTING_STATUS, ROLES } from "@/lib/constants";
+import { LISTING_STATUS, ROLES, SELLER_ROLES } from "@/lib/constants";
+import { publicListingFilter } from "@/lib/listingQuery";
 import { formatRwf, formatDate } from "@/lib/format";
 import UnlockPanel from "./UnlockPanel";
 import Gallery from "./Gallery";
@@ -18,6 +19,7 @@ import ChatBox from "@/components/ChatBox";
 import Badge from "@/components/ui/Badge";
 import FavoriteButton from "@/components/FavoriteButton";
 import ShareButton from "@/components/ShareButton";
+import ReportButton from "@/components/ReportButton";
 import PropertyCard from "@/components/PropertyCard";
 
 const UNLOCK_INCLUDES = [
@@ -61,8 +63,8 @@ export default async function ListingDetail({ params }) {
   const pub = listing.toPublicJSON();
   const session = getSession();
   const isListingOwner = !!session && listing.owner.toString() === session.sub;
-  const canMessageAsBuyer = !!session && !isListingOwner && [ROLES.BUYER, ROLES.OWNER].includes(session.role);
-  const canUnlock = !!session && !isListingOwner && [ROLES.BUYER, ROLES.OWNER, ROLES.ADMIN].includes(session.role);
+  const canMessageAsBuyer = !!session && !isListingOwner && [ROLES.BUYER, ...SELLER_ROLES].includes(session.role);
+  const canUnlock = !!session && !isListingOwner && [ROLES.BUYER, ...SELLER_ROLES, ROLES.ADMIN].includes(session.role);
   let initialRevealed = null;
 
   if (session) {
@@ -71,11 +73,9 @@ export default async function ListingDetail({ params }) {
   }
 
   // Similar active listings in the same category (excluding this one).
-  const similarDocs = await Listing.find({
-    status: LISTING_STATUS.ACTIVE,
-    category: listing.category,
-    _id: { $ne: listing._id },
-  }).sort({ createdAt: -1 }).limit(3).lean();
+  const similarDocs = await Listing.find(
+    publicListingFilter({ category: listing.category, _id: { $ne: listing._id } })
+  ).sort({ createdAt: -1 }).limit(3).lean();
   const similar = similarDocs.map((l) => ({
     id: l._id.toString(),
     title: l.title,
@@ -156,6 +156,13 @@ export default async function ListingDetail({ params }) {
               <FavoriteButton listingId={listing._id.toString()} variant="button" />
               <ShareButton title={pub.title} />
             </div>
+
+            {/* Reporting is only useful from someone who isn't the owner. */}
+            {session && !isListingOwner && (
+              <div className="mt-3">
+                <ReportButton listingId={listing._id.toString()} />
+              </div>
+            )}
 
             {pub.description && <p className="mt-6 whitespace-pre-line leading-relaxed text-ink-soft">{pub.description}</p>}
 

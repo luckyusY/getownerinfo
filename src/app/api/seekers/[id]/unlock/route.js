@@ -9,11 +9,11 @@ import { safeInitiate, safeVerify } from "@/lib/payments";
 import { audit } from "@/models/AuditLog";
 import { buildSeekerContact } from "../route";
 import { ok, fail, requireAuth } from "@/lib/api";
-import { ROLES, PAYMENT_TYPES, PAYMENT_STATUS } from "@/lib/constants";
+import { ROLES, PAYMENT_TYPES, PAYMENT_STATUS, SELLER_ROLES } from "@/lib/constants";
 
 // POST /api/seekers/:id/unlock — pay the view token to reveal seeker contact.
 export async function POST(_req, { params }) {
-  const guard = requireAuth([ROLES.OWNER, ROLES.BUYER, ROLES.ADMIN, ROLES.MANAGER]);
+  const guard = requireAuth([...SELLER_ROLES, ROLES.BUYER, ROLES.ADMIN, ROLES.MANAGER]);
   if (guard.error) return guard.error;
 
   await connectDB();

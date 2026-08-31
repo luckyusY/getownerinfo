@@ -14,6 +14,7 @@ const DASHBOARD_PATHS = {
   [ROLES.ADMIN]: "/dashboard/admin",
   [ROLES.MANAGER]: "/dashboard/manager",
   [ROLES.OWNER]: "/dashboard/owner",
+  [ROLES.AGENT]: "/dashboard/owner",
   [ROLES.BUYER]: "/dashboard/buyer",
 };
 

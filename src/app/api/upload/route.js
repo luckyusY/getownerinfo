@@ -2,7 +2,7 @@ import { z } from "zod";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { enforceRateLimit } from "@/lib/rateLimit";
-import { ROLES } from "@/lib/constants";
+import { ROLES, SELLER_ROLES } from "@/lib/constants";
 
 const MAX_BYTES = 10 * 1024 * 1024; // 10MB
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -27,7 +27,7 @@ function inspectDataUri(uri) {
 
 // POST /api/upload — upload a single file to Cloudinary. Owners/managers/admin.
 export async function POST(req) {
-  const guard = requireAuth([ROLES.OWNER, ROLES.MANAGER, ROLES.ADMIN]);
+  const guard = requireAuth([...SELLER_ROLES, ROLES.MANAGER, ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   const limited = await enforceRateLimit(req, {

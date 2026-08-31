@@ -1,11 +1,11 @@
 import { connectDB } from "@/lib/db";
 import Listing from "@/models/Listing";
 import { ok, requireAuth } from "@/lib/api";
-import { ROLES } from "@/lib/constants";
+import { ROLES, SELLER_ROLES } from "@/lib/constants";
 
 // GET /api/listings/mine — the authenticated owner's own listings (full view).
 export async function GET() {
-  const guard = requireAuth([ROLES.OWNER, ROLES.MANAGER, ROLES.ADMIN]);
+  const guard = requireAuth([...SELLER_ROLES, ROLES.MANAGER, ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   await connectDB();

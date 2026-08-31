@@ -20,13 +20,17 @@ import {
 import { useToast } from "@/components/ui/Toast";
 import StartSellingButton from "@/components/StartSellingButton";
 
+const SELLER_LINKS = [
+  { href: "/dashboard/owner", icon: ListChecks, label: "My listings" },
+  { href: "/dashboard/owner/messages", icon: MessagesSquare, label: "Messages" },
+  { href: "/dashboard/owner/listings/new", icon: PlusCircle, label: "New listing" },
+];
+
 const ROLE_LINKS = {
   buyer: [{ href: "/dashboard/buyer", icon: Heart, label: "Saved listings" }],
-  owner: [
-    { href: "/dashboard/owner", icon: ListChecks, label: "My listings" },
-    { href: "/dashboard/owner/messages", icon: MessagesSquare, label: "Messages" },
-    { href: "/dashboard/owner/listings/new", icon: PlusCircle, label: "New listing" },
-  ],
+  owner: SELLER_LINKS,
+  // Agents share the seller workspace.
+  agent: SELLER_LINKS,
   platform_listing_manager: [],
   admin: [],
 };

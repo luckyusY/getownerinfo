@@ -2,6 +2,7 @@ import { connectDB } from "@/lib/db";
 import Listing from "@/models/Listing";
 import SeekerRequest from "@/models/SeekerRequest";
 import { LISTING_STATUS } from "@/lib/constants";
+import { publicListingFilter } from "@/lib/listingQuery";
 
 const BASE = process.env.NEXT_PUBLIC_APP_URL || "https://getownerinfo-ewgp.vercel.app";
 
@@ -16,7 +17,7 @@ export default async function sitemap() {
   try {
     await connectDB();
     const [listings, seekers] = await Promise.all([
-      Listing.find({ status: LISTING_STATUS.ACTIVE }).select("updatedAt").limit(500).lean(),
+      Listing.find(publicListingFilter()).select("updatedAt").limit(500).lean(),
       SeekerRequest.find({ status: "active", expiresAt: { $gt: new Date() } }).select("updatedAt").limit(500).lean(),
     ]);
     dynamicRoutes = [

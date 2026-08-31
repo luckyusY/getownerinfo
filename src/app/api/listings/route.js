@@ -7,9 +7,10 @@ import PlatformSettings, { getSettings } from "@/models/PlatformSettings";
 import { DEFAULT_SETTINGS } from "@/data/catalog";
 import { evaluateModel } from "@/lib/eligibility";
 import { computeListingFee } from "@/lib/pricing";
+import { publicListingFilter } from "@/lib/listingQuery";
 import { audit } from "@/models/AuditLog";
 import { ok, fail, requireAuth } from "@/lib/api";
-import { ROLES, LISTING_STATUS, LISTING_MODELS } from "@/lib/constants";
+import { ROLES, SELLER_ROLES, LISTING_STATUS, LISTING_MODELS } from "@/lib/constants";
 
 const mediaSchema = z.object({ url: z.string().url(), publicId: z.string() });
 // Private assets (ownership proof) carry no usable URL — only an identifier.
@@ -60,7 +61,7 @@ const createSchema = z.object({
 
 // POST /api/listings — create a listing (draft or submit for approval).
 export async function POST(req) {
-  const guard = requireAuth([ROLES.OWNER, ROLES.MANAGER, ROLES.ADMIN]);
+  const guard = requireAuth([...SELLER_ROLES, ROLES.MANAGER, ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   let body;
@@ -171,7 +172,7 @@ export async function GET(req) {
   await connectDB();
   const { searchParams } = new URL(req.url);
 
-  const query = { status: LISTING_STATUS.ACTIVE };
+  const query = publicListingFilter();
   const categorySlug = searchParams.get("category");
   if (categorySlug) {
     const cat = await Category.findOne({ slug: categorySlug });

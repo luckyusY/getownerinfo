@@ -4,10 +4,21 @@ export const ROLES = {
   ADMIN: "admin",
   MANAGER: "platform_listing_manager",
   OWNER: "owner",
+  AGENT: "agent", // licensed agent listing on an owner's behalf
   BUYER: "buyer", // buyer / tenant / client
 };
 
 export const ALL_ROLES = Object.values(ROLES);
+
+// Roles that can create and manage listings. Agents behave exactly like owners
+// on the selling side; the distinction exists for verification and reporting.
+export const SELLER_ROLES = [ROLES.OWNER, ROLES.AGENT];
+
+/** True when the role can list and manage property. */
+export const isSeller = (role) => SELLER_ROLES.includes(role);
+
+// Public signup roles. admin/manager are seeded, never self-assigned.
+export const PUBLIC_SIGNUP_ROLES = [ROLES.OWNER, ROLES.AGENT, ROLES.BUYER];
 
 export const LISTING_MODELS = {
   A: "A", // exclusive, commission-based

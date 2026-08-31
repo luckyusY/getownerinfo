@@ -4,7 +4,7 @@ import User from "@/models/User";
 import { audit } from "@/models/AuditLog";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { enforceRateLimit } from "@/lib/rateLimit";
-import { ROLES } from "@/lib/constants";
+import { ROLES, SELLER_ROLES } from "@/lib/constants";
 
 const submitSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
@@ -16,7 +16,7 @@ const submitSchema = z.object({
   }),
 });
 
-const SUBMITTERS = [ROLES.OWNER, ROLES.MANAGER];
+const SUBMITTERS = [...SELLER_ROLES, ROLES.MANAGER];
 
 // GET /api/verification — the caller's own verification status.
 // Deliberately returns status only: never the ID number or document.

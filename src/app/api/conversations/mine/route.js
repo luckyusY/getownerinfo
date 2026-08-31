@@ -3,11 +3,11 @@ import Conversation from "@/models/Conversation";
 import Listing from "@/models/Listing";
 import User from "@/models/User";
 import { ok, requireAuth } from "@/lib/api";
-import { ROLES } from "@/lib/constants";
+import { ROLES, SELLER_ROLES } from "@/lib/constants";
 
 // GET /api/conversations/mine — threads for the current user (buyer or owner).
 export async function GET() {
-  const guard = requireAuth([ROLES.BUYER, ROLES.OWNER, ROLES.ADMIN, ROLES.MANAGER]);
+  const guard = requireAuth([ROLES.BUYER, ...SELLER_ROLES, ROLES.ADMIN, ROLES.MANAGER]);
   if (guard.error) return guard.error;
   const { role, sub } = guard.session;
 
