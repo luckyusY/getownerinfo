@@ -4,7 +4,9 @@ import { LISTING_STATUS, LISTING_MODELS } from "@/lib/constants";
 const { Schema } = mongoose;
 
 const MediaSchema = new Schema(
-  { url: String, publicId: String },
+  // `url` is empty for private (authenticated) assets such as ownership proof —
+  // those are resolved to a short-lived signed URL by an admin-only route.
+  { url: String, publicId: String, resourceType: { type: String, default: "image" } },
   { _id: false }
 );
 
@@ -158,7 +160,16 @@ ListingSchema.methods.toFullJSON = function ({ includeProof = false } = {}) {
     expiresAt: this.expiresAt,
     listingFee: this.listingFee,
     paymentStatus: this.paymentStatus,
-    ...(includeProof ? { ownershipProof: this.ownershipProof.map((m) => m.url) } : {}),
+    // Proof assets are private: hand back identifiers, not URLs. Admin UI trades
+    // these for a short-lived signed URL via /api/admin/media/signed.
+    ...(includeProof
+      ? {
+          ownershipProof: this.ownershipProof.map((m) => ({
+            publicId: m.publicId,
+            resourceType: m.resourceType || "image",
+          })),
+        }
+      : {}),
   };
 };
 

@@ -11,6 +11,7 @@ import { ROLES } from "@/lib/constants";
 import { formatRwf } from "@/lib/format";
 import { PageHeader, StatCard } from "@/components/ui/Dashboard";
 import OwnerManage from "./OwnerManage";
+import VerificationCard from "./VerificationCard";
 import { BadgeCheck, Eye, Heart, ListPlus, MessageSquareText, Search, ShieldCheck } from "lucide-react";
 
 export default async function OwnerDashboard() {
@@ -48,6 +49,10 @@ export default async function OwnerDashboard() {
         <StatCard label="Total listings" value={total} />
         <StatCard label="Active" value={active} tone="brand" />
         <StatCard label="Pending approval" value={pending} />
+      </div>
+
+      <div className="mt-6">
+        <VerificationCard />
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">

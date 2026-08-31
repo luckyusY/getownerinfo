@@ -25,11 +25,26 @@ const UserSchema = new Schema(
       index: true,
     },
 
-    // Verification / KYC (admin-only — never exposed to buyers)
+    // Verification / KYC. The documents themselves are admin-only and never
+    // exposed to buyers; only the resulting `isVerified` flag is public.
     isVerified: { type: Boolean, default: false },
     kyc: {
       idNumber: { type: String, select: false },
       idDocumentUrl: { type: String, select: false },
+      // Cloudinary publicId for the private (authenticated) asset, so an admin
+      // can mint a signed URL without the raw one ever being stored publicly.
+      idDocumentPublicId: { type: String, select: false },
+      fullName: { type: String, select: false },
+      status: {
+        type: String,
+        enum: ["none", "pending", "approved", "rejected"],
+        default: "none",
+        index: true,
+      },
+      submittedAt: Date,
+      reviewedAt: Date,
+      reviewedBy: { type: Schema.Types.ObjectId, ref: "User" },
+      rejectionReason: String,
     },
 
     // Outstanding amounts owed (Rwf). Either > 0 blocks new exclusive (Model A)
@@ -53,6 +68,8 @@ UserSchema.methods.toSafeJSON = function () {
     avatarUrl: this.avatarUrl,
     role: this.role,
     isVerified: this.isVerified,
+    // Status only — never the ID number or document URL.
+    kycStatus: this.kyc?.status || "none",
     penaltyBalance: this.penaltyBalance,
     commissionDue: this.commissionDue,
     isActive: this.isActive,

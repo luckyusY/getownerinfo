@@ -12,6 +12,12 @@ import { ok, fail, requireAuth } from "@/lib/api";
 import { ROLES, LISTING_STATUS, LISTING_MODELS } from "@/lib/constants";
 
 const mediaSchema = z.object({ url: z.string().url(), publicId: z.string() });
+// Private assets (ownership proof) carry no usable URL — only an identifier.
+const privateMediaSchema = z.object({
+  url: z.string().optional().default(""),
+  publicId: z.string(),
+  resourceType: z.string().optional().default("image"),
+});
 
 const createSchema = z.object({
   categorySlug: z.string(),
@@ -47,7 +53,7 @@ const createSchema = z.object({
   description: z.string().optional(),
   features: z.array(z.string()).default([]),
   images: z.array(mediaSchema).default([]),
-  ownershipProof: z.array(mediaSchema).default([]),
+  ownershipProof: z.array(privateMediaSchema).default([]),
   // submit=true -> pending_approval; otherwise saved as draft
   submit: z.boolean().default(false),
 });

@@ -1,11 +1,12 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, BadgeCheck, CalendarDays, Eye, KeyRound, LayoutDashboard, Lock, MapPin, Store, UserPlus } from "lucide-react";
+import { ArrowLeft, BadgeCheck, CalendarDays, Eye, KeyRound, LayoutDashboard, Lock, MapPin, ShieldAlert, Store, UserPlus } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { connectDB } from "@/lib/db";
 import Listing from "@/models/Listing";
 import Category from "@/models/Category";
+import User from "@/models/User";
 import TokenUnlock from "@/models/TokenUnlock";
 import { getSession } from "@/lib/auth";
 import { buildRevealedContact } from "@/lib/unlockService";
@@ -53,6 +54,10 @@ export default async function ListingDetail({ params }) {
   if (!listing || listing.status !== LISTING_STATUS.ACTIVE) notFound();
 
   const category = await Category.findById(listing.category).lean();
+  // Owner verification state — the payoff for the whole KYC chain, shown right
+  // where the buyer decides whether to pay for contact details.
+  const listingOwner = await User.findById(listing.owner).select("isVerified").lean();
+  const ownerVerified = Boolean(listingOwner?.isVerified);
   const pub = listing.toPublicJSON();
   const session = getSession();
   const isListingOwner = !!session && listing.owner.toString() === session.sub;
@@ -124,9 +129,15 @@ export default async function ListingDetail({ params }) {
 
             {/* Trust signals */}
             <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-ink-soft">
-              <span className="inline-flex items-center gap-1.5 font-semibold text-emerald-700">
-                <BadgeCheck className="h-4 w-4" /> Verified listing
-              </span>
+              {ownerVerified ? (
+                <span className="inline-flex items-center gap-1.5 font-semibold text-emerald-700">
+                  <BadgeCheck className="h-4 w-4" /> Verified owner
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 font-semibold text-ink-faint" title="This owner has not completed identity verification.">
+                  <ShieldAlert className="h-4 w-4" /> Owner not yet verified
+                </span>
+              )}
               <span className="inline-flex items-center gap-1.5">
                 <CalendarDays className="h-4 w-4 text-ink-faint" /> Posted {formatDate(listing.createdAt)}
               </span>

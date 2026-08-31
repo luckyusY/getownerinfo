@@ -12,7 +12,7 @@ const PROOF_TYPES = [...IMAGE_TYPES, "application/pdf"];
 const schema = z.object({
   // data URI (e.g. "data:image/jpeg;base64,....")
   file: z.string().startsWith("data:"),
-  kind: z.enum(["image", "proof"]).default("image"),
+  kind: z.enum(["image", "proof", "identity"]).default("image"),
 });
 
 /** Pull the MIME type and decoded byte length out of a base64 data URI. */
@@ -53,7 +53,8 @@ export async function POST(req) {
   // happily accept whatever it is given.
   const info = inspectDataUri(parsed.data.file);
   if (!info) return fail("File must be a base64 data URI", 422);
-  const allowed = parsed.data.kind === "proof" ? PROOF_TYPES : IMAGE_TYPES;
+  const isPrivate = parsed.data.kind === "proof" || parsed.data.kind === "identity";
+  const allowed = isPrivate ? PROOF_TYPES : IMAGE_TYPES;
   if (!allowed.includes(info.mime)) {
     return fail(`Unsupported file type "${info.mime}". Allowed: ${allowed.join(", ")}`, 415);
   }
@@ -61,15 +62,29 @@ export async function POST(req) {
     return fail(`File is too large (${Math.round(info.bytes / 1024 / 1024)}MB). Maximum is 10MB.`, 413);
   }
 
-  // Ownership proof goes to a private-ish folder; images to a public folder.
+  // Ownership proof and identity documents are uploaded as "authenticated"
+  // assets — their URLs are not publicly fetchable, so leaking a link does not
+  // leak the document. Listing photos stay public.
   const folder =
     parsed.data.kind === "proof"
       ? "getownerinfo/ownership-proof"
-      : "getownerinfo/listings";
+      : parsed.data.kind === "identity"
+        ? "getownerinfo/identity"
+        : "getownerinfo/listings";
 
   try {
-    const res = await uploadToCloudinary(parsed.data.file, { folder });
-    return ok({ url: res.secure_url, publicId: res.public_id });
+    const res = await uploadToCloudinary(parsed.data.file, {
+      folder,
+      type: isPrivate ? "authenticated" : "upload",
+    });
+    return ok({
+      // For private assets the raw URL is useless without a signature; the
+      // publicId is what admin review resolves through signedPrivateUrl().
+      url: isPrivate ? "" : res.secure_url,
+      publicId: res.public_id,
+      resourceType: res.resource_type,
+      private: isPrivate,
+    });
   } catch (err) {
     return fail(`Upload failed: ${err.message}`, 502);
   }

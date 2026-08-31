@@ -5,6 +5,7 @@ import { guardRole } from "@/lib/guardRole";
 import { ROLES, LISTING_STATUS } from "@/lib/constants";
 import { PageHeader, StatCard } from "@/components/ui/Dashboard";
 import ModerationQueue from "./ModerationQueue";
+import VerificationQueue from "./VerificationQueue";
 import PenaltiesPanel from "./PenaltiesPanel";
 import AnalyticsPanel from "./AnalyticsPanel";
 import AuditViewer from "./AuditViewer";
@@ -13,23 +14,26 @@ export default async function AdminDashboard() {
   guardRole(ROLES.ADMIN);
   await connectDB();
 
-  const [pending, active, users] = await Promise.all([
+  const [pending, active, users, pendingKyc] = await Promise.all([
     Listing.countDocuments({ status: LISTING_STATUS.PENDING_APPROVAL }),
     Listing.countDocuments({ status: LISTING_STATUS.ACTIVE }),
     User.countDocuments({}),
+    User.countDocuments({ "kyc.status": "pending" }),
   ]);
 
   return (
     <div>
       <PageHeader title="Admin overview" subtitle="Verify listings, manage users, and oversee the platform." />
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-3">
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Pending approvals" value={pending} tone={pending ? "brand" : "default"} />
+        <StatCard label="Awaiting verification" value={pendingKyc} tone={pendingKyc ? "brand" : "default"} />
         <StatCard label="Active listings" value={active} />
         <StatCard label="Registered users" value={users} />
       </div>
 
       <AnalyticsPanel />
+      <VerificationQueue />
       <ModerationQueue />
       <PenaltiesPanel />
       <AuditViewer />
