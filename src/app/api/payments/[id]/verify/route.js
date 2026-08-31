@@ -6,10 +6,12 @@ import Payment from "@/models/Payment";
 import TokenUnlock from "@/models/TokenUnlock";
 import { safeVerify } from "@/lib/payments";
 import { finalizeUnlock, buildRevealedContact } from "@/lib/unlockService";
+import { verifyOtp } from "@/lib/notify";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { PAYMENT_TYPES, PAYMENT_STATUS } from "@/lib/constants";
 
 const schema = z.object({ otp: z.string().optional() });
+const MAX_OTP_ATTEMPTS = 5;
 
 // POST /api/payments/:id/verify — confirm a payment (with OTP if required) and,
 // for token-fee payments, finalize the unlock and reveal the gated fields.
@@ -27,17 +29,25 @@ export async function POST(req, { params }) {
 
   await connectDB();
   // Need otp fields, normally select:false.
-  const payment = await Payment.findById(params.id).select("+otp +otpExpiresAt");
+  const payment = await Payment.findById(params.id).select("+otp +otpExpiresAt +otpAttempts");
   if (!payment) return fail("Payment not found", 404);
   if (payment.user.toString() !== guard.session.sub) return fail("Forbidden", 403);
 
-  // OTP check (if one was issued).
+  // OTP check (if one was issued). Stored as an HMAC, compared in constant time,
+  // with a hard attempt cap so a 6-digit code can't be brute-forced.
   if (payment.otp) {
     if (!otp) return fail("OTP required", 422);
     if (payment.otpExpiresAt && payment.otpExpiresAt < new Date()) {
       return fail("OTP expired. Restart the unlock.", 410);
     }
-    if (otp !== payment.otp) return fail("Incorrect OTP", 401);
+    if ((payment.otpAttempts || 0) >= MAX_OTP_ATTEMPTS) {
+      return fail("Too many incorrect codes. Restart the unlock.", 429);
+    }
+    if (!verifyOtp(otp, payment.otp)) {
+      payment.otpAttempts = (payment.otpAttempts || 0) + 1;
+      await payment.save();
+      return fail("Incorrect OTP", 401);
+    }
   }
 
   // Confirm with the provider (stub returns paid).

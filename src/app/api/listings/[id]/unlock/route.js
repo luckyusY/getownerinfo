@@ -7,10 +7,11 @@ import Payment from "@/models/Payment";
 import TokenUnlock from "@/models/TokenUnlock";
 import PlatformSettings, { getSettings } from "@/models/PlatformSettings";
 import { DEFAULT_SETTINGS } from "@/data/catalog";
-import { safeInitiate, isStubPayments } from "@/lib/payments";
+import { safeInitiate } from "@/lib/payments";
 import { finalizeUnlock, buildRevealedContact } from "@/lib/unlockService";
-import { notify, generateOtp } from "@/lib/notify";
+import { notify, generateOtp, hashOtp, emailConfigured } from "@/lib/notify";
 import { ok, fail, requireAuth } from "@/lib/api";
+import { enforceRateLimit } from "@/lib/rateLimit";
 import { audit } from "@/models/AuditLog";
 import {
   ROLES,
@@ -26,6 +27,16 @@ const schema = z.object({ tier: z.enum(["buyer", "tenant", "client"]).default("b
 export async function POST(req, { params }) {
   const guard = requireAuth([ROLES.BUYER, ROLES.OWNER, ROLES.ADMIN]);
   if (guard.error) return guard.error;
+
+  // Per-account throttle on top of the daily unlock cap below — this one also
+  // covers repeated OTP restarts, which the daily cap does not see.
+  const limited = await enforceRateLimit(req, {
+    name: "unlock",
+    limit: 15,
+    windowMs: 10 * 60 * 1000,
+    identifier: guard.session.sub,
+  });
+  if (limited) return limited;
 
   let body = {};
   try {
@@ -58,6 +69,14 @@ export async function POST(req, { params }) {
   const todayCount = await TokenUnlock.countDocuments({ user: user._id, at: { $gte: since } });
   if (todayCount >= (settings.tokenAccess?.maxUnlocksPerUserPerDay ?? 20)) {
     return fail("Daily unlock limit reached. Try again later.", 429);
+  }
+
+  // An OTP gate we cannot actually deliver would take the buyer's money and then
+  // strand them at a code prompt. Refuse before initiating any payment.
+  const otpRequired = settings.tokenAccess?.otpRequired ?? true;
+  if (otpRequired && !emailConfigured() && process.env.NODE_ENV === "production") {
+    console.error("unlock blocked: OTP required but no email provider configured");
+    return fail("Unlock is temporarily unavailable. Please try again shortly.", 503);
   }
 
   const category = await Category.findById(listing.category);
@@ -97,11 +116,11 @@ export async function POST(req, { params }) {
     meta: { type: "token_fee", amount, listingId: listing._id.toString() },
   });
 
-  // OTP gate (configurable). Generate, "send", and require it on verify.
-  const otpRequired = settings.tokenAccess?.otpRequired ?? true;
+  // OTP gate (configurable). Generate, send, and require it on verify. Only the
+  // HMAC is stored, so the raw code exists solely in the email.
   if (otpRequired) {
     const otp = generateOtp();
-    payment.otp = otp;
+    payment.otp = hashOtp(otp);
     payment.otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
     await payment.save();
     await notify({
@@ -115,8 +134,9 @@ export async function POST(req, { params }) {
       paymentId: payment._id.toString(),
       amount,
       redirectUrl: init.redirectUrl,
-      // In stub/dev mode, surface the OTP so the flow is testable without email.
-      ...(isStubPayments() ? { devOtp: otp } : {}),
+      // Outside production only, surface the OTP so the flow is testable without
+      // an email provider. This must never be keyed off payment mode.
+      ...(process.env.NODE_ENV !== "production" ? { devOtp: otp } : {}),
     });
   }
 

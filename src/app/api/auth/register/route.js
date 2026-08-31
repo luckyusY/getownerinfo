@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import { hashPassword, signToken, setAuthCookie, createSessionPayload } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
+import { enforceRateLimit } from "@/lib/rateLimit";
 import { ROLES } from "@/lib/constants";
 
 const schema = z.object({
@@ -15,6 +16,9 @@ const schema = z.object({
 });
 
 export async function POST(req) {
+  const limited = await enforceRateLimit(req, { name: "register", limit: 5, windowMs: 60 * 60 * 1000 });
+  if (limited) return limited;
+
   let body;
   try {
     body = await req.json();

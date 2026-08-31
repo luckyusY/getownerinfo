@@ -22,8 +22,10 @@ const PaymentSchema = new Schema(
     method: String, // momo | card | bank (reported by provider)
 
     // OTP gate for token unlocks (spec anti-abuse). Hidden by default.
+    // `otp` holds an HMAC of the code, never the code itself.
     otp: { type: String, select: false },
     otpExpiresAt: { type: Date, select: false },
+    otpAttempts: { type: Number, default: 0, select: false },
 
     // For token unlocks: which pricing tier (buyer/tenant/client)
     tier: String,
