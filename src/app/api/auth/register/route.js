@@ -16,7 +16,10 @@ const schema = z.object({
 });
 
 export async function POST(req) {
-  const limited = await enforceRateLimit(req, { name: "register", limit: 5, windowMs: 60 * 60 * 1000 });
+  // Keyed by IP. Rwanda has heavy carrier-grade NAT -- a whole mobile network
+  // or an office shares one address -- so this has to stay well above what a
+  // legitimate burst of signups looks like. Scripted abuse is still capped.
+  const limited = await enforceRateLimit(req, { name: "register", limit: 30, windowMs: 60 * 60 * 1000 });
   if (limited) return limited;
 
   let body;

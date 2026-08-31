@@ -11,8 +11,10 @@ const schema = z.object({
 });
 
 export async function POST(req) {
-  // Throttle by IP first, so credential stuffing is capped before we touch the DB.
-  const limited = await enforceRateLimit(req, { name: "login", limit: 10, windowMs: 10 * 60 * 1000 });
+  // Coarse per-IP cap, generous because shared/NAT addresses are the norm here.
+  // A blunt backstop against floods, NOT the brute-force defence -- the
+  // per-account limit below is what protects an individual inbox.
+  const limited = await enforceRateLimit(req, { name: "login", limit: 60, windowMs: 10 * 60 * 1000 });
   if (limited) return limited;
 
   let body;
@@ -27,8 +29,9 @@ export async function POST(req) {
     return fail("Email and password are required", 422);
   }
 
-  // And by account, so one attacker can't spread an attack across many IPs
-  // against a single high-value inbox.
+  // The real defence: per-account, so an attacker cannot spread attempts across
+  // many IPs against one high-value inbox. Kept tight on purpose -- a genuine
+  // user needs nowhere near 10 tries in 10 minutes.
   const perAccount = await enforceRateLimit(req, {
     name: "login:acct",
     limit: 10,
