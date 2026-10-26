@@ -2,27 +2,31 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, Home, Inbox, LayoutDashboard, ListPlus, MessageSquareText, Search, ShieldCheck } from "lucide-react";
+import { Activity, Home, Inbox, LayoutDashboard, ListPlus, MessageSquareText, Search, ShieldCheck, UserCircle } from "lucide-react";
 
 const NAV = {
   admin: [
     { href: "/dashboard/admin", label: "Overview", icon: ShieldCheck },
     { href: "/listings", label: "Listings", icon: Home },
     { href: "/seekers", label: "Requests", icon: Inbox },
+    { href: "/dashboard/profile", label: "My profile", icon: UserCircle },
   ],
   platform_listing_manager: [
     { href: "/dashboard/manager", label: "Overview", icon: Activity },
     { href: "/listings", label: "Listings", icon: Home },
+    { href: "/dashboard/profile", label: "My profile", icon: UserCircle },
   ],
   owner: [
     { href: "/dashboard/owner", label: "My listings", icon: LayoutDashboard },
     { href: "/dashboard/owner/listings/new", label: "New listing", icon: ListPlus },
     { href: "/dashboard/owner/messages", label: "Messages", icon: MessageSquareText },
+    { href: "/dashboard/profile", label: "My profile", icon: UserCircle },
   ],
   buyer: [
     { href: "/dashboard/buyer", label: "My activity", icon: Activity },
     { href: "/listings", label: "Browse", icon: Search },
     { href: "/seekers/new", label: "Post a request", icon: Inbox },
+    { href: "/dashboard/profile", label: "My profile", icon: UserCircle },
   ],
 };
 

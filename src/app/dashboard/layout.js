@@ -72,7 +72,7 @@ export default async function DashboardLayout({ children }) {
         <aside className="md:w-64 md:shrink-0">
           <div className="space-y-4 md:sticky md:top-20">
             <DashboardNav role={user.role} />
-            <section className="rounded-xl border border-line bg-surface p-4 shadow-soft">
+            <Link href="/dashboard/profile" className="block rounded-xl border border-line bg-surface p-4 shadow-soft transition hover:border-brand/40 hover:shadow-md">
               <p className="text-xs font-black uppercase tracking-wide text-brand">Account</p>
               <p className="mt-1 truncate text-sm font-bold text-ink">{user.name}</p>
               <p className="truncate text-xs font-semibold text-ink-faint">{user.email}</p>
@@ -85,7 +85,7 @@ export default async function DashboardLayout({ children }) {
                   <span className="block h-full rounded-full bg-brand" style={{ width: `${profilePercent}%` }} />
                 </div>
               </div>
-            </section>
+            </Link>
             <section className="rounded-xl border border-line bg-surface p-4 shadow-soft">
               <p className="text-xs font-black uppercase tracking-wide text-brand">Quick actions</p>
               <div className="mt-3 grid gap-2">
