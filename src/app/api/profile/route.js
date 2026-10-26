@@ -5,8 +5,11 @@ import { ok, fail, requireAuth } from "@/lib/api";
 import { ALL_ROLES } from "@/lib/constants";
 
 const patchSchema = z.object({
-  name: z.string().min(2).max(80).optional(),
-  phone: z.string().min(6).max(20).optional(),
+  name: z.string().trim().min(2).max(80).optional(),
+  // An empty phone is allowed so a user can remove an existing number.
+  phone: z.string().trim().max(20).refine((value) => value === "" || value.length >= 6).optional(),
+}).refine((value) => value.name !== undefined || value.phone !== undefined, {
+  message: "Provide a name or phone number to update",
 });
 
 // GET /api/profile — return the caller's own profile (safe fields only)
@@ -48,8 +51,8 @@ export async function PATCH(req) {
   const user = await User.findById(guard.session.sub);
   if (!user) return fail("User not found", 404);
 
-  if (parsed.data.name) user.name = parsed.data.name.trim();
-  if (parsed.data.phone !== undefined) user.phone = parsed.data.phone.trim();
+  if (parsed.data.name !== undefined) user.name = parsed.data.name;
+  if (parsed.data.phone !== undefined) user.phone = parsed.data.phone;
   await user.save();
 
   return ok({ name: user.name, phone: user.phone || "" });

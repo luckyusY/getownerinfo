@@ -8,7 +8,7 @@ import { ROLES, PUBLIC_SIGNUP_ROLES } from "@/lib/constants";
 
 const schema = z.object({
   name: z.string().min(2),
-  email: z.string().email(),
+  email: z.string().trim().toLowerCase().email(),
   phone: z.string().min(7).optional(),
   password: z.string().min(8),
   // Public signup is limited to owner/agent/buyer. admin/manager are seeded.

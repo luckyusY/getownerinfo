@@ -121,7 +121,7 @@ export default function VerificationCard() {
         <p className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-xs font-semibold text-red-800">{state.rejectionReason}</p>
       )}
       <p className="mt-2 text-sm text-ink-soft">
-        Submit your national ID so buyers see a verified badge on your listings. Your document is stored privately and is
+        Submit your identity document so buyers see a verified badge on your listings. Your document is stored privately and is
         only ever visible to our review team.
       </p>
 

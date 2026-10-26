@@ -74,6 +74,28 @@ export async function rateLimit({ key, limit, windowMs }) {
   };
 }
 
+/** Clear a bucket after a successful authentication attempt. */
+export async function resetRateLimit(key) {
+  if (useUpstash) {
+    try {
+      const res = await fetch(`${UPSTASH_URL}/pipeline`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${UPSTASH_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify([["DEL", key]]),
+      });
+      if (!res.ok) throw new Error(`Upstash ${res.status}`);
+    } catch (err) {
+      // A reset is best-effort; authentication should not fail because of it.
+      console.error("rateLimit reset failed:", err?.message || err);
+    }
+    return;
+  }
+  buckets.delete(key);
+}
+
 /** Best-effort client IP from proxy headers. */
 export function clientIp(req) {
   const xff = req?.headers?.get?.("x-forwarded-for");

@@ -17,6 +17,7 @@ export default function ProfilePage() {
   const { toast } = useToast();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [busy, setBusy] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -29,8 +30,9 @@ export default function ProfilePage() {
         setProfile(j.data);
         setName(j.data.name || "");
         setPhone(j.data.phone || "");
-      }
-    } catch { /* ignore */ }
+        setLoadError(false);
+      } else setLoadError(true);
+    } catch { setLoadError(true); }
     setLoading(false);
   }
 
@@ -64,7 +66,17 @@ export default function ProfilePage() {
     );
   }
 
-  if (!profile) return null;
+  if (!profile) {
+    return (
+      <div className="card !p-6">
+        <h1 className="font-display text-xl font-bold text-ink">Profile unavailable</h1>
+        <p className="mt-2 text-sm text-ink-soft">
+          {loadError ? "We couldn’t load your profile. Check your connection and try again." : "Your profile could not be found."}
+        </p>
+        <button type="button" onClick={() => { setLoading(true); load(); }} className="btn-outline mt-4">Try again</button>
+      </div>
+    );
+  }
 
   const initials = profile.name?.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase() || "?";
   const profileItems = [profile.name, profile.email, profile.phone].filter(Boolean).length;

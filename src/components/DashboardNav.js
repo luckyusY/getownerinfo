@@ -22,6 +22,12 @@ const NAV = {
     { href: "/dashboard/owner/messages", label: "Messages", icon: MessageSquareText },
     { href: "/dashboard/profile", label: "My profile", icon: UserCircle },
   ],
+  agent: [
+    { href: "/dashboard/owner", label: "My listings", icon: LayoutDashboard },
+    { href: "/dashboard/owner/listings/new", label: "New listing", icon: ListPlus },
+    { href: "/dashboard/owner/messages", label: "Messages", icon: MessageSquareText },
+    { href: "/dashboard/profile", label: "My profile", icon: UserCircle },
+  ],
   buyer: [
     { href: "/dashboard/buyer", label: "My activity", icon: Activity },
     { href: "/listings", label: "Browse", icon: Search },

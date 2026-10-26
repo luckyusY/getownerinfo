@@ -11,6 +11,7 @@ const ROLE_LABELS = {
   admin: "Administrator",
   platform_listing_manager: "Listing Manager",
   owner: "Owner",
+  agent: "Agent",
   buyer: "Buyer / Tenant",
 };
 
@@ -27,6 +28,11 @@ const QUICK_ACTIONS = {
     ["New listing", "/dashboard/owner/listings/new"],
     ["Messages", "/dashboard/owner/messages"],
     ["Browse as buyer", "/listings"],
+  ],
+  agent: [
+    ["New listing", "/dashboard/owner/listings/new"],
+    ["Messages", "/dashboard/owner/messages"],
+    ["Browse listings", "/listings"],
   ],
   buyer: [
     ["Browse listings", "/listings"],

@@ -3,10 +3,10 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import { verifyPassword, signToken, setAuthCookie, createSessionPayload } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
-import { enforceRateLimit } from "@/lib/rateLimit";
+import { enforceRateLimit, resetRateLimit } from "@/lib/rateLimit";
 
 const schema = z.object({
-  email: z.string().email(),
+  email: z.string().trim().toLowerCase().email(),
   password: z.string().min(1),
 });
 
@@ -32,11 +32,12 @@ export async function POST(req) {
   // The real defence: per-account, so an attacker cannot spread attempts across
   // many IPs against one high-value inbox. Kept tight on purpose -- a genuine
   // user needs nowhere near 10 tries in 10 minutes.
+  const accountKey = `rl:login:acct:${parsed.data.email}`;
   const perAccount = await enforceRateLimit(req, {
     name: "login:acct",
     limit: 10,
     windowMs: 10 * 60 * 1000,
-    identifier: parsed.data.email.toLowerCase(),
+    identifier: parsed.data.email,
   });
   if (perAccount) return perAccount;
 
@@ -46,6 +47,9 @@ export async function POST(req) {
   if (!user || !(await verifyPassword(parsed.data.password, user.passwordHash))) {
     return fail("Invalid email or password", 401);
   }
+  // Count failed attempts, not normal successful sign-ins, against the
+  // per-account brute-force limit.
+  await resetRateLimit(accountKey);
   if (!user.isActive || user.isBlacklisted) {
     return fail("This account is disabled. Contact support.", 403);
   }
