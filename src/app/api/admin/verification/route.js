@@ -13,7 +13,7 @@ export async function GET(req) {
 
   await connectDB();
   const users = await User.find({ "kyc.status": status })
-    .select("+kyc.idNumber +kyc.idDocumentPublicId +kyc.fullName")
+    .select("+kyc.idNumber +kyc.idDocumentPublicId +kyc.fullName +kyc.docType")
     .sort({ "kyc.submittedAt": 1 })
     .limit(100);
 
@@ -30,6 +30,7 @@ export async function GET(req) {
       // Admin-only review payload.
       declaredName: u.kyc?.fullName,
       idNumber: u.kyc?.idNumber,
+      docType: u.kyc?.docType,
       idDocumentPublicId: u.kyc?.idDocumentPublicId,
     })),
   });

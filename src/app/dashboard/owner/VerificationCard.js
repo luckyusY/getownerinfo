@@ -23,6 +23,7 @@ export default function VerificationCard() {
   const [busy, setBusy] = useState(false);
   const [fullName, setFullName] = useState("");
   const [idNumber, setIdNumber] = useState("");
+  const [docType, setDocType] = useState("national_id");
   const [fileName, setFileName] = useState("");
 
   async function load() {
@@ -62,13 +63,14 @@ export default function VerificationCard() {
         body: JSON.stringify({
           fullName,
           idNumber,
+          docType,
           idDocument: { publicId: upJson.data.publicId, resourceType: upJson.data.resourceType },
         }),
       });
       const j = await res.json();
       if (!j.success) throw new Error(j.error);
       toast("Submitted for review", { type: "success" });
-      setFullName(""); setIdNumber(""); setFileName("");
+      setFullName(""); setIdNumber(""); setFileName(""); setDocType("national_id");
       if (fileRef.current) fileRef.current.value = "";
       load();
     } catch (err) {
@@ -131,13 +133,32 @@ export default function VerificationCard() {
             className="rounded-lg border border-line bg-surface px-3 py-2 text-sm font-semibold text-ink outline-none focus:border-brand"
           />
         </label>
-        <label className="grid gap-1">
-          <span className="text-xs font-bold uppercase tracking-wide text-ink-faint">National ID number</span>
-          <input
-            required minLength={6} value={idNumber} onChange={(e) => setIdNumber(e.target.value)}
-            className="rounded-lg border border-line bg-surface px-3 py-2 text-sm font-semibold text-ink outline-none focus:border-brand"
-          />
-        </label>
+        {(() => {
+          const idLabel = docType === "passport" ? "Passport number" : docType === "driving_licence" ? "Licence number" : "National ID number";
+          return (
+            <>
+              <label className="grid gap-1">
+                <span className="text-xs font-bold uppercase tracking-wide text-ink-faint">Document type</span>
+                <select
+                  value={docType}
+                  onChange={(e) => setDocType(e.target.value)}
+                  className="rounded-lg border border-line bg-surface px-3 py-2 text-sm font-semibold text-ink outline-none focus:border-brand"
+                >
+                  <option value="national_id">National ID</option>
+                  <option value="passport">Passport</option>
+                  <option value="driving_licence">Driving Licence</option>
+                </select>
+              </label>
+              <label className="grid gap-1">
+                <span className="text-xs font-bold uppercase tracking-wide text-ink-faint">{idLabel}</span>
+                <input
+                  required minLength={6} value={idNumber} onChange={(e) => setIdNumber(e.target.value)}
+                  className="rounded-lg border border-line bg-surface px-3 py-2 text-sm font-semibold text-ink outline-none focus:border-brand"
+                />
+              </label>
+            </>
+          );
+        })()}
         <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-line bg-panel px-3 py-3 text-sm font-semibold text-ink-soft hover:border-brand/40">
           <Upload className="h-4 w-4 text-brand" />
           {fileName || "Attach ID photo or PDF (max 10MB)"}

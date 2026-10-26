@@ -91,6 +91,11 @@ export default function VerificationQueue() {
                     <span className="inline-flex items-center gap-1 rounded-full bg-panel px-2.5 py-1 capitalize">
                       {r.role}
                     </span>
+                    {r.docType && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-panel px-2.5 py-1 capitalize">
+                        {r.docType === "national_id" ? "National ID" : r.docType === "passport" ? "Passport" : "Driving Licence"}
+                      </span>
+                    )}
                   </div>
                   {/* A name mismatch is the single most common forgery signal. */}
                   {r.declaredName && r.name && r.declaredName.trim().toLowerCase() !== r.name.trim().toLowerCase() && (

@@ -30,6 +30,11 @@ const UserSchema = new Schema(
     isVerified: { type: Boolean, default: false },
     kyc: {
       idNumber: { type: String, select: false },
+      docType: {
+        type: String,
+        enum: ["national_id", "passport", "driving_licence"],
+        select: false,
+      },
       idDocumentUrl: { type: String, select: false },
       // Cloudinary publicId for the private (authenticated) asset, so an admin
       // can mint a signed URL without the raw one ever being stored publicly.

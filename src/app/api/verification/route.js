@@ -8,8 +8,8 @@ import { ROLES, SELLER_ROLES } from "@/lib/constants";
 
 const submitSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
-  // Rwandan national ID is 16 digits; keep it permissive but bounded.
   idNumber: z.string().min(6).max(32),
+  docType: z.enum(["national_id", "passport", "driving_licence"]),
   idDocument: z.object({
     publicId: z.string().min(1),
     resourceType: z.string().optional().default("image"),
@@ -81,6 +81,7 @@ export async function POST(req) {
     ...(user.kyc?.toObject?.() || user.kyc || {}),
     fullName: parsed.data.fullName,
     idNumber: parsed.data.idNumber,
+    docType: parsed.data.docType,
     idDocumentPublicId: parsed.data.idDocument.publicId,
     idDocumentUrl: "", // never store a public URL for an identity document
     status: "pending",
@@ -98,7 +99,7 @@ export async function POST(req) {
     targetType: "User",
     targetId: user._id,
     // Never log the ID number itself.
-    meta: { hasDocument: true },
+    meta: { hasDocument: true, docType: parsed.data.docType },
   });
 
   return ok({ status: "pending" }, 201);
