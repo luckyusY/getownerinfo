@@ -20,6 +20,15 @@ import {
 import { useToast } from "@/components/ui/Toast";
 import StartSellingButton from "@/components/StartSellingButton";
 
+// Shown under the name in the header, so the signed-in role is obvious.
+const ROLE_LABELS = {
+  admin: "Administrator",
+  platform_listing_manager: "Listing Manager",
+  owner: "Owner",
+  agent: "Agent",
+  buyer: "Buyer / Tenant",
+};
+
 const SELLER_LINKS = [
   { href: "/dashboard/owner", icon: ListChecks, label: "My listings" },
   { href: "/dashboard/owner/messages", icon: MessagesSquare, label: "Messages" },
@@ -82,6 +91,7 @@ export default function AccountDropdown({ session, dashboardPath = "/dashboard" 
   const label = session ? "My Account" : "Sign in My Account";
   const displayName = session?.name || "My account";
   const displayInitial = displayName.trim().charAt(0).toUpperCase() || "U";
+  const roleLabel = ROLE_LABELS[session?.role] || "My account";
 
   return (
     <div ref={menuRef} className="relative hidden md:block">
@@ -90,31 +100,30 @@ export default function AccountDropdown({ session, dashboardPath = "/dashboard" 
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
-        className="flex items-center gap-1.5 text-sm font-bold text-white transition hover:text-[#9fdcef] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b77a0]"
+        className="flex items-center gap-2 rounded-full border border-line py-1 pl-1 pr-2.5 text-sm font-bold text-ink transition hover:border-brand/40 hover:bg-brand-50"
       >
         {session?.avatarUrl ? (
-          <img src={session.avatarUrl} alt="" className="h-8 w-8 rounded-full border border-white/50 object-cover shadow-sm" />
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={session.avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
         ) : (
-          <span className="grid h-8 w-8 place-items-center rounded-full border border-white/50 bg-white/15 text-xs font-black shadow-sm">
+          <span className="grid h-9 w-9 place-items-center rounded-full bg-brand-50 text-xs font-black text-brand">
             {session ? displayInitial : <CircleUser className="h-5 w-5" />}
           </span>
         )}
-        <span className="max-w-[118px] text-left leading-tight">
+        <span className="max-w-[140px] text-left leading-tight">
           {session ? (
             <>
-              <span className="block truncate">{displayName.split(" ")[0]}</span>
-              <br />
-              <span className="text-xs text-white/80">Account</span>
+              <span className="block truncate text-sm font-bold text-ink">{displayName}</span>
+              <span className="block truncate text-[11px] font-bold text-ink-faint">{roleLabel}</span>
             </>
           ) : (
             <>
-              Sign in
-              <br />
-              My Account
+              <span className="block text-sm font-bold text-ink">Sign in</span>
+              <span className="block text-[11px] font-bold text-ink-faint">My account</span>
             </>
           )}
         </span>
-        <ChevronDown className={`h-4 w-4 transition ${open ? "rotate-180" : ""}`} />
+        <ChevronDown className={`h-4 w-4 shrink-0 text-ink-faint transition ${open ? "rotate-180" : ""}`} />
       </button>
 
       <div
