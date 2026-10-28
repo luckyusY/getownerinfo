@@ -24,7 +24,12 @@ const ContactSchema = new Schema(
 
 const LocationSchema = new Schema(
   {
+    country: { type: String, default: "Rwanda" },
+    province: String,
+    district: String,
+    sector: String,
     area: String, // PUBLIC approximate area (e.g. "Kicukiro, Kigali")
+    famousPlace: String,
     // --- gated exact location ---
     upi: String,
     street: String,
@@ -42,6 +47,8 @@ const ListingSchema = new Schema(
     category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
     subcategory: { type: Schema.Types.ObjectId, ref: "Subcategory" },
     itemType: String,
+    // Category-specific public form fields (e.g. real-estate room/amenity data).
+    attributes: { type: Schema.Types.Mixed, default: () => ({}) },
     transactionType: { type: String, enum: ["rent", "sale"], default: "sale" },
 
     ownerType: {
@@ -98,6 +105,8 @@ const ListingSchema = new Schema(
     underNegotiation: { type: Boolean, default: false },
     firstUnlockAt: { type: Date, default: null },
     unlockCount: { type: Number, default: 0 },
+    // Detail-page views by anyone other than the listing's own owner.
+    viewCount: { type: Number, default: 0 },
 
     // Deal outcome (Model A) — populated in Phase 5
     dealOutcome: { type: String, default: null }, // sold | rented | not_concluded
@@ -130,7 +139,15 @@ ListingSchema.methods.toPublicJSON = function () {
     quantity: this.quantity,
     model: this.model,
     status: this.status,
-    location: { area: this.location?.area || null }, // approximate only
+    location: {
+      area: this.location?.area || null,
+      country: this.location?.country || "Rwanda",
+      province: this.location?.province,
+      district: this.location?.district,
+      sector: this.location?.sector,
+      famousPlace: this.location?.famousPlace,
+    }, // approximate only; street, UPI, house number and map pin remain gated
+    attributes: this.attributes || {},
     contactLocked: true,
     createdAt: this.createdAt,
   };
@@ -151,7 +168,12 @@ ListingSchema.methods.toFullJSON = function ({ includeProof = false } = {}) {
       thirdPartyContact: this.contact?.thirdPartyContact,
     },
     location: {
+      country: this.location?.country || "Rwanda",
+      province: this.location?.province,
+      district: this.location?.district,
+      sector: this.location?.sector,
       area: this.location?.area || null,
+      famousPlace: this.location?.famousPlace,
       upi: this.location?.upi,
       street: this.location?.street,
       houseNumber: this.location?.houseNumber,
@@ -163,6 +185,15 @@ ListingSchema.methods.toFullJSON = function ({ includeProof = false } = {}) {
     expiresAt: this.expiresAt,
     listingFee: this.listingFee,
     paymentStatus: this.paymentStatus,
+    // Needed by the owner dashboard so a rejected listing can be fixed.
+    rejectionReason: this.rejectionReason,
+    unlockCount: this.unlockCount,
+    viewCount: this.viewCount,
+    underNegotiation: this.underNegotiation,
+    dealOutcome: this.dealOutcome,
+    finalAmount: this.finalAmount,
+    reviewFlag: this.reviewFlag,
+    reviewReason: this.reviewReason,
     // Proof assets are private: hand back identifiers, not URLs. Admin UI trades
     // these for a short-lived signed URL via /api/admin/media/signed.
     ...(includeProof

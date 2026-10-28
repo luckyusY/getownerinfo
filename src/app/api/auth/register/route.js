@@ -4,15 +4,20 @@ import User from "@/models/User";
 import { hashPassword, signToken, setAuthCookie, createSessionPayload } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
 import { enforceRateLimit } from "@/lib/rateLimit";
+import { isValidRwandaPhone } from "@/lib/phone";
 import { ROLES, PUBLIC_SIGNUP_ROLES } from "@/lib/constants";
 
 const schema = z.object({
-  name: z.string().min(2),
+  name: z.string().trim().min(2).max(80),
   email: z.string().trim().toLowerCase().email(),
-  phone: z.string().min(7).optional(),
-  password: z.string().min(8),
+  phone: z.string().trim().max(20).refine((value) => !value || isValidRwandaPhone(value), "Enter a valid Rwanda phone number, such as +250 7XX XXX XXX").optional(),
+  password: z.string().min(8).regex(/[A-Z]/, "Password needs an uppercase letter").regex(/[a-z]/, "Password needs a lowercase letter").regex(/[0-9]/, "Password needs a number").regex(/[^A-Za-z0-9]/, "Password needs a special character"),
+  passwordConfirm: z.string().min(1, "Confirm your password"),
   // Public signup is limited to owner/agent/buyer. admin/manager are seeded.
   role: z.enum(PUBLIC_SIGNUP_ROLES).default(ROLES.BUYER),
+}).refine((data) => data.password === data.passwordConfirm, {
+  message: "Passwords do not match",
+  path: ["passwordConfirm"],
 });
 
 export async function POST(req) {

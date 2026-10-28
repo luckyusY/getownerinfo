@@ -11,7 +11,9 @@ import { ROLES } from "@/lib/constants";
 // is admin/manager-gated and audited — viewing someone's national ID should
 // leave a trail.
 export async function GET(req) {
-  const guard = requireAuth([ROLES.ADMIN, ROLES.MANAGER]);
+  // Individual verification assignment is not implemented, so private files
+  // remain admin-only instead of granting managers a global document view.
+  const guard = requireAuth([ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   const { searchParams } = new URL(req.url);

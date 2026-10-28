@@ -51,9 +51,22 @@ export default function OwnerMessages() {
                     <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${selected ? "bg-brand text-white" : "bg-panel text-ink-faint group-hover:text-brand"}`}>
                       <UserRound className="h-4 w-4" />
                     </span>
-                    <span className="min-w-0">
-                      <span className="block truncate font-bold text-ink">{c.listingTitle}</span>
-                      <span className="mt-0.5 block truncate text-xs">{c.buyerName} - {c.preview || "No message preview"}</span>
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-center gap-2">
+                        <span className="min-w-0 flex-1 truncate font-bold text-ink">{c.listingTitle}</span>
+                        {c.unread > 0 && (
+                          <span className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-brand px-1.5 text-[10px] font-black text-white">
+                            {c.unread > 9 ? "9+" : c.unread}
+                          </span>
+                        )}
+                      </span>
+                      <span className="mt-0.5 block truncate text-xs">
+                        <span className="font-bold uppercase tracking-wide text-ink-faint">
+                          {c.side === "buyer" ? "You asked" : "You own"}
+                        </span>
+                        {" · "}
+                        {c.counterpartName || c.buyerName} - {c.preview || "No message preview"}
+                      </span>
                     </span>
                   </div>
                 </button>

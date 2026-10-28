@@ -3,11 +3,12 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { ALL_ROLES } from "@/lib/constants";
+import { optionalRwandaPhone } from "@/lib/phone";
 
 const patchSchema = z.object({
   name: z.string().trim().min(2).max(80).optional(),
   // An empty phone is allowed so a user can remove an existing number.
-  phone: z.string().trim().max(20).refine((value) => value === "" || value.length >= 6).optional(),
+  phone: z.string().trim().max(20).refine(optionalRwandaPhone, "Enter a valid Rwanda phone number, such as +250 7XX XXX XXX").optional(),
 }).refine((value) => value.name !== undefined || value.phone !== undefined, {
   message: "Provide a name or phone number to update",
 });

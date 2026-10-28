@@ -4,7 +4,7 @@ import Listing from "@/models/Listing";
 import { audit } from "@/models/AuditLog";
 import { notifyUser } from "@/models/Notification";
 import { ok, fail, requireAuth } from "@/lib/api";
-import { ROLES, LISTING_STATUS } from "@/lib/constants";
+import { ROLES, LISTING_STATUS, LISTING_MODELS, PAYMENT_STATUS } from "@/lib/constants";
 
 const schema = z.object({
   action: z.enum(["approve", "reject"]),
@@ -30,6 +30,9 @@ export async function POST(req, { params }) {
   if (!listing) return fail("Listing not found", 404);
   if (listing.status !== LISTING_STATUS.PENDING_APPROVAL) {
     return fail(`Listing is '${listing.status}', not pending approval`, 409);
+  }
+  if (parsed.data.action === "approve" && listing.model === LISTING_MODELS.B && listing.paymentStatus !== PAYMENT_STATUS.PAID) {
+    return fail("Model B listing fees must be paid before approval", 409);
   }
 
   if (parsed.data.action === "approve") {

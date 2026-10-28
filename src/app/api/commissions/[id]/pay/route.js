@@ -39,6 +39,7 @@ export async function POST(_req, { params }) {
     status: PAYMENT_STATUS.PENDING,
     provider: init.provider.name,
     providerRef: init.providerRef,
+    meta: { commissionId: commission._id.toString() },
   });
 
   // Stub settles immediately; real provider would settle via webhook/verify.

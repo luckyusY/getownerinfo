@@ -10,6 +10,10 @@ const ConversationSchema = new Schema(
     owner: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
     lastMessageAt: { type: Date, default: Date.now },
     lastMessagePreview: { type: String, default: "" },
+    // When each side last opened the thread. Unread = messages from the other
+    // side newer than this.
+    buyerReadAt: { type: Date, default: null },
+    ownerReadAt: { type: Date, default: null },
   },
   { timestamps: true }
 );

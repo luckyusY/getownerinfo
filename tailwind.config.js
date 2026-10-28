@@ -14,11 +14,21 @@ module.exports = {
         ink: { DEFAULT: "#071C1F", soft: "#5C727D", faint: "#93A1A8" },
         line: "#E4E9ED",
         brand: {
-          DEFAULT: "#15B0DD", // sky blue
+          DEFAULT: "#1668E3", // primary action blue
+          dark: "#0F52BC",
+          light: "#8FBAF5",
+          50: "#EAF2FD",
+          100: "#D5E5FB",
+        },
+        // The cyan from the logo swoosh — accents and highlights, not actions.
+        sky: {
+          DEFAULT: "#15B0DD",
           dark: "#1187B0",
           light: "#9FDCEF",
           50: "#E7F7FC",
         },
+        // Deep navy used by the footer and dark panels in the mockups.
+        navy: { DEFAULT: "#0C2340", soft: "#15335C", line: "#24456F" },
         clay: "#FAA603",
         gold: "#FAA603", // amber accent
       },

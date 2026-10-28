@@ -12,7 +12,8 @@ const schema = z.object({
   transactionType: z.enum(["rent", "sale"]).default("sale"),
   quantity: z.number().int().positive().default(1),
   price: z.number().nonnegative().default(0),
-  months: z.number().int().positive().default(1),
+  months: z.number().int().refine((n) => [1, 2, 3, 6, 12].includes(n), "Choose a supported listing duration").default(1),
+  modelChoice: z.enum(["A", "B"]).optional(),
 });
 
 // POST /api/eligibility — preview Model A/B decision + Model B fee for inputs.
@@ -36,7 +37,22 @@ export async function POST(req) {
 
   const settings = await getSettings(PlatformSettings, DEFAULT_SETTINGS);
 
-  const decision = evaluateModel(category.modelRule, { transactionType, quantity, price });
+  const eligibility = evaluateModel(category.modelRule, { transactionType, quantity, price });
+  if (category.modelRule?.forcedModel && parsed.data.modelChoice && parsed.data.modelChoice !== category.modelRule.forcedModel) {
+    return fail(`This category only supports Model ${category.modelRule.forcedModel}`, 422);
+  }
+  if (parsed.data.modelChoice === "A" && !eligibility.eligibleForA) {
+    return fail("This listing does not qualify for Model A", 422);
+  }
+  const decision = parsed.data.modelChoice
+    ? {
+        ...eligibility,
+        model: parsed.data.modelChoice,
+        reason: parsed.data.modelChoice === "A"
+          ? "You selected the exclusive commission model."
+          : "You selected the paid listing model.",
+      }
+    : eligibility;
 
   // If it lands on Model B, show what the paid listing would cost.
   const fee =
@@ -51,7 +67,11 @@ export async function POST(req) {
 
   return ok({
     category: { slug: category.slug, name: category.name },
-    decision,
+    decision: {
+      ...decision,
+      eligibilityReason: eligibility.reason,
+      eligibleForA: eligibility.eligibleForA,
+    },
     listingFee: fee,
     tokenFee: category.tokenFee,
     commissionPercent: category.commissionPercent,

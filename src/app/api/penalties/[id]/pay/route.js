@@ -36,6 +36,7 @@ export async function POST(_req, { params }) {
     status: PAYMENT_STATUS.PENDING,
     provider: init.provider.name,
     providerRef: init.providerRef,
+    meta: { penaltyId: penalty._id.toString() },
   });
 
   const verified = init.status === "paid" ? { ok: true, status: "paid" } : await safeVerify(init.providerRef);

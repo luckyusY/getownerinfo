@@ -9,8 +9,10 @@
   --ink: #071c1f;
   --ink-soft: #5c727d;
   --line: #e4e9ed;
-  --brand: #15b0dd;
-  --brand-dark: #1187b0;
+  --brand: #1668e3;
+  --brand-dark: #0f52bc;
+  --sky: #15b0dd;
+  --navy: #0c2340;
   --clay: #faa603;
   --gold: #faa603;
   --success: #14855a;
@@ -21,7 +23,7 @@
   body {
     background-color: var(--paper);
     background-image:
-      radial-gradient(900px 360px at 50% -8%, rgba(21, 176, 221, 0.08), transparent 62%),
+      radial-gradient(900px 360px at 50% -8%, rgba(22, 104, 227, 0.07), transparent 62%),
       linear-gradient(180deg, rgba(255,255,255,0.72), rgba(247,248,250,0) 220px);
     background-attachment: fixed;
     color: var(--ink-soft);
@@ -35,7 +37,7 @@
     letter-spacing: -0.015em;
   }
   ::selection {
-    background: rgba(21, 176, 221, 0.18);
+    background: rgba(22, 104, 227, 0.16);
   }
 
   /* Visible keyboard focus for all interactive elements. */
@@ -69,7 +71,7 @@
   .btn-primary {
     @apply btn text-white;
     background: var(--brand);
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 8px 20px -10px rgba(21, 176, 221, 0.55);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 8px 20px -10px rgba(22, 104, 227, 0.45);
   }
   .btn-primary:hover:not(:disabled) {
     background: var(--brand-dark);
@@ -129,7 +131,7 @@
     inset: 0;
     z-index: -1;
     border-radius: inherit;
-    background: linear-gradient(135deg, rgba(21, 176, 221, 0.16), rgba(250, 166, 3, 0.12));
+    background: linear-gradient(135deg, rgba(22, 104, 227, 0.14), rgba(21, 176, 221, 0.12));
     opacity: 0;
     transform: scale(0.98);
     transition: opacity 220ms ease, transform 220ms ease;
@@ -166,7 +168,7 @@
   }
   .input:focus {
     border-color: var(--brand);
-    box-shadow: 0 0 0 3px rgba(21, 176, 221, 0.15);
+    box-shadow: 0 0 0 3px rgba(22, 104, 227, 0.15);
   }
   .input-wrap {
     @apply flex min-h-11 w-full items-center gap-2 rounded-lg px-3.5 py-2.5 transition;
@@ -174,11 +176,11 @@
     border: 1px solid var(--line);
   }
   .input-wrap:hover {
-    border-color: rgba(21, 176, 221, 0.45);
+    border-color: rgba(22, 104, 227, 0.45);
   }
   .input-wrap:focus-within {
     border-color: var(--brand);
-    box-shadow: 0 0 0 3px rgba(21, 176, 221, 0.15);
+    box-shadow: 0 0 0 3px rgba(22, 104, 227, 0.15);
     transform: translateY(-1px);
   }
   .input-wrap-error {
@@ -227,11 +229,16 @@
   .auth-shell {
     @apply min-h-screen bg-paper px-4 py-10;
     background-image:
-      radial-gradient(720px 320px at 50% 0%, rgba(21, 176, 221, 0.13), transparent 62%);
+      radial-gradient(720px 320px at 50% 0%, rgba(22, 104, 227, 0.12), transparent 62%);
   }
 
   .hero-control {
     @apply flex h-10 w-10 items-center justify-center rounded-lg border border-white/25 bg-white/10 text-xl font-semibold text-white backdrop-blur transition hover:bg-white/20;
+  }
+
+  /* Select inside a hero search field: the field itself owns the border. */
+  .hero-field-input {
+    @apply -ml-0.5 w-full cursor-pointer appearance-none truncate bg-transparent pr-4 text-sm font-bold text-ink outline-none;
   }
 
   .category-tile {
@@ -322,7 +329,7 @@
   }
 
   .chip:hover {
-    border-color: rgba(21, 176, 221, 0.5);
+    border-color: rgba(22, 104, 227, 0.5);
     color: var(--ink);
     transform: translateY(-1px);
   }

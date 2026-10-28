@@ -9,6 +9,7 @@ import { finalizeUnlock, buildRevealedContact } from "@/lib/unlockService";
 import { verifyOtp } from "@/lib/notify";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { PAYMENT_TYPES, PAYMENT_STATUS } from "@/lib/constants";
+import { settleNonUnlockPayment } from "@/lib/paymentSettlement";
 
 const schema = z.object({ otp: z.string().optional() });
 const MAX_OTP_ATTEMPTS = 5;
@@ -69,9 +70,8 @@ export async function POST(req, { params }) {
   payment.otpExpiresAt = undefined;
 
   if (payment.type !== PAYMENT_TYPES.TOKEN_FEE) {
-    payment.status = PAYMENT_STATUS.PAID;
-    await payment.save();
-    return ok({ paid: true });
+    const result = await settleNonUnlockPayment(payment);
+    return ok({ paid: true, alreadyPaid: Boolean(result.alreadyPaid), targetMissing: Boolean(result.targetMissing) });
   }
 
   const listing = await Listing.findById(payment.listing);

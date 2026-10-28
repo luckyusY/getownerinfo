@@ -11,6 +11,7 @@ export default function NewSeekerPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [catalog, setCatalog] = useState([]);
+  const [postFee, setPostFee] = useState(null);
   const [form, setForm] = useState({
     categorySlug: "",
     budgetMin: "",
@@ -24,7 +25,10 @@ export default function NewSeekerPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch("/api/catalog").then((r) => r.json()).then((j) => setCatalog(j.data?.categories || []));
+    fetch("/api/catalog").then((r) => r.json()).then((j) => {
+      setCatalog(j.data?.categories || []);
+      if (Number.isFinite(j.data?.seekerPostFee)) setPostFee(j.data.seekerPostFee);
+    });
   }, []);
 
   async function submit(e) {
@@ -45,6 +49,13 @@ export default function NewSeekerPage() {
       if (!j.success) {
         const detail = j.issues ? Object.values(j.issues).flat().join(", ") : j.error;
         throw new Error(detail);
+      }
+      if (j.data?.needsPayment) {
+        if (j.data.redirectUrl) {
+          window.location.assign(j.data.redirectUrl);
+          return;
+        }
+        throw new Error("Payment is pending, but the payment provider did not return a checkout link. Please contact support before submitting again.");
       }
       toast("Request posted", { type: "success" });
       router.push("/dashboard/buyer");
@@ -109,6 +120,14 @@ export default function NewSeekerPage() {
             />
           </FormField>
 
+          <div className="rounded-xl border border-brand/20 bg-brand-50 px-4 py-3 text-sm text-ink">
+            <p className="font-bold">Posting fee</p>
+            <p className="mt-1 text-ink-soft">
+              {postFee == null ? "Loading current fee…" : `${new Intl.NumberFormat("en-RW").format(postFee)} Rwf`}
+            </p>
+            <p className="mt-1 text-xs text-ink-faint">Your request is published only after the payment is confirmed.</p>
+          </div>
+
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField label="Contact name" hint="Defaults to your account name if left blank.">
               <TextInput icon={User} value={form.contact.name} onChange={(e) => setForm({ ...form, contact: { ...form.contact, name: e.target.value } })} />
@@ -122,8 +141,8 @@ export default function NewSeekerPage() {
             <TextInput icon={CalendarDays} value={form.contact.preferredContactTime} onChange={(e) => setForm({ ...form, contact: { ...form.contact, preferredContactTime: e.target.value } })} placeholder="e.g. weekdays after 5pm" />
           </FormField>
 
-          <SubmitButton className="w-full" loading={loading} disabled={!form.categorySlug || form.details.length < 3}>
-            {loading ? "Posting..." : "Pay post fee & publish"}
+          <SubmitButton className="w-full" loading={loading} disabled={!form.categorySlug || form.details.length < 3 || postFee == null}>
+            {loading ? "Processing…" : postFee == null ? "Loading fee…" : `Pay ${new Intl.NumberFormat("en-RW").format(postFee)} Rwf & publish`}
           </SubmitButton>
         </form>
       </FormSection>

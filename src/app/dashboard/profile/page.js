@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { BadgeCheck, Mail, Phone, User as UserIcon, Calendar, ShieldAlert } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 import Link from "next/link";
+import { isValidRwandaPhone } from "@/lib/phone";
 
 const ROLE_LABELS = {
   admin: "Administrator",
@@ -83,6 +84,7 @@ export default function ProfilePage() {
   const profilePercent = Math.round((profileItems / 3) * 100);
   const memberSince = profile.createdAt ? new Date(profile.createdAt).toLocaleDateString("en-GB", { year: "numeric", month: "long" }) : "—";
   const isOwnerOrAgent = ["owner", "agent"].includes(profile.role);
+  const invalidPhone = Boolean(phone && !isValidRwandaPhone(phone));
 
   return (
     <div>
@@ -184,16 +186,20 @@ export default function ProfilePage() {
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint" />
                   <input
+                    type="tel"
                     value={phone}
+                    aria-invalid={invalidPhone}
                     onChange={(e) => setPhone(e.target.value)}
                     className="w-full rounded-lg border border-line bg-surface py-2.5 pl-9 pr-3 text-sm font-semibold text-ink outline-none focus:border-brand"
                     placeholder="+250 7XX XXX XXX"
                   />
                 </div>
+                <p className="text-[11px] text-ink-faint">Rwanda format: +250 7XX XXX XXX or 07XX XXX XXX.</p>
+                {invalidPhone && <p role="alert" className="text-xs font-semibold text-red-700">Enter a valid Rwanda mobile number.</p>}
               </label>
 
               <div className="flex items-center gap-3 pt-1">
-                <button type="submit" disabled={busy} className="btn-primary">
+                <button type="submit" disabled={busy || invalidPhone} className="btn-primary">
                   {busy ? "Saving…" : "Save changes"}
                 </button>
               </div>

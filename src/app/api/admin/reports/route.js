@@ -9,7 +9,8 @@ import { ROLES } from "@/lib/constants";
 // grouped by listing so an admin sees "5 people reported this" rather than five
 // separate rows.
 export async function GET(req) {
-  const guard = requireAuth([ROLES.ADMIN, ROLES.MANAGER]);
+  // There is no report-to-manager assignment model yet; this is a global queue.
+  const guard = requireAuth([ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   const { searchParams } = new URL(req.url);

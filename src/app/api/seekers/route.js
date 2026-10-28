@@ -10,6 +10,7 @@ import { safeInitiate, safeVerify } from "@/lib/payments";
 import { audit } from "@/models/AuditLog";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { ROLES, PAYMENT_TYPES, PAYMENT_STATUS } from "@/lib/constants";
+import { optionalRwandaPhone } from "@/lib/phone";
 
 const createSchema = z.object({
   categorySlug: z.string(),
@@ -23,7 +24,7 @@ const createSchema = z.object({
   contact: z
     .object({
       name: z.string().optional(),
-      phone: z.string().optional(),
+      phone: z.string().trim().max(20).refine(optionalRwandaPhone, "Enter a valid Rwanda phone number, such as +250 7XX XXX XXX").optional(),
       preferredContactTime: z.string().optional(),
     })
     .default({}),

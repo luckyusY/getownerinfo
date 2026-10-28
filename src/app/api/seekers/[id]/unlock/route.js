@@ -13,7 +13,8 @@ import { ROLES, PAYMENT_TYPES, PAYMENT_STATUS, SELLER_ROLES } from "@/lib/consta
 
 // POST /api/seekers/:id/unlock — pay the view token to reveal seeker contact.
 export async function POST(_req, { params }) {
-  const guard = requireAuth([...SELLER_ROLES, ROLES.BUYER, ROLES.ADMIN, ROLES.MANAGER]);
+  // Managers have no assigned seeker-request scope yet.
+  const guard = requireAuth([...SELLER_ROLES, ROLES.BUYER, ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   await connectDB();

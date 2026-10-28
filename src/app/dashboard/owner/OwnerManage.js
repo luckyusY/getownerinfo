@@ -6,11 +6,21 @@ import { useToast } from "@/components/ui/Toast";
 import { StatusBadge } from "@/components/ui/Badge";
 import { SectionHeading, Table, Tr, Td } from "@/components/ui/Dashboard";
 import EmptyState from "@/components/ui/EmptyState";
-import { AlertTriangle, Banknote, FileText, MessageSquareText, Plus, ShieldCheck } from "lucide-react";
+import { AlertTriangle, Banknote, Eye, FileText, MessageSquareText, Pencil, Plus, ShieldCheck, Trash2 } from "lucide-react";
 
 const REPORTABLE = ["active", "under_negotiation"];
+// A draft (or a rejected listing) is still a form the owner can reopen.
+const EDITABLE = ["draft", "rejected"];
 
-export default function OwnerManage() {
+/**
+ * Seller workspace list.
+ *
+ * @param {object} props
+ *   - status: only show listings in this status ("sold" also covers "rented")
+ *   - showListings / showFinance: which sections this page is responsible for,
+ *     so /dashboard/listings and /dashboard/invoices can each render one half.
+ */
+export default function OwnerManage({ status = null, showListings = true, showFinance = true }) {
   const { toast } = useToast();
   const [listings, setListings] = useState([]);
   const [commissions, setCommissions] = useState([]);
@@ -58,6 +68,22 @@ export default function OwnerManage() {
     }
   }
 
+  async function deleteDraft(listing) {
+    if (!window.confirm(`Delete “${listing.title}”? This cannot be undone.`)) return;
+    setBusy(true);
+    try {
+      const res = await fetch(`/api/listings/${listing.id}`, { method: "DELETE" });
+      const j = await res.json();
+      if (!j.success) throw new Error(j.error);
+      toast("Draft deleted", { type: "success" });
+      await load();
+    } catch (err) {
+      toast(err.message, { type: "error" });
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function payCommission(id) { await payEndpoint(`/api/commissions/${id}/pay`); }
   async function payPenalty(id) { await payEndpoint(`/api/penalties/${id}/pay`); }
   async function payEndpoint(url) {
@@ -77,9 +103,14 @@ export default function OwnerManage() {
 
   if (loading) return <p className="mt-8 text-sm font-semibold text-ink-soft">Loading workspace...</p>;
 
+  // "Sold / Rented" is one section in the sidebar but two statuses in the data.
+  const visible = !status
+    ? listings
+    : listings.filter((l) => (status === "sold" ? l.status === "sold" || l.status === "rented" : l.status === status));
+
   return (
     <div className="mt-8 space-y-8">
-      {penalties.length > 0 && (
+      {showFinance && penalties.length > 0 && (
         <section>
           <SectionHeading title="Penalties" />
           <Table head={["Offense", "Reason", "Amount", "Status", ""]}>
@@ -96,7 +127,7 @@ export default function OwnerManage() {
         </section>
       )}
 
-      {commissions.length > 0 && (
+      {showFinance && commissions.length > 0 && (
         <section>
           <SectionHeading title="Commissions (Model A)" />
           <Table head={["Listing", "Deal", "Due", "Status", ""]}>
@@ -113,9 +144,10 @@ export default function OwnerManage() {
         </section>
       )}
 
+      {showListings && (
       <section>
         <SectionHeading title="Listings" description="Track listing status, unlock activity, and Model A outcome reporting." />
-        {listings.length === 0 ? (
+        {visible.length === 0 ? (
           <EmptyState
             title="No listings yet"
             hint="Create your first listing to start receiving unlocks."
@@ -123,7 +155,7 @@ export default function OwnerManage() {
           />
         ) : (
           <div className="space-y-3">
-            {listings.map((l) => (
+            {visible.map((l) => (
               <div key={l.id} className="card premium-hover !p-4">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                   <div className="min-w-0">
@@ -145,6 +177,12 @@ export default function OwnerManage() {
                         <MessageSquareText className="h-3.5 w-3.5" /> {l.unlockCount ?? 0} unlocks
                       </span>
                     </div>
+                    {l.status === "rejected" && l.rejectionReason && (
+                      <p className="mt-2 text-xs font-semibold text-red-700">Rejected: {l.rejectionReason}</p>
+                    )}
+                    {l.status === "draft" && (
+                      <p className="mt-2 text-xs font-semibold text-ink-soft">Draft — not visible to buyers until you submit it.</p>
+                    )}
                     {l.reviewFlag && (
                       <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-red-600">
                         <AlertTriangle className="h-3.5 w-3.5" /> Flagged: {l.reviewReason}
@@ -152,6 +190,19 @@ export default function OwnerManage() {
                     )}
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
+                    {EDITABLE.includes(l.status) && (
+                      <>
+                        <a className="btn-primary" href={`/dashboard/owner/listings/new?draft=${l.id}`}>
+                          <Pencil className="h-4 w-4" /> {l.status === "rejected" ? "Fix & resubmit" : "Continue"}
+                        </a>
+                        <a className="btn-outline" href={`/listings/${l.id}`}>
+                          <Eye className="h-4 w-4" /> Preview
+                        </a>
+                        <button className="btn-outline text-red-700" disabled={busy} onClick={() => deleteDraft(l)}>
+                          <Trash2 className="h-4 w-4" /> Delete
+                        </button>
+                      </>
+                    )}
                     {REPORTABLE.includes(l.status) && (
                       <button className="btn-outline" onClick={() => { setReportFor(reportFor === l.id ? null : l.id); setOutcome("sold"); setFinalAmount(""); }}>
                         Report deal
@@ -191,6 +242,7 @@ export default function OwnerManage() {
           </div>
         )}
       </section>
+      )}
     </div>
   );
 }

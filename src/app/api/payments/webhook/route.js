@@ -7,6 +7,7 @@ import { finalizeUnlock } from "@/lib/unlockService";
 import { audit } from "@/models/AuditLog";
 import { ok, fail } from "@/lib/api";
 import { PAYMENT_TYPES, PAYMENT_STATUS } from "@/lib/constants";
+import { settleNonUnlockPayment } from "@/lib/paymentSettlement";
 
 // POST /api/payments/webhook — provider-initiated settlement callback.
 //
@@ -59,8 +60,13 @@ export async function POST(req) {
     return ok({ ignored: true });
   }
 
-  // Idempotent: a duplicate delivery for an already-settled payment is a no-op.
-  if (payment.status === PAYMENT_STATUS.PAID) return ok({ alreadyPaid: true });
+  // Other payment types use resumable idempotent settlement below. Token
+  // payments still run finalization so a retry can complete a partially failed
+  // access-log write after the provider marked the payment paid.
+  if (payment.status === PAYMENT_STATUS.PAID && payment.type !== PAYMENT_TYPES.TOKEN_FEE) {
+    const result = await settleNonUnlockPayment(payment);
+    return ok({ alreadyPaid: true, targetMissing: Boolean(result.targetMissing) });
+  }
 
   if (status === "failed" || status === "cancelled") {
     payment.status = PAYMENT_STATUS.FAILED;
@@ -73,17 +79,8 @@ export async function POST(req) {
 
   // Amounts come from our own record, never from the callback body.
   if (payment.type !== PAYMENT_TYPES.TOKEN_FEE) {
-    payment.status = PAYMENT_STATUS.PAID;
-    await payment.save();
-    await audit({
-      actor: payment.user,
-      actorRole: "system",
-      action: "payment.webhook_paid",
-      targetType: "Payment",
-      targetId: payment._id,
-      meta: { type: payment.type, amount: payment.amount },
-    });
-    return ok({ recorded: "paid" });
+    const result = await settleNonUnlockPayment(payment);
+    return ok({ recorded: result.alreadyPaid ? "already_paid" : "paid", targetMissing: Boolean(result.targetMissing) });
   }
 
   const listing = await Listing.findById(payment.listing);

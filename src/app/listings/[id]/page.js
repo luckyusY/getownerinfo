@@ -28,6 +28,21 @@ const UNLOCK_INCLUDES = [
   "Exact address (UPI, street, map pin)",
 ];
 
+const ATTRIBUTE_LABELS = {
+  bedrooms: "Bedrooms",
+  bathrooms: "Bathrooms",
+  toilets: "Toilets",
+  floor: "Floor",
+  sizeSqm: "Size (m²)",
+  propertyUse: "Property use",
+  furnishing: "Furnishing",
+  parking: "Parking",
+  availability: "Availability",
+  leaseTerm: "Lease term",
+  amenities: "Amenities",
+  specialFeatures: "Special features",
+};
+
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }) {
@@ -53,7 +68,24 @@ export default async function ListingDetail({ params }) {
   } catch {
     notFound();
   }
-  if (!listing || listing.status !== LISTING_STATUS.ACTIVE) notFound();
+  if (!listing) notFound();
+
+  // A listing that is not live is still viewable by the people who own or
+  // review it — that is the draft "Preview" action. Everyone else gets a 404.
+  const viewer = getSession();
+  const isPreviewer =
+    !!viewer &&
+    (listing.owner.toString() === viewer.sub ||
+      viewer.role === ROLES.ADMIN ||
+      (viewer.role === ROLES.MANAGER && listing.assignedManager?.toString() === viewer.sub));
+  const isPreview = listing.status !== LISTING_STATUS.ACTIVE;
+  if (isPreview && !isPreviewer) notFound();
+
+  // Count the view once the listing is live and the viewer is not its owner.
+  // Fire-and-forget: a counter must never block or break the page.
+  if (!isPreview && !isPreviewer) {
+    Listing.updateOne({ _id: listing._id }, { $inc: { viewCount: 1 } }).catch(() => {});
+  }
 
   const category = await Category.findById(listing.category).lean();
   // Owner verification state — the payoff for the whole KYC chain, shown right
@@ -61,7 +93,8 @@ export default async function ListingDetail({ params }) {
   const listingOwner = await User.findById(listing.owner).select("isVerified").lean();
   const ownerVerified = Boolean(listingOwner?.isVerified);
   const pub = listing.toPublicJSON();
-  const session = getSession();
+  const visibleAttributes = Object.entries(pub.attributes || {}).filter(([, value]) => value !== "" && value != null && (!Array.isArray(value) || value.length > 0));
+  const session = viewer;
   const isListingOwner = !!session && listing.owner.toString() === session.sub;
   const canMessageAsBuyer = !!session && !isListingOwner && [ROLES.BUYER, ...SELLER_ROLES].includes(session.role);
   const canUnlock = !!session && !isListingOwner && [ROLES.BUYER, ...SELLER_ROLES, ROLES.ADMIN].includes(session.role);
@@ -111,6 +144,22 @@ export default async function ListingDetail({ params }) {
         <Link href="/listings" className="inline-flex items-center gap-2 text-sm font-semibold text-ink-soft hover:text-ink">
           <ArrowLeft className="h-4 w-4" /> Back to listings
         </Link>
+
+        {isPreview && (
+          <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            <p className="font-bold">
+              Preview — this listing is {listing.status.replace(/_/g, " ")} and is not visible to buyers.
+            </p>
+            {listing.status === "rejected" && listing.rejectionReason && (
+              <p className="mt-1">Reason: {listing.rejectionReason}</p>
+            )}
+            {isListingOwner && ["draft", "rejected"].includes(listing.status) && (
+              <Link href={`/dashboard/owner/listings/new?draft=${listing._id.toString()}`} className="mt-2 inline-flex font-bold underline">
+                Continue editing
+              </Link>
+            )}
+          </div>
+        )}
 
         <div className="mt-4 grid gap-8 md:grid-cols-5">
           <div className="md:col-span-3">
@@ -165,6 +214,20 @@ export default async function ListingDetail({ params }) {
             )}
 
             {pub.description && <p className="mt-6 whitespace-pre-line leading-relaxed text-ink-soft">{pub.description}</p>}
+
+            {visibleAttributes.length > 0 && (
+              <section className="mt-6 rounded-xl border border-line bg-surface p-4">
+                <h2 className="font-display text-lg font-bold text-ink">Property details</h2>
+                <dl className="mt-3 grid gap-x-5 gap-y-3 sm:grid-cols-2">
+                  {visibleAttributes.map(([key, value]) => (
+                    <div key={key}>
+                      <dt className="text-xs font-bold uppercase tracking-wide text-ink-faint">{ATTRIBUTE_LABELS[key] || key}</dt>
+                      <dd className="mt-1 text-sm font-semibold text-ink">{Array.isArray(value) ? value.join(", ") : String(value)}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+            )}
 
             {pub.features?.length > 0 && (
               <ul className="mt-5 flex flex-wrap gap-2">

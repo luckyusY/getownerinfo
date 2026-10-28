@@ -9,6 +9,11 @@ export async function GET() {
   if (guard.error) return guard.error;
 
   await connectDB();
-  const listings = await Listing.find({ owner: guard.session.sub }).sort({ createdAt: -1 });
+  const filter = guard.session.role === ROLES.ADMIN
+    ? {}
+    : guard.session.role === ROLES.MANAGER
+      ? { assignedManager: guard.session.sub }
+      : { owner: guard.session.sub };
+  const listings = await Listing.find(filter).sort({ createdAt: -1 });
   return ok({ listings: listings.map((l) => l.toFullJSON({ includeProof: true })) });
 }

@@ -28,6 +28,10 @@ const UserSchema = new Schema(
     // Verification / KYC. The documents themselves are admin-only and never
     // exposed to buyers; only the resulting `isVerified` flag is public.
     isVerified: { type: Boolean, default: false },
+    // Contact-channel verification. Set when the OTP for that channel is
+    // confirmed; null until then. The dashboard reads these directly.
+    emailVerifiedAt: { type: Date, default: null },
+    phoneVerifiedAt: { type: Date, default: null },
     kyc: {
       idNumber: { type: String, select: false },
       docType: {
@@ -73,6 +77,8 @@ UserSchema.methods.toSafeJSON = function () {
     avatarUrl: this.avatarUrl,
     role: this.role,
     isVerified: this.isVerified,
+    emailVerified: Boolean(this.emailVerifiedAt),
+    phoneVerified: Boolean(this.phoneVerifiedAt),
     // Status only — never the ID number or document URL.
     kycStatus: this.kyc?.status || "none",
     penaltyBalance: this.penaltyBalance,

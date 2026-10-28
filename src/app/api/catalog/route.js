@@ -2,14 +2,17 @@ import { connectDB } from "@/lib/db";
 import Category from "@/models/Category";
 import Subcategory from "@/models/Subcategory";
 import { ok, fail } from "@/lib/api";
+import PlatformSettings, { getSettings } from "@/models/PlatformSettings";
+import { DEFAULT_SETTINGS } from "@/data/catalog";
 
 // GET /api/catalog — full category tree (categories with their subcategories).
 export async function GET() {
   try {
     await connectDB();
-    const [categories, subs] = await Promise.all([
+    const [categories, subs, settings] = await Promise.all([
       Category.find({ isActive: true }).sort({ sortOrder: 1 }).lean(),
       Subcategory.find({ isActive: true }).sort({ sortOrder: 1 }).lean(),
+      getSettings(PlatformSettings, DEFAULT_SETTINGS),
     ]);
 
     const byCategory = subs.reduce((acc, s) => {
@@ -35,7 +38,7 @@ export async function GET() {
       subcategories: byCategory[c._id.toString()] || [],
     }));
 
-    return ok({ categories: tree });
+    return ok({ categories: tree, seekerPostFee: settings.seeker?.postFee ?? DEFAULT_SETTINGS.seeker.postFee });
   } catch (err) {
     return fail(`Failed to load catalog: ${err.message}`, 500);
   }

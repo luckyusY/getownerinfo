@@ -36,6 +36,9 @@ export async function POST(req, { params }) {
   await connectDB();
   const listing = await Listing.findById(params.listingId);
   if (!listing) return fail("Listing not found", 404);
+  if (role === ROLES.MANAGER && listing.assignedManager?.toString() !== sub) {
+    return fail("This listing is not assigned to you", 403);
+  }
 
   // Resolve the conversation's buyer + which side this message is on.
   let buyerId;
@@ -148,6 +151,9 @@ export async function GET(req, { params }) {
   await connectDB();
   const listing = await Listing.findById(params.listingId);
   if (!listing) return fail("Listing not found", 404);
+  if (role === ROLES.MANAGER && listing.assignedManager?.toString() !== sub) {
+    return fail("This listing is not assigned to you", 403);
+  }
 
   const { searchParams } = new URL(req.url);
   const ownsListing = listing.owner.toString() === sub;
@@ -163,6 +169,13 @@ export async function GET(req, { params }) {
 
   const all = await Message.find({ conversation: conversation._id }).sort({ createdAt: 1 });
   const unlocked = !!(await TokenUnlock.exists({ user: buyerId, listing: listing._id }));
+
+  // Mark the thread read for whichever participant is looking. Staff reading
+  // for audit must not clear a participant's unread badge.
+  const readerSide = buyerId === sub ? "buyerReadAt" : ownsListing ? "ownerReadAt" : null;
+  if (readerSide) {
+    Conversation.updateOne({ _id: conversation._id }, { $set: { [readerSide]: new Date() } }).catch(() => {});
+  }
 
   // A blocked message is visible only to its sender and to staff (audit).
   const isStaff = STAFF.includes(role);
