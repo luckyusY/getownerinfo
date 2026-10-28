@@ -44,7 +44,26 @@ function compact(n) {
   return String(n);
 }
 
+// The homepage is the front door: a database blip should degrade it, not take
+// it down. On failure it renders without listings rather than throwing into the
+// error boundary.
+const EMPTY_HOME = {
+  categories: [],
+  featured: [],
+  stats: [],
+  degraded: true,
+};
+
 async function getHomeData() {
+  try {
+    return await loadHomeData();
+  } catch (err) {
+    console.error("Homepage data unavailable:", err?.message || err);
+    return EMPTY_HOME;
+  }
+}
+
+async function loadHomeData() {
   await connectDB();
   const [listings, categories, activeCount, ownerCount, unlockCount] = await Promise.all([
     Listing.find(publicListingFilter()).sort({ createdAt: -1 }).limit(8).lean(),
@@ -76,11 +95,12 @@ async function getHomeData() {
       { label: "Contacts unlocked", value: compact(unlockCount) },
       { label: "Categories", value: String(categories.length) },
     ],
+    degraded: false,
   };
 }
 
 export default async function HomePage() {
-  const { featured, categories, stats } = await getHomeData();
+  const { featured, categories, stats, degraded } = await getHomeData();
 
   return (
     <div className="min-h-screen">
@@ -100,6 +120,7 @@ export default async function HomePage() {
         <TrustRow />
 
         {/* Trust stats */}
+        {stats.length > 0 && (
         <section className="mx-auto max-w-7xl px-4" data-reveal>
           <div className="grid grid-cols-2 gap-3 rounded-2xl border border-line bg-surface p-5 sm:grid-cols-4 sm:p-6">
             {stats.map((s) => (
@@ -110,6 +131,15 @@ export default async function HomePage() {
             ))}
           </div>
         </section>
+        )}
+
+        {degraded && (
+          <section className="mx-auto max-w-7xl px-4 py-4">
+            <p className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
+              Listings are temporarily unavailable. Everything else still works — please try again shortly.
+            </p>
+          </section>
+        )}
 
         {/* Choose your path */}
         <section className="mx-auto max-w-7xl px-4 py-10" data-reveal>
