@@ -26,28 +26,69 @@ export const SORT_OPTIONS = [
  * (desktop, where space is tight beside everything else) or wraps (the sheet,
  * where there is room and sideways scrolling hides options).
  */
-export function ChipRow({ icon: Icon, label, options, value, onChange, scroll = false }) {
+export function ChipRow({ icon: Icon, label, options, value, onChange, inline = false }) {
+  const chips = options.map((o) => (
+    <button
+      key={o.value}
+      type="button"
+      className="chip shrink-0"
+      data-active={value === o.value}
+      onClick={() => onChange(o.value)}
+    >
+      {o.label}
+    </button>
+  ));
+
+  // Chips always wrap. They used to sit in an overflow-x-auto strip, which put
+  // a native scrollbar across the filter bar and hid the later options behind
+  // a sideways scroll nobody discovers.
+  if (inline) {
+    return (
+      <div className="flex shrink-0 items-center gap-2">
+        {label && (
+          <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-ink-faint">
+            {Icon && <Icon className="h-3.5 w-3.5" />} {label}
+          </span>
+        )}
+        <div className="flex flex-wrap gap-1.5">{chips}</div>
+      </div>
+    );
+  }
+
   return (
-    <div className={scroll ? "min-w-0" : ""}>
+    <div className="min-w-0">
       {label && (
         <p className="mb-1.5 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-ink-faint">
           {Icon && <Icon className="h-3.5 w-3.5" />} {label}
         </p>
       )}
-      <div className={scroll ? "flex gap-2 overflow-x-auto pb-1" : "flex flex-wrap gap-1.5"}>
-        {options.map((o) => (
-          <button
-            key={o.value}
-            type="button"
-            className="chip shrink-0"
-            data-active={value === o.value}
-            onClick={() => onChange(o.value)}
-          >
-            {o.label}
-          </button>
-        ))}
-      </div>
+      <div className="flex flex-wrap gap-1.5">{chips}</div>
     </div>
+  );
+}
+
+/**
+ * A long option list belongs in a select, not a chip strip. Areas run to 16
+ * entries, which is what forced the sideways scroll on the filter bar.
+ */
+export function SelectField({ icon: Icon, label, value, onChange, options }) {
+  return (
+    <label className="flex shrink-0 items-center gap-2">
+      {label && (
+        <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-ink-faint">
+          {Icon && <Icon className="h-3.5 w-3.5" />} {label}
+        </span>
+      )}
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="min-h-9 max-w-[11rem] rounded-lg border border-line bg-surface px-2.5 py-1.5 text-sm font-semibold text-ink outline-none focus:border-brand"
+      >
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>{o.label}</option>
+        ))}
+      </select>
+    </label>
   );
 }
 
@@ -100,7 +141,7 @@ export function SortSelect({ value, onChange, className = "" }) {
  * Results update live behind the sheet, so the footer button reports the
  * current count rather than pretending to apply anything.
  */
-export function FilterSheet({ open, onClose, onReset, activeCount, resultCount, children }) {
+export function FilterSheet({ open, onClose, onReset, activeCount, resultCount, loading = false, children }) {
   if (!open) return null;
 
   return (
@@ -148,7 +189,9 @@ export function FilterSheet({ open, onClose, onReset, activeCount, resultCount, 
           style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
         >
           <button type="button" onClick={onClose} className="btn-primary w-full">
-            Show {resultCount} {resultCount === 1 ? "listing" : "listings"}
+            {loading
+              ? "Show listings"
+              : `Show ${resultCount} ${resultCount === 1 ? "listing" : "listings"}`}
           </button>
         </div>
       </div>

@@ -8,7 +8,7 @@ import EmptyState from "@/components/ui/EmptyState";
 import { BadgeCheck, Filter, MapPin, RotateCcw, Search, SlidersHorizontal, Sparkles, Tag } from "lucide-react";
 import { RWANDA_LOCATIONS } from "@/data/locations";
 import {
-  ChipRow, DEAL_OPTIONS, FilterSheet, PriceRange, SortSelect, TRUST_OPTIONS,
+  ChipRow, DEAL_OPTIONS, FilterSheet, PriceRange, SelectField, SortSelect, TRUST_OPTIONS,
 } from "./FilterControls";
 
 export default function ListingsExplorer({ initialCategory = "", initialLocation = "", initialQuery = "" }) {
@@ -134,22 +134,24 @@ export default function ListingsExplorer({ initialCategory = "", initialLocation
             </button>
           </div>
 
+          {/*
+            One control row, then categories. Deal and trust are short enough to
+            sit inline; area is a select because 16 chips overflowed the bar and
+            put a scrollbar across it. The whole bar was a quarter of the screen
+            before any listing showed.
+          */}
           <div className="hidden lg:block">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               {searchField}
-
-              <div className="flex flex-wrap items-center gap-3">
-                <ChipRow icon={Filter} label="Deal" options={DEAL_OPTIONS} value={txn} onChange={setTxn} />
-                <span className="mx-1 hidden h-6 w-px self-end bg-line sm:block" />
-                <ChipRow icon={BadgeCheck} label="Trust" options={TRUST_OPTIONS} value={model} onChange={setModel} />
-              </div>
+              <ChipRow icon={Filter} label="Deal" options={DEAL_OPTIONS} value={txn} onChange={setTxn} inline />
+              <span className="h-6 w-px bg-line" />
+              <ChipRow icon={BadgeCheck} label="Trust" options={TRUST_OPTIONS} value={model} onChange={setModel} inline />
+              <span className="h-6 w-px bg-line" />
+              <SelectField icon={MapPin} label="Area" value={location} onChange={setLocation} options={locationOptions} />
             </div>
 
-            <div className="mt-3">
-              <ChipRow options={categoryOptions} value={category} onChange={setCategory} scroll />
-            </div>
-            <div className="mt-2">
-              <ChipRow options={locationOptions} value={location} onChange={setLocation} scroll />
+            <div className="mt-2.5 border-t border-line/70 pt-2.5">
+              <ChipRow options={categoryOptions} value={category} onChange={setCategory} />
             </div>
           </div>
         </div>
@@ -161,6 +163,7 @@ export default function ListingsExplorer({ initialCategory = "", initialLocation
         onReset={resetFilters}
         activeCount={activeCount}
         resultCount={visible.length}
+        loading={loading}
       >
         <ChipRow icon={Filter} label="Deal" options={DEAL_OPTIONS} value={txn} onChange={setTxn} />
         <ChipRow icon={BadgeCheck} label="Trust" options={TRUST_OPTIONS} value={model} onChange={setModel} />
