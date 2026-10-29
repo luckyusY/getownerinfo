@@ -7,6 +7,7 @@ import Category from "@/models/Category";
 import PlatformSettings, { getSettings } from "@/models/PlatformSettings";
 import { DEFAULT_SETTINGS } from "@/data/catalog";
 import { formatRwf } from "@/lib/format";
+import { Table, Td, Tr } from "@/components/ui/Dashboard";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -61,27 +62,27 @@ export default async function PricingPage() {
 
         {/* Per-category table */}
         <h2 className="mt-12 font-display text-2xl font-bold text-ink">Fees by category</h2>
-        <div className="mt-4 overflow-x-auto rounded-2xl border border-line bg-surface shadow-soft">
-          <table className="w-full min-w-[640px] text-sm">
-            <thead className="bg-panel text-left text-xs uppercase tracking-wide text-ink-faint">
-              <tr>
-                <th className="px-4 py-3 font-semibold">Category</th>
-                <th className="px-4 py-3 font-semibold">Listing fee (Model B / mo)</th>
-                <th className="px-4 py-3 font-semibold">Buyer token</th>
-                <th className="px-4 py-3 font-semibold">Commission (Model A)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories.map((c) => (
-                <tr key={c._id.toString()} className="border-t border-line/70">
-                  <td className="px-4 py-3 font-semibold text-ink">{c.name}</td>
-                  <td className="px-4 py-3 text-ink-soft">{formatRwf(c.listingFeeMonthly)}</td>
-                  <td className="px-4 py-3 text-ink-soft">{formatRwf(c.tokenFee?.buyer)}</td>
-                  <td className="px-4 py-3 text-ink-soft">{Math.round((c.commissionPercent || 0) * 100)}%</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {/* Three money columns read as a comparison, so they are right-aligned
+            with lined-up digits rather than ragged against the category name. */}
+        <div className="mt-4">
+          <Table
+            minWidth={640}
+            head={[
+              "Category",
+              { label: "Listing fee (Model B / mo)", numeric: true },
+              { label: "Buyer token", numeric: true },
+              { label: "Commission (Model A)", numeric: true },
+            ]}
+          >
+            {categories.map((c) => (
+              <Tr key={c._id.toString()}>
+                <Td className="font-semibold text-ink">{c.name}</Td>
+                <Td numeric className="text-ink-soft">{formatRwf(c.listingFeeMonthly)}</Td>
+                <Td numeric className="text-ink-soft">{formatRwf(c.tokenFee?.buyer)}</Td>
+                <Td numeric className="text-ink-soft">{Math.round((c.commissionPercent || 0) * 100)}%</Td>
+              </Tr>
+            ))}
+          </Table>
         </div>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2">

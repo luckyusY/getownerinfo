@@ -51,13 +51,13 @@ export default async function ContactUnlocksPage() {
             action={<Link href="/listings" className="btn-primary">Browse listings</Link>}
           />
         ) : (
-          <Table head={["Listing", "Tier", "Paid", "Fields revealed", "Unlocked", ""]}>
+          <Table head={["Listing", "Tier", { label: "Paid", numeric: true }, { label: "Fields revealed", numeric: true }, "Unlocked", ""]}>
             {unlocks.map((u) => (
               <Tr key={u._id.toString()}>
                 <Td className="font-semibold text-ink">{u.listing?.title || "(listing removed)"}</Td>
                 <Td className="capitalize text-ink-soft">{u.tier}</Td>
-                <Td className="text-ink">{formatRwf(u.amountPaid)}</Td>
-                <Td className="text-ink-faint">{(u.fieldsUnlocked || []).length} fields</Td>
+                <Td numeric className="text-ink">{formatRwf(u.amountPaid)}</Td>
+                <Td numeric className="text-ink-faint">{(u.fieldsUnlocked || []).length} fields</Td>
                 <Td className="text-ink-faint">{formatDate(u.at)}</Td>
                 <Td>
                   {u.listing && (

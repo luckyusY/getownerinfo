@@ -27,6 +27,7 @@ export async function GET(req) {
 
   return ok({
     page,
+    limit,
     totalPages: Math.ceil(total / limit),
     total,
     entries: entries.map((e) => ({

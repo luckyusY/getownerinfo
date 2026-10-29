@@ -56,14 +56,17 @@ export default async function PaymentHistoryPage() {
             action={<Link href="/listings" className="btn-primary">Browse listings</Link>}
           />
         ) : (
-          <Table head={["Date", "Type", "Listing", "Amount", "VAT", "Method", "Status"]}>
+          <Table
+            minWidth={900}
+            head={["Date", "Type", "Listing", { label: "Amount", numeric: true }, { label: "VAT", numeric: true }, "Method", "Status"]}
+          >
             {payments.map((p) => (
               <Tr key={p._id.toString()}>
                 <Td className="whitespace-nowrap text-ink-faint">{formatDate(p.createdAt)}</Td>
                 <Td className="font-semibold text-ink">{TYPE_LABEL[p.type] || p.type}</Td>
                 <Td className="text-ink-soft">{p.listing?.title || "—"}</Td>
-                <Td className="font-semibold text-ink">{formatRwf(p.amount)}</Td>
-                <Td className="text-ink-faint">{formatRwf(p.vatPortion)}</Td>
+                <Td numeric className="font-semibold text-ink">{formatRwf(p.amount)}</Td>
+                <Td numeric className="text-ink-faint">{formatRwf(p.vatPortion)}</Td>
                 <Td className="capitalize text-ink-soft">{p.provider || "—"}</Td>
                 <Td><StatusBadge status={p.status} /></Td>
               </Tr>

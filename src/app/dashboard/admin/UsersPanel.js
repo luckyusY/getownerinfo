@@ -131,7 +131,10 @@ export default function UsersPanel() {
         <EmptyState title="No users match" hint="Try a different role, status or search term." />
       ) : (
         <>
-          <Table head={["User", "Role", "Verification", "Activity", "Owes", "Status", "Actions"]}>
+          <Table
+            minWidth={980}
+            head={["User", "Role", "Verification", "Activity", { label: "Owes", numeric: true }, "Status", "Actions"]}
+          >
             {data.users.map((u) => (
               <Tr key={u.id}>
                 <Td>
@@ -164,7 +167,7 @@ export default function UsersPanel() {
                 <Td className="whitespace-nowrap text-xs font-bold text-ink-soft">
                   {u.listings} listings · {u.unlocks} unlocks
                 </Td>
-                <Td className="whitespace-nowrap text-xs font-bold text-ink">
+                <Td numeric className="whitespace-nowrap text-xs font-bold text-ink">
                   {u.commissionDue + u.penaltyBalance > 0
                     ? `${(u.commissionDue + u.penaltyBalance).toLocaleString("en-RW")} Rwf`
                     : "—"}

@@ -113,12 +113,12 @@ export default function OwnerManage({ status = null, showListings = true, showFi
       {showFinance && penalties.length > 0 && (
         <section>
           <SectionHeading title="Penalties" />
-          <Table head={["Offense", "Reason", "Amount", "Status", ""]}>
+          <Table head={["Offense", "Reason", { label: "Amount", numeric: true }, "Status", ""]}>
             {penalties.map((p) => (
               <Tr key={p.id}>
                 <Td className="capitalize text-ink">{p.offenseType.replace(/_/g, " ")}</Td>
                 <Td className="text-ink-soft">{p.reason}</Td>
-                <Td className="font-semibold text-ink">{formatRwf(p.total)}</Td>
+                <Td numeric className="font-semibold text-ink">{formatRwf(p.total)}</Td>
                 <Td><StatusBadge status={p.status} /></Td>
                 <Td>{p.status === "active" && <button className="btn-primary" disabled={busy} onClick={() => payPenalty(p.id)}>Pay</button>}</Td>
               </Tr>
@@ -130,12 +130,12 @@ export default function OwnerManage({ status = null, showListings = true, showFi
       {showFinance && commissions.length > 0 && (
         <section>
           <SectionHeading title="Commissions (Model A)" />
-          <Table head={["Listing", "Deal", "Due", "Status", ""]}>
+          <Table head={["Listing", "Deal", { label: "Due", numeric: true }, "Status", ""]}>
             {commissions.map((c) => (
               <Tr key={c.id}>
                 <Td className="font-semibold text-ink">{c.listingTitle}</Td>
                 <Td className="capitalize text-ink-soft">{c.dealOutcome} - {formatRwf(c.finalAmount)}</Td>
-                <Td className="font-semibold text-ink">{formatRwf(c.total)}</Td>
+                <Td numeric className="font-semibold text-ink">{formatRwf(c.total)}</Td>
                 <Td><StatusBadge status={c.status} /></Td>
                 <Td>{c.status !== "paid" && <button className="btn-primary" disabled={busy} onClick={() => payCommission(c.id)}>Pay</button>}</Td>
               </Tr>

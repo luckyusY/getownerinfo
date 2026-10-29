@@ -1,5 +1,7 @@
 // Shared dashboard layout primitives, on the design tokens.
 
+import { Children, cloneElement, isValidElement } from "react";
+
 export function PageHeader({ title, subtitle, actions }) {
   return (
     <div className="dashboard-reveal rounded-xl border border-line bg-surface px-5 py-5 shadow-soft sm:px-6">
@@ -40,26 +42,86 @@ export function StatCard({ label, value, hint, tone = "default" }) {
   );
 }
 
-/** Table wrapper + header/cell helpers for consistent dashboard tables. */
-export function Table({ head, children }) {
+const ALIGN = { right: "text-right", center: "text-center", left: "text-left" };
+
+/**
+ * Table wrapper + header/cell helpers for consistent dashboard tables.
+ *
+ * Rows are numbered by default: these tables are read down a column and
+ * referred to out loud ("the third one owes the most"), and a running number
+ * gives that something to point at. `startIndex` keeps the numbering true
+ * across pages — page 2 of a 20-row table starts at 21, not 1.
+ *
+ * A `head` entry is either a string or `{ label, align, numeric, width }`.
+ * `numeric` right-aligns the column and lines its digits up, which is what
+ * makes a column of money comparable at a glance.
+ */
+export function Table({
+  head,
+  children,
+  startIndex = 0,
+  numbered = true,
+  minWidth = 680,
+}) {
+  const columns = head.map((h) => (typeof h === "string" ? { label: h } : h));
+  const rows = Children.toArray(children).filter(isValidElement);
+
   return (
     <div className="dashboard-reveal overflow-hidden rounded-xl border border-line bg-surface shadow-soft">
       <div className="overflow-x-auto">
-      <table className="w-full min-w-[680px] text-sm">
-        <thead className="border-b border-line bg-panel/80 text-left text-[11px] uppercase tracking-wide text-ink-faint">
-          <tr>{head.map((h) => <th key={h} className="px-4 py-3.5 font-bold">{h}</th>)}</tr>
-        </thead>
-        <tbody className="divide-y divide-line/70">{children}</tbody>
-      </table>
+        <table className="w-full text-sm" style={{ minWidth }}>
+          <thead className="border-b border-line bg-panel/80 text-left text-[11px] uppercase tracking-wide text-ink-faint">
+            <tr>
+              {numbered && (
+                <th scope="col" className="w-12 px-4 py-3.5 text-right font-bold" title="Row number">#</th>
+              )}
+              {columns.map(({ label, align, numeric, width }, i) => (
+                <th
+                  key={label || `col-${i}`}
+                  scope="col"
+                  className={`px-4 py-3.5 font-bold ${ALIGN[align] || (numeric ? "text-right" : "text-left")}`}
+                  style={width ? { width } : undefined}
+                >
+                  {label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+
+          <tbody className="divide-y divide-line/70">
+            {rows.map((row, i) =>
+              cloneElement(row, { rowNumber: startIndex + i + 1, numbered })
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );
 }
 
-export function Tr({ children }) {
-  return <tr className="transition hover:bg-brand-50/35">{children}</tr>;
+export function Tr({ children, rowNumber, numbered = false }) {
+  return (
+    // Striping plus hover: the stripe helps the eye stay on one row across a
+    // wide table, the hover says which row the pointer is on.
+    <tr className="transition even:bg-paper/50 hover:bg-brand-50/35">
+      {numbered && (
+        <td className="px-4 py-3.5 text-right align-middle text-xs font-bold tabular-nums text-ink-faint">
+          {rowNumber}
+        </td>
+      )}
+      {children}
+    </tr>
+  );
 }
 
-export function Td({ children, className = "" }) {
-  return <td className={`px-4 py-3.5 align-middle ${className}`}>{children}</td>;
+export function Td({ children, className = "", numeric = false, align }) {
+  return (
+    <td
+      className={`px-4 py-3.5 align-middle ${ALIGN[align] || (numeric ? "text-right" : "")} ${
+        numeric ? "tabular-nums" : ""
+      } ${className}`}
+    >
+      {children}
+    </td>
+  );
 }

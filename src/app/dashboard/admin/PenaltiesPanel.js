@@ -107,12 +107,12 @@ export default function PenaltiesPanel() {
       {penalties.length === 0 ? (
         <EmptyState title="No penalties issued" hint="Confirmed abuse and waived penalties will appear here." />
       ) : (
-        <Table head={["User", "Offense", "Amount", "Status", ""]}>
+        <Table head={["User", "Offense", { label: "Amount", numeric: true }, "Status", ""]}>
           {penalties.map((p) => (
             <Tr key={p.id}>
               <Td><div className="font-semibold text-ink">{p.userName}</div><div className="text-xs text-ink-faint">{p.userEmail}</div></Td>
               <Td className="capitalize text-ink-soft">{p.offenseType.replace(/_/g, " ")}</Td>
-              <Td className="font-semibold text-ink">{formatRwf(p.total)}</Td>
+              <Td numeric className="font-semibold text-ink">{formatRwf(p.total)}</Td>
               <Td><StatusBadge status={p.status} /></Td>
               <Td>{p.status === "active" && <button className="btn-outline" disabled={busy} onClick={() => waive(p.id)}>Waive</button>}</Td>
             </Tr>
