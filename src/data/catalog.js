@@ -146,4 +146,10 @@ export const DEFAULT_SETTINGS = {
   seeker: { postFee: 20_000, viewToken: 10_000, validityDays: [7, 14, 30] },
   penalty: { commissionPercent: 0.5, fixedAmount: 100_000 },
   tokenAccess: { otpRequired: true, maxUnlocksPerUserPerDay: 20 },
+  fraud: {
+    underReportTolerance: 0.3,
+    maxNotConcluded: 3,
+    duplicateWindowDays: 30,
+    commissionGraceDays: 7,
+  },
 };

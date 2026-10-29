@@ -21,6 +21,7 @@ import {
 } from "@/lib/listingForm";
 import { startListingFeeCheckout } from "@/lib/listingCheckout";
 import { agreementBlocker, recordAgreement } from "@/lib/agreementService";
+import { findDuplicateListing } from "@/lib/fraudService";
 import User from "@/models/User";
 
 // POST /api/listings — create a listing (draft or submit for approval).
@@ -62,6 +63,25 @@ export async function POST(req) {
 
   const debtBlocker = await modelABlockedByDebt(decision, guard.session.sub);
   if (debtBlocker) return fail(debtBlocker, 402);
+
+  // Duplicate detection (spec Part 24): the same owner re-posting the same
+  // item inflates the catalogue and splits buyer interest across copies.
+  if (data.submit) {
+    const duplicate = await findDuplicateListing({
+      ownerId: guard.session.sub,
+      categoryId: category._id,
+      title: data.title,
+      price: data.price,
+      settings,
+    });
+    if (duplicate) {
+      return fail(
+        `You already have a live listing that looks like this one ("${duplicate.title}"). ` +
+          "Update that listing instead of posting it again.",
+        409
+      );
+    }
+  }
 
   if (data.submit) {
     const agreementIssue = agreementBlocker(data.agreement, { model: decision.model });

@@ -18,11 +18,14 @@ const CommissionSchema = new Schema(
 
     status: {
       type: String,
-      enum: ["invoiced", "paid", "waived"],
+      enum: ["invoiced", "overdue", "paid", "waived"],
       default: "invoiced",
       index: true,
     },
     dueDate: { type: Date },
+    // Set once the overdue penalty has been raised, so the daily sweep never
+    // penalises the same invoice twice.
+    penaltyApplied: { type: Boolean, default: false },
     payment: { type: Schema.Types.ObjectId, ref: "Payment", default: null },
     paidAt: { type: Date, default: null },
   },

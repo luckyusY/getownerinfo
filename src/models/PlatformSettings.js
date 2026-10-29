@@ -23,6 +23,19 @@ const PlatformSettingsSchema = new Schema(
       otpRequired: { type: Boolean, default: true },
       maxUnlocksPerUserPerDay: { type: Number, default: 20 },
     },
+    // Automatic commission-enforcement and fraud thresholds (spec Part 24).
+    fraud: {
+      // A reported deal more than this far below the listed price is treated
+      // as possible under-reporting.
+      underReportTolerance: { type: Number, default: 0.3 },
+      // "Not concluded" reports on listings that had paid unlocks, before the
+      // pattern itself becomes an offence.
+      maxNotConcluded: { type: Number, default: 3 },
+      // Window for treating a near-identical listing as a duplicate.
+      duplicateWindowDays: { type: Number, default: 30 },
+      // Grace period after a commission invoice falls due.
+      commissionGraceDays: { type: Number, default: 7 },
+    },
   },
   { timestamps: true }
 );

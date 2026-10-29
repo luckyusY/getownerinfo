@@ -4,6 +4,9 @@ import { notifyUser } from "@/models/Notification";
 import { audit } from "@/models/AuditLog";
 import { ok, fail } from "@/lib/api";
 import { LISTING_STATUS } from "@/lib/constants";
+import PlatformSettings, { getSettings } from "@/models/PlatformSettings";
+import { DEFAULT_SETTINGS } from "@/data/catalog";
+import { enforceOverdueCommissions } from "@/lib/fraudService";
 
 // GET /api/cron/expire-listings — daily job (see vercel.json).
 //
@@ -79,5 +82,23 @@ export async function GET(req) {
     );
   }
 
-  return ok({ expired: due.length, warned: expiringSoon.length });
+  // 3. Chase commission invoices that are past due (spec Part 24). Penalties
+  //    are raised once per invoice and repeat offenders are suspended.
+  const settings = await getSettings(PlatformSettings, DEFAULT_SETTINGS);
+  const enforced = await enforceOverdueCommissions({ settings });
+  if (enforced.length) {
+    await audit({
+      actorRole: "system",
+      action: "cron.commissions_enforced",
+      targetType: "Commission",
+      meta: { count: enforced.length, suspended: enforced.filter((e) => e.suspended).length },
+    });
+  }
+
+  return ok({
+    expired: due.length,
+    warned: expiringSoon.length,
+    commissionsEnforced: enforced.length,
+    accountsSuspended: enforced.filter((e) => e.suspended).length,
+  });
 }

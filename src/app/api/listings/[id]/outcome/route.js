@@ -4,11 +4,11 @@ import Listing from "@/models/Listing";
 import Category from "@/models/Category";
 import User from "@/models/User";
 import Commission from "@/models/Commission";
-import TokenUnlock from "@/models/TokenUnlock";
 import PlatformSettings, { getSettings } from "@/models/PlatformSettings";
 import { DEFAULT_SETTINGS } from "@/data/catalog";
 import { computeCommission } from "@/lib/pricing";
 import { audit } from "@/models/AuditLog";
+import { assessDealOutcome } from "@/lib/fraudService";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { ROLES, LISTING_STATUS, LISTING_MODELS, DEAL_OUTCOMES, SELLER_ROLES } from "@/lib/constants";
 
@@ -50,13 +50,6 @@ export async function POST(req, { params }) {
     return fail("finalAmount is required when the deal is sold or rented", 422);
   }
 
-  // Anti-cheating: "not concluded" despite contact unlocks is suspicious.
-  const unlockCount = await TokenUnlock.countDocuments({ listing: listing._id });
-  if (!concluded && unlockCount > 0) {
-    listing.reviewFlag = true;
-    listing.reviewReason = `Reported "not concluded" despite ${unlockCount} contact unlock(s).`;
-  }
-
   listing.dealOutcome = outcome;
   listing.finalAmount = concluded ? finalAmount : null;
   listing.dealCompletedAt = completedDate ? new Date(completedDate) : new Date();
@@ -67,12 +60,24 @@ export async function POST(req, { params }) {
       ? LISTING_STATUS.RENTED
       : LISTING_STATUS.NOT_CONCLUDED;
 
+  const category = await Category.findById(listing.category);
+  const settings = await getSettings(PlatformSettings, DEFAULT_SETTINGS);
+
+  // Anti-cheating: repeated non-conclusion after paid unlocks, and deals
+  // reported materially below the listed price (spec Part 24).
+  const assessment = await assessDealOutcome({
+    listing,
+    outcome,
+    finalAmount: concluded ? finalAmount : 0,
+    settings,
+    category,
+    actorId: guard.session.sub,
+  });
+
   let commission = null;
 
   // Commission applies only to Model A concluded deals.
   if (concluded && listing.model === LISTING_MODELS.A) {
-    const category = await Category.findById(listing.category);
-    const settings = await getSettings(PlatformSettings, DEFAULT_SETTINGS);
     const calc = computeCommission({
       amount: finalAmount,
       commissionPercent: category?.commissionPercent ?? 0,
@@ -104,11 +109,20 @@ export async function POST(req, { params }) {
     action: "listing.outcome",
     targetType: "Listing",
     targetId: listing._id,
-    meta: { outcome, finalAmount, commissionId: commission?._id?.toString(), flagged: listing.reviewFlag },
+    meta: {
+      outcome,
+      finalAmount,
+      commissionId: commission?._id?.toString(),
+      flagged: listing.reviewFlag,
+      flags: assessment.flags,
+      penaltyIds: assessment.penalties.map((p) => p._id.toString()),
+    },
   });
 
   return ok({
     listing: { id: listing._id.toString(), status: listing.status, reviewFlag: listing.reviewFlag },
+    flags: assessment.flags,
+    penalties: assessment.penalties.map((p) => ({ id: p._id.toString(), offenseType: p.offenseType, total: p.total })),
     commission: commission
       ? { id: commission._id.toString(), total: commission.total, vatPortion: commission.vatPortion, dueDate: commission.dueDate }
       : null,
