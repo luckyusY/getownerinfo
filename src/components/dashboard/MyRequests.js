@@ -11,7 +11,7 @@ const CATEGORY_ICON = {
 
 export default function MyRequests({ requests = [] }) {
   return (
-    <section className="flex flex-col rounded-2xl border border-line bg-surface p-5 shadow-soft">
+    <section className="flex min-w-0 flex-col rounded-2xl border border-line bg-surface p-5 shadow-soft">
       <div className="flex items-center justify-between gap-3">
         <h2 className="font-display text-lg font-bold text-ink">My Requests</h2>
         <Link href="/dashboard/requests" className="inline-flex items-center gap-1 text-sm font-bold text-brand hover:text-brand-dark">

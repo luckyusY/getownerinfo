@@ -17,6 +17,19 @@
   --gold: #faa603;
   --success: #14855a;
   --danger: #c2413d;
+
+  /* Height of the sticky SiteHeader, measured in the browser rather than
+     derived from the class list. Below lg the header carries a second row
+     holding the mobile search field, so it is much taller. Anything that
+     sticks or anchors beneath the header offsets by this. */
+  --header-h: 118px;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    /* The mobile search row is lg:hidden, so the header collapses to one row. */
+    --header-h: 69px;
+  }
 }
 
 @layer base {

@@ -28,7 +28,7 @@ export default function QuickActions({ unreadMessages = 0 }) {
     <section className="rounded-2xl border border-line bg-surface p-5 shadow-soft">
       <h2 className="font-display text-lg font-bold text-ink">Quick Actions</h2>
 
-      <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+      <div className="mt-4 grid grid-cols-4 gap-2 sm:grid-cols-4 sm:gap-3 lg:grid-cols-7">
         {ACTIONS.map(({ label, href, icon: Icon, tone, badge }) => {
           const count = badge ? badges[badge] : 0;
           return (

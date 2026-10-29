@@ -171,7 +171,7 @@ export default async function HomePage() {
         )}
 
         {/* Popular locations */}
-        <section id="locations" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-10" data-reveal>
+        <section id="locations" className="mx-auto max-w-7xl scroll-mt-[calc(var(--header-h)+1rem)] px-4 py-10" data-reveal>
           <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="eyebrow">Popular locations</p>
@@ -207,7 +207,7 @@ export default async function HomePage() {
         </section>
 
         {/* How it works */}
-        <section id="how" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-12" data-reveal>
+        <section id="how" className="mx-auto max-w-7xl scroll-mt-[calc(var(--header-h)+1rem)] px-4 py-12" data-reveal>
           <h2 className="font-display text-3xl font-bold text-ink">How it works</h2>
           <div className="mt-8 grid gap-6 md:grid-cols-3">
             {STEPS.map(({ icon: Icon, title, body }) => (
