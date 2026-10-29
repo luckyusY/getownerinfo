@@ -100,7 +100,7 @@ export default function AccountDropdown({ session, dashboardPath = "/dashboard" 
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
-        className="flex items-center gap-2 rounded-full border border-line py-1 pl-1 pr-2.5 text-sm font-bold text-ink transition hover:border-brand/40 hover:bg-brand-50"
+        className="flex h-11 items-center gap-2 rounded-full border border-line py-1 pl-1 pr-2.5 text-sm font-bold text-ink transition hover:border-brand/40 hover:bg-brand-50 active:scale-95"
       >
         {session?.avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element

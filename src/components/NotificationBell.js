@@ -61,7 +61,7 @@ export default function NotificationBell() {
         onClick={toggle}
         aria-label={`Notifications${unread ? `, ${unread} unread` : ""}`}
         aria-expanded={open}
-        className="relative grid h-10 w-10 place-items-center rounded-full text-ink-soft transition hover:bg-brand-50 hover:text-brand"
+        className="relative grid h-11 w-11 place-items-center rounded-full text-ink-soft transition hover:bg-brand-50 hover:text-brand active:scale-95"
       >
         <Bell className="h-5 w-5" />
         {unread > 0 && (
@@ -72,7 +72,7 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-3 w-80 overflow-hidden rounded-xl border border-line bg-white text-ink shadow-lift">
+        <div className="absolute right-0 top-full z-50 mt-3 w-[min(20rem,calc(100vw-1.5rem))] overflow-hidden rounded-xl border border-line bg-white text-ink shadow-lift">
           <div className="flex items-center justify-between border-b border-line bg-brand-50 px-4 py-2.5">
             <p className="text-sm font-black text-ink">Notifications</p>
             <button onClick={markAll} className="inline-flex items-center gap-1 text-xs font-bold text-brand hover:underline">
