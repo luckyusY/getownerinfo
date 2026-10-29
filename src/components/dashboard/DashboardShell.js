@@ -37,7 +37,17 @@ export default function DashboardShell({ user, counts, children }) {
             sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
           }`}
         >
-          <div className="lg:sticky lg:top-20" onClick={() => setSidebarOpen(false)}>
+          {/*
+            On desktop the sidebar is its own scroll container pinned below the
+            top bar. Without this the wheel falls through to the document and
+            scrolls the whole page — and a nav taller than the viewport could
+            not be reached at all. `overscroll-contain` stops the scroll
+            chaining to the page once the nav hits its end.
+          */}
+          <div
+            className="lg:sticky lg:top-[76px] lg:max-h-[calc(100vh-92px)] lg:overflow-y-auto lg:overscroll-contain"
+            onClick={() => setSidebarOpen(false)}
+          >
             <Suspense fallback={<div className="h-96 rounded-2xl border border-line bg-surface shadow-soft" />}>
               <DashboardSidebar role={user.role} counts={counts} />
             </Suspense>

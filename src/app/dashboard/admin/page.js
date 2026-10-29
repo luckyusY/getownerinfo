@@ -14,6 +14,7 @@ import AuditViewer from "./AuditViewer";
 import UsersPanel from "./UsersPanel";
 import AssignmentsPanel from "./AssignmentsPanel";
 import DraftsPanel from "./DraftsPanel";
+import AdminSectionNav from "./AdminSectionNav";
 
 export default async function AdminDashboard() {
   guardRole(ROLES.ADMIN);
@@ -39,15 +40,18 @@ export default async function AdminDashboard() {
         <StatCard label="Registered users" value={users} />
       </div>
 
-      <AnalyticsPanel />
-      <VerificationQueue />
-      <ReportsQueue />
-      <ModerationQueue />
-      <AssignmentsPanel />
-      <DraftsPanel />
-      <UsersPanel />
-      <PenaltiesPanel />
-      <AuditViewer />
+      <AdminSectionNav />
+
+      {/* scroll-mt clears the sticky top bar and section nav when jumping. */}
+      <div id="analytics" className="scroll-mt-36"><AnalyticsPanel /></div>
+      <div id="verification" className="scroll-mt-36"><VerificationQueue /></div>
+      <div id="reports" className="scroll-mt-36"><ReportsQueue /></div>
+      <div id="moderation" className="scroll-mt-36"><ModerationQueue /></div>
+      <div id="assignments" className="scroll-mt-36"><AssignmentsPanel /></div>
+      <div id="drafts" className="scroll-mt-36"><DraftsPanel /></div>
+      <div id="users" className="scroll-mt-36"><UsersPanel /></div>
+      <div id="penalties" className="scroll-mt-36"><PenaltiesPanel /></div>
+      <div id="audit" className="scroll-mt-36"><AuditViewer /></div>
     </div>
   );
 }

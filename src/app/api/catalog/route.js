@@ -5,6 +5,11 @@ import { ok, fail } from "@/lib/api";
 import PlatformSettings, { getSettings } from "@/models/PlatformSettings";
 import { DEFAULT_SETTINGS } from "@/data/catalog";
 
+// Reads live data from the database on every request. Marked dynamic so a
+// build never depends on reaching the database — a transient Atlas blip
+// should not fail a deploy.
+export const dynamic = "force-dynamic";
+
 // GET /api/catalog — full category tree (categories with their subcategories).
 export async function GET() {
   try {
