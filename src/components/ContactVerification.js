@@ -125,10 +125,11 @@ export default function ContactVerification() {
 
             {!channel.verified && (
               <div className="mt-3 border-t border-line pt-3">
-                {!channel.deliverable && key === "phone" ? (
+                {!channel.deliverable ? (
                   <p className="text-xs font-semibold text-ink-soft">
-                    SMS delivery is not configured yet, so phone verification is not required to
-                    submit a listing. Verify your email instead.
+                    {key === "phone"
+                      ? "SMS delivery is not configured yet, so phone verification is not required to submit a listing."
+                      : "Email delivery is not configured yet, so email verification is not required to submit a listing."}
                   </p>
                 ) : isPending ? (
                   <div className="flex flex-wrap items-end gap-2">
@@ -185,9 +186,16 @@ export default function ContactVerification() {
         );
       })}
 
-      {!state.email.verified && (
+      {/* Only claim a requirement that is actually being enforced. */}
+      {state.email.deliverable && !state.email.verified && (
         <p className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-900">
           You need a verified email address before you can submit a listing for approval.
+        </p>
+      )}
+      {!state.email.deliverable && !state.phone.deliverable && (
+        <p className="rounded-xl border border-line bg-panel/60 px-4 py-3 text-xs font-semibold text-ink-soft">
+          No message provider is configured yet, so contact verification is optional. Once one is
+          set up, verifying the matching channel becomes required before a listing can be submitted.
         </p>
       )}
     </div>

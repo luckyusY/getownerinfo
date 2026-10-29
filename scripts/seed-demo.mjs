@@ -79,6 +79,7 @@ async function main() {
       C("seekerrequests").deleteMany({ seeker: { $in: oldIds } }),
       C("seekerunlocks").deleteMany({ viewer: { $in: oldIds } }),
       C("favorites").deleteMany({ user: { $in: oldIds } }),
+      C("listingagreements").deleteMany({ owner: { $in: oldIds } }),
       C("messages").deleteMany({ conversation: { $in: oldConversationIds } }),
       C("conversations").deleteMany({ listing: { $in: oldListingIds } }),
       C("users").deleteMany({ _id: { $in: oldIds } }),
