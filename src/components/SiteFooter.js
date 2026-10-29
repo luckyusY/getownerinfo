@@ -78,7 +78,7 @@ export default function SiteFooter() {
                     target="_blank"
                     rel="noreferrer noopener"
                     aria-label={s.label}
-                    className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white transition hover:bg-brand"
+                    className="grid h-11 w-11 place-items-center rounded-full bg-white/10 text-white transition hover:bg-brand active:scale-95"
                   >
                     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
                       <path d={s.path} />
@@ -93,10 +93,10 @@ export default function SiteFooter() {
             {COLUMNS.map((col) => (
               <div key={col.title}>
                 <h3 className="text-sm font-bold text-white">{col.title}</h3>
-                <ul className="mt-3 grid gap-2">
+                <ul className="mt-1 grid">
                   {col.links.map(([label, href]) => (
                     <li key={label}>
-                      <Link href={href} className="text-sm transition hover:text-white">
+                      <Link href={href} className="flex min-h-11 items-center text-sm transition hover:text-white active:text-white">
                         {label}
                       </Link>
                     </li>

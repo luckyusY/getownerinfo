@@ -31,15 +31,15 @@ export default function FeaturedListings({ listings = [] }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <Link href="/listings" className="inline-flex items-center gap-1 text-sm font-bold text-brand hover:text-brand-dark">
+          <Link href="/listings" className="inline-flex min-h-11 items-center gap-1 text-sm font-bold text-brand hover:text-brand-dark">
             View All Listings <ArrowRight className="h-4 w-4" />
           </Link>
-          <div className="flex gap-1.5">
+          <div className="flex gap-2">
             <button
               type="button"
               onClick={() => scrollBy(-1)}
               aria-label="Previous listings"
-              className="grid h-9 w-9 place-items-center rounded-full border border-line bg-surface text-ink-soft transition hover:border-brand/40 hover:text-brand"
+              className="grid h-11 w-11 place-items-center rounded-full border border-line bg-surface text-ink-soft transition hover:border-brand/40 hover:text-brand active:scale-95"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -47,7 +47,7 @@ export default function FeaturedListings({ listings = [] }) {
               type="button"
               onClick={() => scrollBy(1)}
               aria-label="Next listings"
-              className="grid h-9 w-9 place-items-center rounded-full border border-line bg-surface text-ink-soft transition hover:border-brand/40 hover:text-brand"
+              className="grid h-11 w-11 place-items-center rounded-full border border-line bg-surface text-ink-soft transition hover:border-brand/40 hover:text-brand active:scale-95"
             >
               <ChevronRight className="h-4 w-4" />
             </button>

@@ -48,39 +48,39 @@ export default function CookieBanner() {
           <Link href="/privacy" className="text-brand underline">Privacy Policy</Link>.
           {customizing && (
             <div className="mt-3 space-y-2">
-              <label className="flex items-center gap-2 text-ink">
-                <input type="checkbox" checked disabled /> Essential (always on)
+              <label className="flex min-h-11 items-center gap-2 text-ink">
+                <input type="checkbox" checked disabled className="h-5 w-5 shrink-0" /> Essential (always on)
               </label>
-              <label className="flex items-center gap-2 text-ink">
-                <input type="checkbox" checked={prefs.analytics} onChange={(e) => setPrefs({ ...prefs, analytics: e.target.checked })} /> Analytics
+              <label className="flex min-h-11 items-center gap-2 text-ink">
+                <input type="checkbox" checked={prefs.analytics} onChange={(e) => setPrefs({ ...prefs, analytics: e.target.checked })} className="h-5 w-5 shrink-0" /> Analytics
               </label>
-              <label className="flex items-center gap-2 text-ink">
-                <input type="checkbox" checked={prefs.preferences} onChange={(e) => setPrefs({ ...prefs, preferences: e.target.checked })} /> Preferences
+              <label className="flex min-h-11 items-center gap-2 text-ink">
+                <input type="checkbox" checked={prefs.preferences} onChange={(e) => setPrefs({ ...prefs, preferences: e.target.checked })} className="h-5 w-5 shrink-0" /> Preferences
               </label>
             </div>
           )}
         </div>
         <div className="flex shrink-0 flex-wrap gap-2">
           {customizing ? (
-            <button className="btn-primary !min-h-9 !py-1.5 !text-xs sm:!min-h-10 sm:!py-2 sm:!text-sm" onClick={() => save(prefs)}>
+            <button className="btn-primary !py-1.5 !text-xs sm:!py-2 sm:!text-sm" onClick={() => save(prefs)}>
               Save choices
             </button>
           ) : (
             <>
               <button
-                className="btn-outline !min-h-9 flex-1 !py-1.5 !text-xs sm:!min-h-10 sm:flex-none sm:!py-2 sm:!text-sm"
+                className="btn-outline flex-1 !py-1.5 !text-xs sm:flex-none sm:!py-2 sm:!text-sm"
                 onClick={() => save({ analytics: false, preferences: false })}
               >
                 Essential only
               </button>
               <button
-                className="btn-outline !min-h-9 flex-1 !py-1.5 !text-xs sm:!min-h-10 sm:flex-none sm:!py-2 sm:!text-sm"
+                className="btn-outline flex-1 !py-1.5 !text-xs sm:flex-none sm:!py-2 sm:!text-sm"
                 onClick={() => setCustomizing(true)}
               >
                 Customize
               </button>
               <button
-                className="btn-primary !min-h-9 flex-1 !py-1.5 !text-xs sm:!min-h-10 sm:flex-none sm:!py-2 sm:!text-sm"
+                className="btn-primary flex-1 !py-1.5 !text-xs sm:flex-none sm:!py-2 sm:!text-sm"
                 onClick={() => save({ analytics: true, preferences: true })}
               >
                 Accept all

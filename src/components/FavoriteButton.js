@@ -38,7 +38,7 @@ export default function FavoriteButton({ listingId, variant = "icon" }) {
       onClick={onClick}
       aria-pressed={fav}
       aria-label={fav ? "Remove from favorites" : "Save to favorites"}
-      className="flex h-8 w-8 items-center justify-center rounded-full border border-line bg-surface/90 shadow-soft backdrop-blur transition hover:scale-110"
+      className="flex h-11 w-11 items-center justify-center rounded-full border border-line bg-surface/90 shadow-soft backdrop-blur transition hover:scale-110 active:scale-95"
     >
       <Heart className={`h-4 w-4 transition ${fav ? "fill-red-500 text-red-500" : "text-ink-soft"}`} />
     </button>
