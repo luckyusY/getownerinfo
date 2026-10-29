@@ -27,11 +27,19 @@ export default function CookieBanner() {
   if (!show) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-white p-4 shadow-lg">
-      <div className="mx-auto flex max-w-4xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="text-sm text-ink-soft">
-          We use essential cookies to run the platform (login, token unlocks, payments).
-          Optional cookies help with analytics and saved preferences. See our{" "}
+    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-white px-4 py-3 shadow-lg sm:p-4">
+      <div className="mx-auto flex max-w-4xl flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        <div className="text-xs leading-5 text-ink-soft sm:text-sm">
+          {/* The full explanation is long on a phone, where this banner was
+              taking a fifth of the screen. Phones get the short version and
+              the policy link; larger screens keep the detail. */}
+          <span className="sm:hidden">
+            We use essential cookies to run the platform. Optional ones help with analytics.{" "}
+          </span>
+          <span className="hidden sm:inline">
+            We use essential cookies to run the platform (login, token unlocks, payments).
+            Optional cookies help with analytics and saved preferences. See our{" "}
+          </span>
           <Link href="/privacy" className="text-brand underline">Privacy Policy</Link>.
           {customizing && (
             <div className="mt-3 space-y-2">
@@ -47,14 +55,31 @@ export default function CookieBanner() {
             </div>
           )}
         </div>
-        <div className="flex shrink-0 gap-2">
+        <div className="flex shrink-0 flex-wrap gap-2">
           {customizing ? (
-            <button className="btn-primary" onClick={() => save(prefs)}>Save choices</button>
+            <button className="btn-primary !min-h-9 !py-1.5 !text-xs sm:!min-h-10 sm:!py-2 sm:!text-sm" onClick={() => save(prefs)}>
+              Save choices
+            </button>
           ) : (
             <>
-              <button className="btn-outline" onClick={() => save({ analytics: false, preferences: false })}>Essential only</button>
-              <button className="btn-outline" onClick={() => setCustomizing(true)}>Customize</button>
-              <button className="btn-primary" onClick={() => save({ analytics: true, preferences: true })}>Accept all</button>
+              <button
+                className="btn-outline !min-h-9 flex-1 !py-1.5 !text-xs sm:!min-h-10 sm:flex-none sm:!py-2 sm:!text-sm"
+                onClick={() => save({ analytics: false, preferences: false })}
+              >
+                Essential only
+              </button>
+              <button
+                className="btn-outline !min-h-9 flex-1 !py-1.5 !text-xs sm:!min-h-10 sm:flex-none sm:!py-2 sm:!text-sm"
+                onClick={() => setCustomizing(true)}
+              >
+                Customize
+              </button>
+              <button
+                className="btn-primary !min-h-9 flex-1 !py-1.5 !text-xs sm:!min-h-10 sm:flex-none sm:!py-2 sm:!text-sm"
+                onClick={() => save({ analytics: true, preferences: true })}
+              >
+                Accept all
+              </button>
             </>
           )}
         </div>

@@ -7,7 +7,6 @@ import SiteFooter from "@/components/SiteFooter";
 import HomeHero from "@/components/public/HomeHero";
 import CategoryIconRow from "@/components/public/CategoryIconRow";
 import FeaturedListings from "@/components/public/FeaturedListings";
-import AppPromo from "@/components/public/AppPromo";
 import TrustRow from "@/components/public/TrustRow";
 import { connectDB } from "@/lib/db";
 import Listing from "@/models/Listing";
@@ -111,10 +110,10 @@ export default async function HomePage() {
 
         <CategoryIconRow categories={categories} />
 
-        {/* Featured listings beside the app promo, as in the design. */}
-        <section className="mx-auto grid max-w-7xl gap-6 px-4 py-6 xl:grid-cols-[minmax(0,1fr)_300px]">
+        {/* No data-reveal here: AppMotion hides reveal targets until scroll,
+            and this row can sit above the fold on a phone. */}
+        <section className="mx-auto max-w-7xl px-4 py-6">
           <FeaturedListings listings={featured.slice(0, 4)} />
-          <AppPromo />
         </section>
 
         <TrustRow />
@@ -152,7 +151,7 @@ export default async function HomePage() {
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             {JOURNEYS.map(({ icon: Icon, title, body, href, cta }) => (
-              <Link key={title} href={href} className="card premium-hover group !rounded-2xl !p-5">
+              <Link key={title} href={href} className="card premium-hover group !p-5">
                 <span className="grid h-12 w-12 place-items-center rounded-xl bg-brand-50 text-brand transition group-hover:bg-brand group-hover:text-white">
                   <Icon className="h-5 w-5" />
                 </span>
@@ -212,7 +211,7 @@ export default async function HomePage() {
           <h2 className="font-display text-3xl font-bold text-ink">How it works</h2>
           <div className="mt-8 grid gap-6 md:grid-cols-3">
             {STEPS.map(({ icon: Icon, title, body }) => (
-              <div key={title} className="card premium-hover !rounded-2xl">
+              <div key={title} className="card premium-hover">
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand"><Icon className="h-5 w-5" /></span>
                 <h3 className="mt-3 text-lg font-semibold text-ink">{title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-ink-soft">{body}</p>
@@ -233,7 +232,7 @@ export default async function HomePage() {
           </div>
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {SAFETY.map(({ icon: Icon, title, body }) => (
-              <div key={title} className="card premium-hover !rounded-2xl">
+              <div key={title} className="card premium-hover">
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand"><Icon className="h-5 w-5" /></span>
                 <h3 className="mt-3 text-base font-semibold text-ink">{title}</h3>
                 <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{body}</p>

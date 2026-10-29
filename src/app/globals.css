@@ -114,7 +114,7 @@
 
   /* Surfaces */
   .card {
-    @apply rounded-xl p-6;
+    @apply rounded-2xl p-6;
     background: var(--surface);
     border: 1px solid var(--line);
     box-shadow: 0 1px 2px rgba(21, 33, 28, 0.04), 0 14px 36px -24px rgba(21, 33, 28, 0.22);
@@ -214,8 +214,10 @@
     @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
   }
 
+  /* Matches SiteHeader/SiteFooter (max-w-7xl); at max-w-6xl the content
+     rendered visibly narrower than the chrome framing it. */
   .page-shell {
-    @apply mx-auto max-w-6xl px-4 py-10 sm:py-14;
+    @apply mx-auto max-w-7xl px-4 py-10 sm:py-14;
   }
 
   .page-hero {
@@ -232,88 +234,35 @@
       radial-gradient(720px 320px at 50% 0%, rgba(22, 104, 227, 0.12), transparent 62%);
   }
 
-  .hero-control {
-    @apply flex h-10 w-10 items-center justify-center rounded-lg border border-white/25 bg-white/10 text-xl font-semibold text-white backdrop-blur transition hover:bg-white/20;
-  }
+  
 
   /* Select inside a hero search field: the field itself owns the border. */
   .hero-field-input {
     @apply -ml-0.5 w-full cursor-pointer appearance-none truncate bg-transparent pr-4 text-sm font-bold text-ink outline-none;
   }
 
-  .category-tile {
-    @apply relative z-10 flex min-h-[108px] flex-col items-center justify-center gap-2 rounded-xl border border-line bg-surface p-4 text-center shadow-soft transition duration-300 hover:-translate-y-1 hover:border-brand/40 hover:shadow-lift;
-  }
+  
 
-  .hero-swiper .swiper-button-prev,
-  .hero-swiper .swiper-button-next {
-    width: 50px;
-    height: 60px;
-    margin-top: -30px;
-    color: #ffffff;
-    background: rgba(120, 120, 120, 0.72);
-    transition: background 0.2s ease;
-  }
+  
 
-  .hero-swiper .swiper-button-prev {
-    left: 0;
-    border-radius: 0 9999px 9999px 0;
-  }
+  
 
-  .hero-swiper .swiper-button-next {
-    right: 0;
-    border-radius: 9999px 0 0 9999px;
-  }
+  
 
-  .hero-swiper .swiper-button-prev:hover,
-  .hero-swiper .swiper-button-next:hover {
-    background: rgba(95, 95, 95, 0.82);
-  }
+  
 
-  .hero-swiper .swiper-button-prev::after,
-  .hero-swiper .swiper-button-next::after {
-    font-size: 20px;
-    font-weight: 900;
-  }
+  
 
-  .hero-swiper .swiper-pagination {
-    bottom: 12px;
-  }
+  
 
-  .hero-swiper .swiper-pagination-bullet {
-    width: 8px;
-    height: 8px;
-    margin: 0 6px !important;
-    background: rgba(140, 140, 140, 0.5);
-    border: 1px solid rgba(120, 120, 120, 0.35);
-    opacity: 1;
-    transition: transform 0.2s ease, background 0.2s ease;
-  }
+  
 
-  .hero-swiper .swiper-pagination-bullet-active {
-    background: #ffffff;
-    border-color: #7a7a7a;
-    transform: scale(1.15);
-  }
+  
 
-  /* Adorama-style hero pagination dots */
-  .adorama-hero .swiper-pagination-bullet {
-    width: 9px;
-    height: 9px;
-    background: #071c1f;
-    opacity: 0.3;
-  }
-  .adorama-hero .swiper-pagination-bullet-active {
-    background: #0b5f86;
-    opacity: 1;
-  }
+  
+  
 
-  @media (max-width: 640px) {
-    .hero-swiper .swiper-button-prev,
-    .hero-swiper .swiper-button-next {
-      display: none;
-    }
-  }
+  
 
   /* Filter chips */
   .chip {
@@ -353,7 +302,5 @@
 
 @layer utilities {
   .text-balance { text-wrap: balance; }
-  .grain {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
-  }
+  
 }

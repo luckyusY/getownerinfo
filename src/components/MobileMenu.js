@@ -3,8 +3,21 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Building2, CarFront, LayoutDashboard, LogIn, LogOut, MapPin, UserPlus } from "lucide-react";
-import { MAIN_NAV } from "@/components/HeaderNav";
+import {
+  Building2, CarFront, HelpCircle, Home, Inbox, LayoutDashboard, LayoutGrid,
+  LogIn, LogOut, MapPin, MessageCircle, Tag, UserPlus,
+} from "lucide-react";
+
+// The primary links for the mobile drawer. Previously lived in HeaderNav,
+// whose desktop mega-menu was replaced by components/public/PublicNav.
+const MAIN_NAV = [
+  { label: "Home", href: "/", icon: Home },
+  { label: "Browse", href: "/listings", icon: LayoutGrid },
+  { label: "Requests", href: "/seekers", icon: Inbox },
+  { label: "Pricing", href: "/pricing", icon: Tag },
+  { label: "How it works", href: "/#how", icon: HelpCircle },
+  { label: "Contact", href: "/contact", icon: MessageCircle },
+];
 import { POPULAR_LOCATIONS } from "@/data/locations";
 import { useToast } from "@/components/ui/Toast";
 import StartSellingButton from "@/components/StartSellingButton";

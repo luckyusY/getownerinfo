@@ -77,7 +77,7 @@ export default function ListingsExplorer({ initialCategory = "", initialLocation
   return (
     <div>
       <div className="sticky top-[57px] z-30 -mx-4 mb-6 border-y border-line/70 bg-paper/92 px-4 py-3 backdrop-blur">
-        <div className="mx-auto max-w-6xl rounded-xl border border-line bg-surface/94 p-3 shadow-soft">
+        <div className="mx-auto max-w-7xl rounded-xl border border-line bg-surface/94 p-3 shadow-soft">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
             <label className="input-wrap min-w-0 flex-1 lg:max-w-md">
               <Search className="h-4 w-4 shrink-0 text-ink-faint" />

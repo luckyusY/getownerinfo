@@ -1,8 +1,4 @@
 import "./globals.css";
-import "swiper/css";
-import "swiper/css/effect-fade";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
 import { Poppins, Nunito_Sans } from "next/font/google";
 import CookieBanner from "@/components/CookieBanner";
 import { ToastProvider } from "@/components/ui/Toast";
@@ -44,7 +40,7 @@ export const metadata = {
 };
 
 export const viewport = {
-  themeColor: "#15b0dd",
+  themeColor: "#1668e3",
 };
 
 export default function RootLayout({ children }) {

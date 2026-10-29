@@ -16,13 +16,13 @@ export default function OgImage() {
           flexDirection: "column",
           justifyContent: "center",
           padding: "80px",
-          background: "linear-gradient(135deg, #071c1f 0%, #0c3f47 55%, #15b0dd 140%)",
+          background: "linear-gradient(135deg, #071c1f 0%, #0c3f47 55%, #1668e3 140%)",
           color: "white",
           fontFamily: "sans-serif",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 40 }}>
-          <div style={{ width: 56, height: 56, borderRadius: 14, background: "#15b0dd", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 34, fontWeight: 800 }}>g</div>
+          <div style={{ width: 56, height: 56, borderRadius: 14, background: "#1668e3", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 34, fontWeight: 800 }}>g</div>
           <div style={{ fontSize: 34, fontWeight: 700 }}>getownerinfo</div>
         </div>
         <div style={{ fontSize: 72, fontWeight: 800, lineHeight: 1.05, maxWidth: 900 }}>

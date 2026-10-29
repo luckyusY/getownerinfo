@@ -76,7 +76,9 @@ export default function HomeHero({ categories = [], locations = [] }) {
       <div className="absolute inset-0 bg-gradient-to-r from-white via-white/85 to-white/10" />
 
       <div className="relative mx-auto grid max-w-7xl gap-8 px-4 pb-8 pt-10 lg:grid-cols-[1.35fr_0.65fr] lg:pb-12 lg:pt-16">
-        <div className="max-w-2xl">
+        {/* min-w-0: without it the scrollable tab row below widens this grid
+            track past the viewport, and the section clips the overflow. */}
+        <div className="min-w-0 max-w-2xl">
           <h1 className="font-display text-4xl font-bold leading-[1.08] text-ink sm:text-5xl lg:text-6xl">
             Find. Connect. Deal
             <br className="hidden sm:block" /> with{" "}
@@ -171,7 +173,7 @@ export default function HomeHero({ categories = [], locations = [] }) {
           </form>
         </div>
 
-        <aside className="self-center rounded-2xl border border-line bg-surface/95 p-5 shadow-lift backdrop-blur">
+        <aside className="min-w-0 self-center rounded-2xl border border-line bg-surface/95 p-5 shadow-lift backdrop-blur">
           <ul className="grid gap-5">
             {PROMISES.map(({ icon: Icon, title, body, tone }) => (
               <li key={title} className="flex gap-3">

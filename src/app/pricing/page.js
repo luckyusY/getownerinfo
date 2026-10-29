@@ -24,7 +24,7 @@ export default async function PricingPage() {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <main className="mx-auto max-w-5xl px-4 py-12">
+      <main className="mx-auto max-w-7xl px-4 py-12">
         <div className="max-w-2xl">
           <p className="eyebrow">Pricing</p>
           <h1 className="mt-2 font-display text-4xl font-bold text-ink">Transparent, pay-as-you-go</h1>
@@ -62,7 +62,7 @@ export default async function PricingPage() {
         {/* Per-category table */}
         <h2 className="mt-12 font-display text-2xl font-bold text-ink">Fees by category</h2>
         <div className="mt-4 overflow-x-auto rounded-2xl border border-line bg-surface shadow-soft">
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[640px] text-sm">
             <thead className="bg-panel text-left text-xs uppercase tracking-wide text-ink-faint">
               <tr>
                 <th className="px-4 py-3 font-semibold">Category</th>
