@@ -54,16 +54,38 @@ export async function POST(req) {
       }
     : eligibility;
 
-  // If it lands on Model B, show what the paid listing would cost.
-  const fee =
-    decision.model === "B"
-      ? computeListingFee({
-          baseMonthlyFee: category.listingFeeMonthly,
-          months,
-          vatRate: settings.vatRate,
-          durationDiscounts: settings.durationDiscounts,
-        })
-      : null;
+  // What a paid listing would cost at these inputs. Computed regardless of the
+  // current choice, so the model-selection step can show both options side by
+  // side rather than only the one already picked.
+  const paidFee = computeListingFee({
+    baseMonthlyFee: category.listingFeeMonthly,
+    months,
+    vatRate: settings.vatRate,
+    durationDiscounts: settings.durationDiscounts,
+  });
+  const fee = decision.model === "B" ? paidFee : null;
+
+  const forced = category.modelRule?.forcedModel || null;
+  const comparison = {
+    // Model A is on the table when the listing qualifies and the category has
+    // not been forced to pay-to-list.
+    modelA: {
+      available: eligibility.eligibleForA && forced !== "B",
+      unavailableReason: eligibility.eligibleForA ? null : eligibility.reason,
+      commissionPercent: category.commissionPercent,
+      exclusivityMonths: months,
+      listingFee: 0,
+    },
+    modelB: {
+      available: forced !== "A",
+      unavailableReason: forced === "A" ? "This category is always exclusive (Model A)." : null,
+      fee: paidFee,
+      commissionPercent: 0,
+    },
+    // True when the seller actually has a decision to make.
+    choiceRequired: eligibility.eligibleForA && !forced,
+    forcedModel: forced,
+  };
 
   return ok({
     category: { slug: category.slug, name: category.name },
@@ -73,6 +95,8 @@ export async function POST(req) {
       eligibleForA: eligibility.eligibleForA,
     },
     listingFee: fee,
+    comparison,
+    durationDiscounts: settings.durationDiscounts,
     tokenFee: category.tokenFee,
     commissionPercent: category.commissionPercent,
   });

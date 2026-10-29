@@ -33,10 +33,12 @@ import { RWANDA_LOCATIONS } from "@/data/locations";
 import administrativeUnits from "@/data/rwandaAdministrativeUnits.json";
 import { isValidRwandaPhone } from "@/lib/phone";
 import { AGREEMENT_TERMS, AGREEMENT_VERSION } from "@/data/agreementTerms";
+import ModelSelection from "@/components/listing/ModelSelection";
 
 const STEPS = [
   { label: "Category", icon: Tags },
   { label: "Details", icon: Banknote },
+  { label: "Model", icon: ShieldCheck },
   { label: "Location", icon: MapPin },
   { label: "Content", icon: ImagePlus },
   { label: "Agreement", icon: FileCheck2 },
@@ -196,7 +198,16 @@ export default function NewListingPage() {
       }),
     })
       .then((r) => r.json())
-      .then((j) => setDecision(j.data || null))
+      .then((j) => {
+        const data = j.data || null;
+        setDecision(data);
+        // Lowering the price (or raising the quantity) can take a listing out
+        // of Model A. Drop a choice that no longer applies rather than letting
+        // it linger and be rejected at submit.
+        if (data && !data.comparison?.choiceRequired && form.modelChoice) {
+          set({ modelChoice: "" });
+        }
+      })
       .catch(() => {});
     return () => ctrl.abort();
   }, [form.categorySlug, form.transactionType, form.quantity, form.price, form.durationMonths, form.modelChoice]);
@@ -282,7 +293,7 @@ export default function NewListingPage() {
     !form.subcategoryId && "Subcategory",
     !form.itemType && "Item type",
     !(form.price > 0) && "Price",
-    decision?.decision?.eligibleForA && !form.modelChoice && "Model choice",
+    decision?.comparison?.choiceRequired && !form.modelChoice && "Model choice",
     !form.location.area && "Public area",
     !form.contact.ownerName.trim() && "Owner name",
     (!form.contact.ownerPhone || invalidOwnerPhone) && "Valid owner phone",
@@ -291,12 +302,15 @@ export default function NewListingPage() {
     form.ownershipProof.length === 0 && "Ownership/authorization document",
     !agreementSigned && "Signed agreement",
   ].filter(Boolean);
-  const requiredCount = 11 + (decision?.decision?.eligibleForA ? 1 : 0);
+  const requiredCount = 11 + (decision?.comparison?.choiceRequired ? 1 : 0);
   const completedCount = requiredCount - missing.length;
   const completionPercent = Math.round((completedCount / requiredCount) * 100);
+  // A model must be picked only when the listing actually qualifies for both.
+  const modelChosen = !decision?.comparison?.choiceRequired || Boolean(form.modelChoice);
   const canNext = [
     form.categorySlug && form.transactionType && form.subcategoryId && form.itemType,
-    Boolean(decision) && form.price > 0 && form.quantity > 0 && form.durationMonths > 0 && (!decision?.decision?.eligibleForA || Boolean(form.modelChoice)),
+    Boolean(decision) && form.price > 0 && form.quantity > 0 && form.durationMonths > 0,
+    Boolean(decision) && modelChosen,
     form.location.area && form.contact.ownerName.trim() && form.contact.ownerPhone && !invalidOwnerPhone,
     form.title.trim().length >= 3 && form.images.length > 0 && form.ownershipProof.length > 0,
     agreementSigned,
@@ -342,7 +356,7 @@ export default function NewListingPage() {
         <div className="space-y-5">
           <FormStepper steps={STEPS} active={step} />
 
-          <FormSection title={STEPS[step].label} description={step === 2 ? "Exact contact and address stay hidden until a buyer pays the token fee." : null}>
+          <FormSection title={STEPS[step].label} description={step === 3 ? "Exact contact and address stay hidden until a buyer pays the token fee." : null}>
             {step === 0 && (
               <div className="space-y-4">
                 <FormField label="Category" required>
@@ -479,21 +493,28 @@ export default function NewListingPage() {
                   </div>
                 )}
                 {decision?.decision?.eligibleForA && (
-                  <FormField label="Choose a listing model" hint="This listing qualifies for both options. Choose how you want to list it.">
-                    <SegmentedControl
-                      value={form.modelChoice}
-                      onChange={(modelChoice) => set({ modelChoice })}
-                      options={[
-                        { value: "A", label: "Model A", description: "Exclusive listing; commission is due if a deal closes.", icon: ShieldCheck },
-                        { value: "B", label: "Model B", description: "Pay the listing fee shown at checkout.", icon: Banknote },
-                      ]}
-                    />
-                  </FormField>
+                  <p className="rounded-xl border border-brand/30 bg-brand-50 px-4 py-3 text-sm font-semibold text-ink-soft">
+                    This listing qualifies for both Model A and Model B. You will choose between them on the next step.
+                  </p>
                 )}
               </div>
             )}
 
             {step === 2 && (
+              <ModelSelection
+                decision={decision?.decision}
+                comparison={decision?.comparison}
+                durationMonths={form.durationMonths}
+                durationDiscounts={decision?.durationDiscounts || {}}
+                quantity={form.quantity}
+                categoryName={category?.name || "This category"}
+                value={form.modelChoice}
+                onChange={(modelChoice) => set({ modelChoice })}
+                onDurationChange={(durationMonths) => set({ durationMonths })}
+              />
+            )}
+
+            {step === 3 && (
               <div className="space-y-4">
                 {isRealEstate ? (
                   <div className="space-y-4 rounded-xl border border-line bg-panel/60 p-4">
@@ -561,7 +582,7 @@ export default function NewListingPage() {
               </div>
             )}
 
-            {step === 3 && (
+            {step === 4 && (
               <div className="space-y-4">
                 <p className="text-xs font-black uppercase tracking-wide text-brand">GENERAL PUBLIC INFORMATION</p>
                 <FormField label="Title" required>
@@ -585,7 +606,7 @@ export default function NewListingPage() {
               </div>
             )}
 
-            {step === 4 && (
+            {step === 5 && (
               <div className="space-y-4">
                 <div className={`rounded-xl border p-4 ${agreementModel === "A" ? "border-emerald-200 bg-emerald-50" : "border-amber-200 bg-amber-50"}`}>
                   <p className="font-display text-lg font-bold text-ink">
@@ -666,7 +687,7 @@ export default function NewListingPage() {
               </div>
             )}
 
-            {step === 5 && (
+            {step === 6 && (
               <div className="space-y-2 text-sm">
                 <Row k="Title" v={form.title} />
                 <Row k="Category" v={category?.name} />
