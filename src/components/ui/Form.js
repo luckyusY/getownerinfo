@@ -100,47 +100,47 @@ export const TextInput = forwardRef(function TextInput(
   const [show, setShow] = useState(false);
   const isPassword = type === "password";
   return (
-    <div className={`input-wrap ${error ? "input-wrap-error" : ""}`}>
+    <label className={`input-wrap ${error ? "input-wrap-error" : ""}`}>
       {Icon && <Icon className="h-4 w-4 shrink-0 text-ink-faint" />}
       <input
         ref={ref}
         type={isPassword && show ? "text" : type}
-        className={`min-w-0 flex-1 bg-transparent text-sm font-semibold text-ink outline-none placeholder:text-ink-faint ${className}`}
+        className={`min-w-0 flex-1 bg-transparent text-base font-semibold text-ink outline-none placeholder:text-ink-faint lg:text-sm ${className}`}
         {...props}
       />
       {isPassword && (
         <button
           type="button"
           aria-label={show ? "Hide password" : "Show password"}
-          className="text-ink-faint transition hover:text-ink"
+          className="-mr-2 grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink-faint transition hover:text-ink active:scale-90"
           onClick={() => setShow((v) => !v)}
         >
           {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
         </button>
       )}
-    </div>
+    </label>
   );
 });
 
 export function SelectInput({ icon, error, children, className = "", ...props }) {
   const Icon = resolveIcon(icon);
   return (
-    <div className={`input-wrap ${error ? "input-wrap-error" : ""}`}>
+    <label className={`input-wrap ${error ? "input-wrap-error" : ""}`}>
       {Icon && <Icon className="h-4 w-4 shrink-0 text-ink-faint" />}
-      <select className={`min-w-0 flex-1 bg-transparent text-sm font-semibold text-ink outline-none ${className}`} {...props}>
+      <select className={`min-w-0 flex-1 bg-transparent text-base font-semibold text-ink outline-none lg:text-sm ${className}`} {...props}>
         {children}
       </select>
-    </div>
+    </label>
   );
 }
 
 export function TextareaInput({ icon, error, className = "", ...props }) {
   const Icon = resolveIcon(icon);
   return (
-    <div className={`input-wrap items-start ${error ? "input-wrap-error" : ""}`}>
+    <label className={`input-wrap items-start ${error ? "input-wrap-error" : ""}`}>
       {Icon && <Icon className="mt-1 h-4 w-4 shrink-0 text-ink-faint" />}
-      <textarea className={`min-w-0 flex-1 resize-y bg-transparent text-sm font-semibold text-ink outline-none placeholder:text-ink-faint ${className}`} {...props} />
-    </div>
+      <textarea className={`min-w-0 flex-1 resize-y bg-transparent text-base font-semibold text-ink outline-none placeholder:text-ink-faint lg:text-sm ${className}`} {...props} />
+    </label>
   );
 }
 

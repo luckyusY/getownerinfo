@@ -1,5 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  // A touch device applies :hover on tap and holds it until you tap somewhere
+  // else, so hover styling used to stick to whatever was last pressed.
+  future: { hoverOnlyWhenSupported: true },
   content: [
     "./src/app/**/*.{js,jsx}",
     "./src/components/**/*.{js,jsx}",

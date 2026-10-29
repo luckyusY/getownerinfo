@@ -64,6 +64,22 @@
     text-rendering: optimizeLegibility;
   }
 
+  /* Touch behaviour, none of which was set before.
+     `manipulation` drops the 300ms wait browsers keep for a double-tap zoom,
+     so taps register immediately. The tap highlight is the grey box iOS paints
+     over anything tappable; a faint brand tint reads as intentional. */
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  summary,
+  label,
+  [role="button"] {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(22, 104, 227, 0.12);
+  }
+
   /*
    * The page canvas.
    *
@@ -124,25 +140,39 @@
 @layer components {
   /* Buttons */
   .btn {
-    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-primary {
     @apply btn text-white;
     background: var(--brand);
     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 8px 20px -10px rgba(22, 104, 227, 0.45);
   }
-  .btn-primary:hover:not(:disabled) {
-    background: var(--brand-dark);
-    transform: translateY(-2px);
+  /* Gated on a real pointer. A touch device applies :hover on tap and keeps it
+     until you tap elsewhere, so the lift used to stick to the last button
+     pressed. */
+  @media (hover: hover) {
+    .btn-primary:hover:not(:disabled) {
+      background: var(--brand-dark);
+      transform: translateY(-2px);
+    }
   }
   .btn-outline {
     @apply btn bg-surface/80 text-ink;
     border: 1px solid var(--line);
   }
-  .btn-outline:hover:not(:disabled) {
-    border-color: var(--brand);
-    color: var(--brand);
-    transform: translateY(-2px);
+  @media (hover: hover) {
+    .btn-outline:hover:not(:disabled) {
+      border-color: var(--brand);
+      color: var(--brand);
+      transform: translateY(-2px);
+    }
+  }
+
+  /* After the hover rules, so it wins the transform on a press either way.
+     This is the whole app's tap feedback: there is no hover on a touchscreen,
+     so without it every button feels dead. */
+  .btn:active:not(:disabled) {
+    transform: scale(0.97);
   }
   .btn-ghost {
     @apply btn text-ink-soft hover:text-ink;
@@ -220,7 +250,7 @@
 
   /* Forms */
   .input {
-    @apply w-full rounded-lg px-3.5 py-2.5 text-sm font-semibold text-ink outline-none transition;
+    @apply min-h-11 w-full rounded-lg px-3.5 py-2.5 text-base font-semibold text-ink outline-none transition lg:text-sm;
     background: var(--surface);
     border: 1px solid var(--line);
   }
@@ -233,8 +263,10 @@
     background: var(--surface);
     border: 1px solid var(--line);
   }
-  .input-wrap:hover {
-    border-color: rgba(22, 104, 227, 0.45);
+  @media (hover: hover) {
+    .input-wrap:hover {
+      border-color: rgba(22, 104, 227, 0.45);
+    }
   }
   .input-wrap:focus-within {
     border-color: var(--brand);
@@ -324,7 +356,7 @@
 
   /* Filter chips */
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition;
+    @apply inline-flex min-h-11 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition lg:min-h-0;
     border-color: var(--line);
     background: var(--surface);
     color: var(--ink-soft);
@@ -335,10 +367,18 @@
     color: #fff;
   }
 
-  .chip:hover {
-    border-color: rgba(22, 104, 227, 0.5);
-    color: var(--ink);
-    transform: translateY(-1px);
+  @media (hover: hover) {
+    .chip:hover {
+      border-color: rgba(22, 104, 227, 0.5);
+      color: var(--ink);
+      transform: translateY(-1px);
+    }
+  }
+
+  /* This rule follows .chip[data-active], so on touch a selected chip used to
+     keep hover's dark ink on its brand-blue fill after being tapped. */
+  .chip:active {
+    transform: scale(0.97);
   }
 
   /* Skeleton shimmer */
@@ -361,4 +401,26 @@
 @layer utilities {
   .text-balance { text-wrap: balance; }
   
+}
+
+/*
+ * iOS Safari zooms the whole page when you focus a control whose text is under
+ * 16px, and there is no graceful way back out. Roughly fifteen fields set their
+ * own `text-sm` (the hero selects, the header search, the browse search, the
+ * price range, the newsletter box), so fixing the shared classes alone leaves
+ * most of them zooming.
+ *
+ * !important is deliberate and is the point of the rule. Tailwind v3 compiles
+ * its directives to plain CSS rather than native @layer, so an element selector
+ * loses to a `.text-sm` class on specificity no matter where it sits in the
+ * file. The alternative is editing ~15 call sites and relying on nobody ever
+ * writing `text-sm` on a field again. Desktop is untouched, where the compact
+ * size is wanted and there is no zoom behaviour to trigger.
+ */
+@media (max-width: 1023px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
 }
