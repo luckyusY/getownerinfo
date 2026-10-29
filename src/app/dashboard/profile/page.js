@@ -5,6 +5,7 @@ import { BadgeCheck, Mail, Phone, User as UserIcon, Calendar, ShieldAlert } from
 import { useToast } from "@/components/ui/Toast";
 import Link from "next/link";
 import ContactVerification from "@/components/ContactVerification";
+import NotificationPrefs from "@/components/NotificationPrefs";
 import { isValidRwandaPhone } from "@/lib/phone";
 
 const ROLE_LABELS = {
@@ -215,6 +216,16 @@ export default function ProfilePage() {
             </p>
             <div className="mt-4">
               <ContactVerification />
+            </div>
+          </section>
+
+          <section id="notifications" className="card scroll-mt-24 !p-6">
+            <h2 className="font-display text-base font-bold text-ink">Notifications</h2>
+            <p className="mt-1 text-sm text-ink-soft">
+              Choose which updates reach your inbox.
+            </p>
+            <div className="mt-4">
+              <NotificationPrefs />
             </div>
           </section>
 

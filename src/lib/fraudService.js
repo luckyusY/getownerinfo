@@ -14,6 +14,7 @@ import { audit } from "@/models/AuditLog";
 import { notifyUser } from "@/models/Notification";
 import { LISTING_STATUS, DEAL_OUTCOMES } from "@/lib/constants";
 import { OFFENSE_TYPES } from "@/models/Penalty";
+import { dispatch } from "@/lib/notificationService";
 
 /** Normalise a title for comparison: lowercase, no punctuation, single spaces. */
 function normalizeTitle(title) {
@@ -139,12 +140,9 @@ export async function assessDealOutcome({ listing, outcome, finalAmount, setting
   }
 
   if (penalties.length) {
-    await notifyUser({
-      user: listing.owner,
-      type: "penalty",
-      title: "A penalty was applied to your account",
-      body: flags.join(" "),
-      link: "/dashboard/invoices",
+    await dispatch("penalty_applied", {
+      userId: listing.owner,
+      data: { reason: flags.join(" ") },
     });
   }
 
@@ -197,12 +195,9 @@ export async function enforceOverdueCommissions({ settings }) {
       });
     }
 
-    await notifyUser({
-      user: commission.owner,
-      type: "commission",
-      title: "Commission overdue",
-      body: `Your commission on “${commission.listing?.title || "a listing"}” is overdue and a penalty has been applied.`,
-      link: "/dashboard/invoices",
+    await dispatch("commission_overdue", {
+      userId: commission.owner,
+      data: { listing: commission.listing, commission },
     });
 
     results.push({ commissionId: commission._id.toString(), penaltyId: penalty._id.toString(), suspended: unpaid >= 3 });

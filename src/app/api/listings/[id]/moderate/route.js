@@ -5,6 +5,7 @@ import { audit } from "@/models/AuditLog";
 import { notifyUser } from "@/models/Notification";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { ROLES, LISTING_STATUS, LISTING_MODELS, PAYMENT_STATUS } from "@/lib/constants";
+import { dispatch } from "@/lib/notificationService";
 
 const schema = z.object({
   action: z.enum(["approve", "reject"]),
@@ -53,23 +54,10 @@ export async function POST(req, { params }) {
     meta: { reason: parsed.data.reason },
   });
 
-  if (parsed.data.action === "approve") {
-    await notifyUser({
-      user: listing.owner,
-      type: "listing_approved",
-      title: "Listing approved",
-      body: `“${listing.title}” is now live.`,
-      link: `/listings/${listing._id.toString()}`,
-    });
-  } else {
-    await notifyUser({
-      user: listing.owner,
-      type: "listing_rejected",
-      title: "Listing needs changes",
-      body: `“${listing.title}” was rejected: ${listing.rejectionReason}`,
-      link: "/dashboard/owner",
-    });
-  }
+  await dispatch(parsed.data.action === "approve" ? "listing_approved" : "listing_rejected", {
+    userId: listing.owner,
+    data: { listing, reason: listing.rejectionReason },
+  });
 
   return ok({ listing: listing.toFullJSON({ includeProof: true }) });
 }

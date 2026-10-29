@@ -23,6 +23,7 @@ import { startListingFeeCheckout } from "@/lib/listingCheckout";
 import { agreementBlocker, recordAgreement } from "@/lib/agreementService";
 import { findDuplicateListing } from "@/lib/fraudService";
 import User from "@/models/User";
+import { dispatch } from "@/lib/notificationService";
 
 // POST /api/listings — create a listing (draft or submit for approval).
 export async function POST(req) {
@@ -176,6 +177,10 @@ export async function POST(req) {
         201
       );
     }
+  }
+
+  if (data.submit && listing.status === LISTING_STATUS.PENDING_APPROVAL) {
+    await dispatch("listing_submitted", { userId: listing.owner, data: { listing } });
   }
 
   await audit({

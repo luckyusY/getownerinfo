@@ -71,6 +71,17 @@ const UserSchema = new Schema(
 
     // Outstanding amounts owed (Rwf). Either > 0 blocks new exclusive (Model A)
     // listings until settled (spec: listing restrictions).
+    // Outbound notification preferences. In-app delivery is always on; these
+    // only govern email, and events that carry money or access ignore them.
+    notificationPrefs: {
+      email: {
+        listings: { type: Boolean, default: true },
+        payments: { type: Boolean, default: true },
+        messages: { type: Boolean, default: true },
+        account: { type: Boolean, default: true },
+      },
+    },
+
     penaltyBalance: { type: Number, default: 0 },
     commissionDue: { type: Number, default: 0 },
 
@@ -94,6 +105,14 @@ UserSchema.methods.toSafeJSON = function () {
     phoneVerified: Boolean(this.phoneVerifiedAt),
     // Status only — never the ID number or document URL.
     kycStatus: this.kyc?.status || "none",
+    notificationPrefs: {
+      email: {
+        listings: this.notificationPrefs?.email?.listings !== false,
+        payments: this.notificationPrefs?.email?.payments !== false,
+        messages: this.notificationPrefs?.email?.messages !== false,
+        account: this.notificationPrefs?.email?.account !== false,
+      },
+    },
     penaltyBalance: this.penaltyBalance,
     commissionDue: this.commissionDue,
     isActive: this.isActive,

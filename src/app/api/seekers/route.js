@@ -11,6 +11,7 @@ import { audit } from "@/models/AuditLog";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { ROLES, PAYMENT_TYPES, PAYMENT_STATUS } from "@/lib/constants";
 import { optionalRwandaPhone } from "@/lib/phone";
+import { dispatch } from "@/lib/notificationService";
 
 const createSchema = z.object({
   categorySlug: z.string(),
@@ -119,6 +120,10 @@ export async function POST(req) {
   request.status = SEEKER_STATUS.ACTIVE;
   request.postPayment = payment._id;
   await request.save();
+
+  if (request.status === SEEKER_STATUS.ACTIVE) {
+    await dispatch("seeker_published", { userId: request.seeker, data: { request } });
+  }
 
   await audit({
     actor: user._id,

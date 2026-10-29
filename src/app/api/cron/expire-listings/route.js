@@ -7,6 +7,7 @@ import { LISTING_STATUS } from "@/lib/constants";
 import PlatformSettings, { getSettings } from "@/models/PlatformSettings";
 import { DEFAULT_SETTINGS } from "@/data/catalog";
 import { enforceOverdueCommissions } from "@/lib/fraudService";
+import { dispatch } from "@/lib/notificationService";
 
 // GET /api/cron/expire-listings — daily job (see vercel.json).
 //
@@ -42,13 +43,7 @@ export async function GET(req) {
       { $set: { status: LISTING_STATUS.EXPIRED } }
     );
     for (const l of due) {
-      await notifyUser({
-        user: l.owner,
-        type: "listing_expired",
-        title: "Your listing expired",
-        body: `"${l.title}" is no longer visible to buyers. Renew it to bring it back.`,
-        link: "/dashboard/owner",
-      });
+      await dispatch("listing_expired", { userId: l.owner, data: { listing: l } });
     }
     await audit({
       actorRole: "system",
@@ -67,13 +62,7 @@ export async function GET(req) {
   }).select("_id title owner expiresAt");
 
   for (const l of expiringSoon) {
-    await notifyUser({
-      user: l.owner,
-      type: "listing_expiring",
-      title: "Listing expires soon",
-      body: `"${l.title}" expires on ${new Date(l.expiresAt).toLocaleDateString()}. Renew to keep it live.`,
-      link: "/dashboard/owner",
-    });
+    await dispatch("listing_expiring", { userId: l.owner, data: { listing: l } });
   }
   if (expiringSoon.length) {
     await Listing.updateMany(

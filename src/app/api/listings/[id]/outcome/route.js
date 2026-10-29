@@ -11,6 +11,7 @@ import { audit } from "@/models/AuditLog";
 import { assessDealOutcome } from "@/lib/fraudService";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { ROLES, LISTING_STATUS, LISTING_MODELS, DEAL_OUTCOMES, SELLER_ROLES } from "@/lib/constants";
+import { dispatch } from "@/lib/notificationService";
 
 const schema = z.object({
   outcome: z.enum([DEAL_OUTCOMES.SOLD, DEAL_OUTCOMES.RENTED, DEAL_OUTCOMES.NOT_CONCLUDED]),
@@ -99,6 +100,11 @@ export async function POST(req, { params }) {
 
     // Increment the owner's outstanding balance -> restricts new exclusive listings.
     await User.updateOne({ _id: listing.owner }, { $inc: { commissionDue: calc.total } });
+
+    await dispatch("commission_invoiced", {
+      userId: listing.owner,
+      data: { listing, commission },
+    });
   }
 
   await listing.save();
