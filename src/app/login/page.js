@@ -16,9 +16,16 @@ export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
 
+  // Where to land after signing in. The bottom tab bar sends signed-out
+  // visitors here with ?next=, so they end up where they tapped. Only
+  // same-site paths are accepted: anything else (a full URL, or "//evil.com",
+  // which new URL() would read as another origin) falls back to the dashboard.
+  const next = searchParams.get("next");
+  const destination = next && /^\/(?!\/)/.test(next) ? next : "/dashboard";
+
   useEffect(() => {
-    router.prefetch("/dashboard");
-  }, [router]);
+    router.prefetch(destination);
+  }, [router, destination]);
 
   async function onSubmit(e) {
     e.preventDefault();
@@ -32,7 +39,7 @@ export default function LoginPage() {
       const json = await res.json();
       if (!json.success) throw new Error(json.error || "Login failed");
       toast("Welcome back!", { type: "success" });
-      router.push("/dashboard");
+      router.push(destination);
       router.refresh();
     } catch (err) {
       toast(err.message, { type: "error" });

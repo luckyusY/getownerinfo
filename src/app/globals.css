@@ -18,6 +18,11 @@
   --success: #14855a;
   --danger: #c2413d;
 
+  /* Height of the bottom tab bar, phones and tablets only, measured in the
+     browser. Content and any other fixed-bottom chrome offsets by this so
+     nothing sits under it. Re-measure if the tab bar's padding changes. */
+  --tabbar-h: 58px;
+
   /* Height of the sticky SiteHeader, measured in the browser rather than
      derived from the class list. Below lg the header carries a second row
      holding the mobile search field, so it is much taller. Anything that
@@ -30,6 +35,8 @@
   :root {
     /* The mobile search row is lg:hidden, so the header collapses to one row. */
     --header-h: 69px;
+    /* The tab bar is lg:hidden, so nothing needs to clear it. */
+    --tabbar-h: 0px;
   }
 }
 
@@ -41,6 +48,8 @@
   }
 
   body {
+    /* Clears the bottom tab bar, plus the home indicator on iOS. */
+    padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
     color: var(--ink-soft);
     font-family: var(--font-body), system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;

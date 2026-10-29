@@ -27,7 +27,12 @@ export default function CookieBanner() {
   if (!show) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-white px-4 py-3 shadow-lg sm:p-4">
+    // Sits above the bottom tab bar rather than on top of it; --tabbar-h is 0
+    // from lg up, where the tab bar is hidden.
+    <div
+      className="fixed inset-x-0 z-50 border-t border-line bg-white px-4 py-3 shadow-lg sm:p-4"
+      style={{ bottom: "calc(var(--tabbar-h) + env(safe-area-inset-bottom))" }}
+    >
       <div className="mx-auto flex max-w-4xl flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
         <div className="text-xs leading-5 text-ink-soft sm:text-sm">
           {/* The full explanation is long on a phone, where this banner was

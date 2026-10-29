@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
-import { ROLES } from "@/lib/constants";
+import { DASHBOARD_PATHS } from "@/lib/dashboardPath";
 import PublicNav from "@/components/public/PublicNav";
 import RegionPicker from "@/components/public/RegionPicker";
 import MobileMenu from "@/components/MobileMenu";
@@ -8,14 +8,6 @@ import MobileSearch from "@/components/MobileSearch";
 import AccountDropdown from "@/components/AccountDropdown";
 import NotificationBell from "@/components/NotificationBell";
 import GoogleOneTap from "@/components/GoogleOneTap";
-
-const DASHBOARD_PATHS = {
-  [ROLES.ADMIN]: "/dashboard/admin",
-  [ROLES.MANAGER]: "/dashboard/manager",
-  [ROLES.OWNER]: "/dashboard",
-  [ROLES.AGENT]: "/dashboard",
-  [ROLES.BUYER]: "/dashboard",
-};
 
 export default function SiteHeader() {
   const session = getSession();

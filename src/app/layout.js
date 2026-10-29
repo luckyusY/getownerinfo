@@ -4,6 +4,9 @@ import CookieBanner from "@/components/CookieBanner";
 import { ToastProvider } from "@/components/ui/Toast";
 import { FavoritesProvider } from "@/components/FavoritesProvider";
 import AppMotion from "@/components/AppMotion";
+import MobileTabBar from "@/components/MobileTabBar";
+import { getSession } from "@/lib/auth";
+import { dashboardPathFor } from "@/lib/dashboardPath";
 
 // Match getownerinfo.com: Poppins headings, Nunito Sans body.
 const display = Poppins({
@@ -44,6 +47,8 @@ export const viewport = {
 };
 
 export default function RootLayout({ children }) {
+  const session = getSession();
+
   return (
     <html lang="en" className={`${display.variable} ${body.variable}`}>
       <body>
@@ -51,6 +56,10 @@ export default function RootLayout({ children }) {
           <FavoritesProvider>
             <AppMotion />
             {children}
+            <MobileTabBar
+              loggedIn={!!session}
+              dashboardPath={session ? dashboardPathFor(session.role) : "/dashboard"}
+            />
             <CookieBanner />
           </FavoritesProvider>
         </ToastProvider>
