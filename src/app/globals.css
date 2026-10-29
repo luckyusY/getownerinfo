@@ -21,8 +21,9 @@
   /* Height of the sticky SiteHeader, measured in the browser rather than
      derived from the class list. Below lg the header carries a second row
      holding the mobile search field, so it is much taller. Anything that
-     sticks or anchors beneath the header offsets by this. */
-  --header-h: 118px;
+     sticks or anchors beneath the header offsets by this. Re-measure both
+     values whenever a header row changes height. */
+  --header-h: 126px;
 }
 
 @media (min-width: 1024px) {
@@ -234,7 +235,7 @@
   }
 
   .page-hero {
-    @apply rounded-xl border border-line bg-surface p-6 shadow-soft sm:p-8;
+    @apply rounded-2xl border border-line bg-surface p-6 shadow-soft sm:p-8;
   }
 
   .eyebrow {

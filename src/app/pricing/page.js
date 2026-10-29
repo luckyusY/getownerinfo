@@ -48,7 +48,7 @@ export default async function PricingPage() {
             </ul>
           </div>
           <div className="card premium-hover">
-            <span className="badge bg-[#f7eccf] text-[#7a5a17]">Model B · Standard</span>
+            <span className="badge bg-gold-50 text-gold-700">Model B · Standard</span>
             <h2 className="mt-3 font-display text-xl font-bold text-ink">Simple paid listing</h2>
             <p className="mt-2 text-sm text-ink-soft">For multi-unit, resellers, and items below the exclusive threshold. Pay a flat fee per listing period.</p>
             <ul className="mt-4 space-y-2 text-sm text-ink-soft">

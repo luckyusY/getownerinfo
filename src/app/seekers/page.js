@@ -12,17 +12,21 @@ export default function SeekersPage() {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <main className="mx-auto max-w-7xl px-4 py-12">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-ink">Requests from seekers</h1>
-            <p className="mt-1 text-sm text-ink-soft">
-              Buyers and tenants looking for property and assets. Unlock contact with a view token.
-            </p>
+      <main className="page-shell">
+        <section className="page-hero">
+          <p className="eyebrow">Seekers</p>
+          <h1 className="mt-2 font-display text-4xl font-bold text-ink">Requests from seekers</h1>
+          <p className="mt-2 max-w-2xl text-ink-soft">
+            Buyers and tenants looking for property and assets. Unlock contact with a view token.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <Link href="/seekers/new" className="btn-primary">Post a request</Link>
+            <Link href="/listings" className="btn-outline">Browse listings</Link>
           </div>
-          <Link href="/seekers/new" className="btn-primary">Post a request</Link>
+        </section>
+        <div className="mt-6">
+          <SeekersBrowse />
         </div>
-        <SeekersBrowse />
       </main>
       <SiteFooter />
     </div>

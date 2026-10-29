@@ -140,7 +140,7 @@ export default async function ListingDetail({ params }) {
     <div className="min-h-screen">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <SiteHeader />
-      <main className="mx-auto max-w-5xl px-4 py-8">
+      <main className="mx-auto max-w-7xl px-4 py-8">
         <Link href="/listings" className="inline-flex items-center gap-2 text-sm font-semibold text-ink-soft hover:text-ink">
           <ArrowLeft className="h-4 w-4" /> Back to listings
         </Link>

@@ -177,8 +177,8 @@ export default async function DashboardOverview() {
         <VerificationStatus user={user} />
         <AccountActivity
           series={[
-            { key: "mine", label: "Unlocks on my listings", color: "#1668E3", points: mine.points },
-            { key: "bought", label: "Contacts I unlocked", color: "#15B0DD", points: bought.points },
+            { key: "mine", label: "Unlocks on my listings", color: "var(--brand)", points: mine.points },
+            { key: "bought", label: "Contacts I unlocked", color: "var(--sky)", points: bought.points },
           ]}
           labels={mine.labels}
         />

@@ -30,7 +30,9 @@ module.exports = {
         // Deep navy used by the footer and dark panels in the mockups.
         navy: { DEFAULT: "#0C2340", soft: "#15335C", line: "#24456F" },
         clay: "#FAA603",
-        gold: "#FAA603", // amber accent
+        // Amber accent. The 50/700 pair is the badge tint used for Model B and
+        // for-sale tags — warmer than Tailwind's amber, which "warning" uses.
+        gold: { DEFAULT: "#FAA603", 50: "#F7ECCF", 700: "#7A5A17" },
       },
       fontFamily: {
         display: ["var(--font-display)", "Georgia", "serif"],

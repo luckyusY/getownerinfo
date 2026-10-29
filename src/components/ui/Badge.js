@@ -5,7 +5,7 @@ const TONES = {
   warning: "bg-amber-50 text-amber-700",
   danger: "bg-red-50 text-red-700",
   info: "bg-indigo-50 text-indigo-700",
-  gold: "bg-[#f7eccf] text-[#7a5a17]",
+  gold: "bg-gold-50 text-gold-700",
 };
 
 // Maps a listing/commission/payment status to a tone + label.

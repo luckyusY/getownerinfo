@@ -17,7 +17,7 @@ export default function MobileSearch() {
   return (
     <form
       onSubmit={submit}
-      className="flex h-10 items-center gap-2 rounded-full border border-line bg-panel pl-3 pr-1 shadow-sm focus-within:border-brand focus-within:bg-white"
+      className="flex h-12 items-center gap-2 rounded-full border border-line bg-panel pl-4 pr-0.5 shadow-sm focus-within:border-brand focus-within:bg-white"
     >
       <Search className="h-4 w-4 shrink-0 text-brand" />
       <input
@@ -27,7 +27,7 @@ export default function MobileSearch() {
         placeholder="Search listings, areas, property"
         className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-ink outline-none placeholder:text-ink-faint"
       />
-      <button type="submit" className="shrink-0 rounded-full bg-brand px-3.5 py-1.5 text-xs font-black uppercase tracking-wide text-white">
+      <button type="submit" className="h-11 shrink-0 rounded-full bg-brand px-4 text-xs font-black uppercase tracking-wide text-white transition active:scale-95">
         Go
       </button>
     </form>
