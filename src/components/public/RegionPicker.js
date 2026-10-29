@@ -61,7 +61,11 @@ export default function RegionPicker() {
   }
 
   return (
-    <div ref={ref} className="hidden items-center gap-1 md:flex">
+    // xl and up only. Below that the logo, nav and account cluster already need
+    // more than the content width, and flexbox was squashing all three to hide
+    // it. Nothing is lost: Rwanda is the only country and English the only live
+    // language, so the picker states a fact rather than offering a choice.
+    <div ref={ref} className="hidden items-center gap-1 xl:flex">
       <div className="relative">
         <button
           type="button"

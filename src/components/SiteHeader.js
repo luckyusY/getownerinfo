@@ -17,7 +17,7 @@ export default function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-line bg-surface/95 backdrop-blur">
       {!session && <GoogleOneTap />}
 
-      <div className="mx-auto flex max-w-7xl items-center gap-3 px-3 py-2.5 sm:px-4 lg:gap-6">
+      <div className="mx-auto flex max-w-7xl items-center gap-3 px-3 py-2.5 sm:px-4 lg:gap-4 xl:gap-6">
         <Link href="/" className="flex shrink-0 items-center" aria-label="Get Owner Info home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -29,7 +29,7 @@ export default function SiteHeader() {
 
         <PublicNav />
 
-        <div className="ml-auto flex items-center gap-2 sm:gap-3">
+        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
           <RegionPicker />
 
           {session ? (

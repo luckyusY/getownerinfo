@@ -154,7 +154,7 @@ export default function PublicNav() {
               }}
               aria-expanded={menu.groups ? open === menu.label : undefined}
               aria-haspopup={menu.groups ? "true" : undefined}
-              className={`inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-bold transition ${
+              className={`inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg px-2.5 py-2 text-sm font-bold transition xl:px-3 ${
                 open === menu.label ? "bg-brand-50 text-brand" : "text-ink-soft hover:bg-panel hover:text-ink"
               }`}
             >

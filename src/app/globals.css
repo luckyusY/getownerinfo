@@ -26,9 +26,17 @@
   /* Height of the sticky SiteHeader, measured in the browser rather than
      derived from the class list. Below lg the header carries a second row
      holding the mobile search field, so it is much taller. Anything that
-     sticks or anchors beneath the header offsets by this. Re-measure both
-     values whenever a header row changes height. */
+     sticks or anchors beneath the header offsets by this. There are three
+     tiers because the logo is h-10 then sm:h-12: 126px, 134px, 69px, measured
+     at 639/640/1024. Re-measure every tier whenever a header row changes. */
   --header-h: 126px;
+}
+
+@media (min-width: 640px) {
+  :root {
+    /* The logo steps up to sm:h-12, eight pixels taller. */
+    --header-h: 134px;
+  }
 }
 
 @media (min-width: 1024px) {
