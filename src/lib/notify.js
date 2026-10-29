@@ -12,6 +12,11 @@ const EMAIL_FROM = process.env.EMAIL_FROM || "getownerinfo <onboarding@resend.de
 
 export const emailConfigured = () => Boolean(RESEND_API_KEY);
 
+// No SMS provider is wired up yet. Callers use this to decide whether a phone
+// OTP can actually reach the user, rather than gating a flow they cannot pass.
+const SMS_PROVIDER = process.env.SMS_PROVIDER_URL || "";
+export const smsConfigured = () => Boolean(SMS_PROVIDER);
+
 async function sendEmail({ to, subject, message }) {
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",

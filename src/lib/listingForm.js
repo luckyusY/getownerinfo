@@ -13,6 +13,7 @@ import { evaluateModel } from "./eligibility.js";
 import { computeListingFee } from "./pricing.js";
 import { optionalRwandaPhone } from "./phone.js";
 import { LISTING_MODELS } from "./constants.js";
+import { emailConfigured, smsConfigured } from "./notify.js";
 import administrativeUnits from "@/data/rwandaAdministrativeUnits.json";
 
 const mediaSchema = z.object({ url: z.string().url(), publicId: z.string() });
@@ -89,7 +90,15 @@ export const listingInputSchema = z.object({
       upi: z.string().optional(),
       street: z.string().optional(),
       houseNumber: z.string().optional(),
-      mapsPin: z.object({ lat: z.number(), lng: z.number() }).optional(),
+      // A map pin is optional metadata: drop an incomplete one rather than
+      // failing an otherwise valid listing.
+      mapsPin: z.preprocess(
+        (v) =>
+          v && typeof v === "object" && Number.isFinite(v.lat) && Number.isFinite(v.lng)
+            ? v
+            : undefined,
+        z.object({ lat: z.number(), lng: z.number() }).optional()
+      ),
     })
     .default({}),
   contact: z
@@ -107,6 +116,14 @@ export const listingInputSchema = z.object({
   features: z.array(z.string()).default([]),
   images: z.array(mediaSchema).default([]),
   ownershipProof: z.array(privateMediaSchema).default([]),
+  // The signed agreement, required whenever submit is true (spec Part 22).
+  agreement: z
+    .object({
+      accepted: z.boolean().default(false),
+      signatoryName: z.string().trim().max(120).optional(),
+      signature: z.string().trim().max(120).optional(),
+    })
+    .optional(),
   // submit=true -> pending_approval (or checkout); otherwise saved as draft
   submit: z.boolean().default(false),
 });
@@ -228,6 +245,32 @@ export async function modelABlockedByDebt(decision, userId) {
   const outstanding = (owner?.commissionDue || 0) + (owner?.penaltyBalance || 0);
   if (outstanding > 0) {
     return `You have ${outstanding} Rwf outstanding. Settle it before creating new exclusive (Model A) listings.`;
+  }
+  return null;
+}
+
+/**
+ * Contact-channel gate (spec Part 12): a listing may not be submitted from an
+ * account whose main contact details are unverified.
+ *
+ * A channel is only enforced once its codes can actually be delivered. Gating
+ * on a channel with no provider behind it would make the gate impossible to
+ * pass and would block every listing on the platform, so each one switches on
+ * when its provider is configured:
+ *   - email  -> RESEND_API_KEY
+ *   - phone  -> SMS_PROVIDER_URL
+ *
+ * @returns {string|null} the blocking message, or null when the account is clear.
+ */
+export async function contactVerificationBlocker(userId) {
+  const user = await User.findById(userId).select("emailVerifiedAt phoneVerifiedAt phone");
+  if (!user) return "Account not found";
+
+  if (emailConfigured() && !user.emailVerifiedAt) {
+    return "Verify your email address before submitting a listing. You can do this from your profile.";
+  }
+  if (smsConfigured() && !user.phoneVerifiedAt) {
+    return "Verify your phone number before submitting a listing. You can do this from your profile.";
   }
   return null;
 }

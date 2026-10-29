@@ -32,12 +32,14 @@ import {
 import { RWANDA_LOCATIONS } from "@/data/locations";
 import administrativeUnits from "@/data/rwandaAdministrativeUnits.json";
 import { isValidRwandaPhone } from "@/lib/phone";
+import { AGREEMENT_TERMS, AGREEMENT_VERSION } from "@/data/agreementTerms";
 
 const STEPS = [
   { label: "Category", icon: Tags },
   { label: "Details", icon: Banknote },
   { label: "Location", icon: MapPin },
   { label: "Content", icon: ImagePlus },
+  { label: "Agreement", icon: FileCheck2 },
   { label: "Review", icon: CheckCircle2 },
 ];
 
@@ -60,6 +62,7 @@ const EMPTY_FORM = {
   features: [],
   images: [],
   ownershipProof: [],
+  agreement: { accepted: false, signatoryName: "", signature: "" },
 };
 
 // Merge a saved listing onto EMPTY_FORM so every input stays controlled even
@@ -86,6 +89,9 @@ function hydrateForm(listing) {
     features: listing.features || [],
     images: (listing.images || []).filter((m) => m && m.url && m.publicId),
     ownershipProof: listing.ownershipProof || [],
+    // Always re-signed: an agreement is signed against the values being
+    // submitted now, not the ones saved when the draft was last touched.
+    agreement: { accepted: false, signatoryName: "", signature: "" },
   };
 }
 
@@ -262,6 +268,15 @@ export default function NewListingPage() {
   }
 
   const invalidOwnerPhone = Boolean(form.contact.ownerPhone && !isValidRwandaPhone(form.contact.ownerPhone));
+
+  // The typed signature must match the signatory name, exactly as the server
+  // re-checks it before recording the agreement.
+  const normalizeName = (v) => String(v || "").trim().replace(/\s+/g, " ").toLowerCase();
+  const signatureMatches =
+    normalizeName(form.agreement.signature) === normalizeName(form.agreement.signatoryName) &&
+    normalizeName(form.agreement.signatoryName).length >= 3;
+  const agreementSigned = form.agreement.accepted && signatureMatches;
+  const agreementModel = decision?.decision?.model === "A" ? "A" : "B";
   const missing = [
     !form.categorySlug && "Category",
     !form.subcategoryId && "Subcategory",
@@ -274,8 +289,9 @@ export default function NewListingPage() {
     form.title.trim().length < 3 && "Title",
     form.images.length === 0 && "Listing image",
     form.ownershipProof.length === 0 && "Ownership/authorization document",
+    !agreementSigned && "Signed agreement",
   ].filter(Boolean);
-  const requiredCount = 10 + (decision?.decision?.eligibleForA ? 1 : 0);
+  const requiredCount = 11 + (decision?.decision?.eligibleForA ? 1 : 0);
   const completedCount = requiredCount - missing.length;
   const completionPercent = Math.round((completedCount / requiredCount) * 100);
   const canNext = [
@@ -283,6 +299,7 @@ export default function NewListingPage() {
     Boolean(decision) && form.price > 0 && form.quantity > 0 && form.durationMonths > 0 && (!decision?.decision?.eligibleForA || Boolean(form.modelChoice)),
     form.location.area && form.contact.ownerName.trim() && form.contact.ownerPhone && !invalidOwnerPhone,
     form.title.trim().length >= 3 && form.images.length > 0 && form.ownershipProof.length > 0,
+    agreementSigned,
     true,
   ][step];
 
@@ -569,6 +586,87 @@ export default function NewListingPage() {
             )}
 
             {step === 4 && (
+              <div className="space-y-4">
+                <div className={`rounded-xl border p-4 ${agreementModel === "A" ? "border-emerald-200 bg-emerald-50" : "border-amber-200 bg-amber-50"}`}>
+                  <p className="font-display text-lg font-bold text-ink">
+                    {agreementModel === "A" ? "Model A — Exclusive listing agreement" : "Model B — Paid listing agreement"}
+                  </p>
+                  <div className="mt-2 grid gap-1 text-sm font-semibold text-ink-soft sm:grid-cols-2">
+                    {agreementModel === "A" ? (
+                      <>
+                        <span>Commission: <strong className="text-ink">{decision?.commissionPercent != null ? `${(decision.commissionPercent * 100).toFixed(1)}%` : "-"}</strong> of the final deal</span>
+                        <span>Exclusivity period: <strong className="text-ink">{form.durationMonths} month(s)</strong></span>
+                        <span>Listing fee: <strong className="text-ink">None</strong></span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Listing fee: <strong className="text-ink">{decision?.listingFee ? money(decision.listingFee.total) : "-"}</strong> (VAT inclusive)</span>
+                        <span>Duration: <strong className="text-ink">{form.durationMonths} month(s)</strong></span>
+                        <span>Commission on a deal: <strong className="text-ink">None</strong></span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-line bg-surface p-4">
+                  <p className="text-xs font-black uppercase tracking-wide text-brand">Agreement terms</p>
+                  <ol className="mt-3 grid gap-2.5 text-sm leading-relaxed text-ink-soft">
+                    {(AGREEMENT_TERMS[agreementModel] || []).map((term, i) => (
+                      <li key={term} className="flex gap-2.5">
+                        <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-panel text-[11px] font-black text-ink-soft">{i + 1}</span>
+                        <span>{term}</span>
+                      </li>
+                    ))}
+                  </ol>
+                  <p className="mt-3 border-t border-line pt-2 text-[11px] font-bold text-ink-faint">Agreement version {AGREEMENT_VERSION}</p>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <FormField label="Name of the person signing" required hint="The owner, or the representative authorised to sign.">
+                    <TextInput
+                      icon={User}
+                      required
+                      aria-invalid={!form.agreement.signatoryName.trim()}
+                      value={form.agreement.signatoryName}
+                      onChange={(e) => set({ agreement: { ...form.agreement, signatoryName: e.target.value } })}
+                    />
+                  </FormField>
+                  <FormField label="Digital signature" required hint="Type the same name exactly to sign.">
+                    <TextInput
+                      icon={FileCheck2}
+                      required
+                      aria-invalid={Boolean(form.agreement.signature) && !signatureMatches}
+                      value={form.agreement.signature}
+                      onChange={(e) => set({ agreement: { ...form.agreement, signature: e.target.value } })}
+                    />
+                    {form.agreement.signature && !signatureMatches && (
+                      <p role="alert" className="mt-1 text-xs font-semibold text-red-700">Your signature must match the signatory name exactly.</p>
+                    )}
+                    {signatureMatches && <p className="mt-1 text-xs font-semibold text-emerald-700">Signature matches.</p>}
+                  </FormField>
+                </div>
+
+                <div className="flex items-center justify-between gap-3 rounded-xl border border-line bg-panel/60 px-4 py-3 text-sm">
+                  <span className="font-bold text-ink-soft">Date of signature</span>
+                  <span className="font-bold text-ink">{new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</span>
+                </div>
+
+                <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-line bg-surface p-4">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5 h-4 w-4 shrink-0 accent-brand"
+                    checked={form.agreement.accepted}
+                    onChange={(e) => set({ agreement: { ...form.agreement, accepted: e.target.checked } })}
+                  />
+                  <span className="text-sm font-semibold text-ink-soft">
+                    I have read and accept the agreement above, and I confirm I am authorised to sign it.
+                    A copy will be emailed to this account.
+                  </span>
+                </label>
+              </div>
+            )}
+
+            {step === 5 && (
               <div className="space-y-2 text-sm">
                 <Row k="Title" v={form.title} />
                 <Row k="Category" v={category?.name} />
@@ -581,6 +679,7 @@ export default function NewListingPage() {
                 {decision?.decision?.model === "A" && decision?.commissionPercent != null && <Row k="Commission rate" v={`${(decision.commissionPercent * 100).toFixed(1)}% if a deal closes`} />}
                 <Row k="Images" v={`${form.images.length}`} />
                 <Row k="Ownership proof" v={`${form.ownershipProof.length}`} />
+                <Row k="Agreement" v={agreementSigned ? `Signed by ${form.agreement.signatoryName}` : "Not signed"} />
                 {missing.length > 0 && (
                   <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-amber-800">
                     <p className="font-bold">Missing before submit</p>

@@ -32,6 +32,19 @@ const UserSchema = new Schema(
     // confirmed; null until then. The dashboard reads these directly.
     emailVerifiedAt: { type: Date, default: null },
     phoneVerifiedAt: { type: Date, default: null },
+    // Live OTP challenges. Only the HMAC is stored, so the raw code exists
+    // solely in the message that was sent. Never selected by default.
+    contactOtp: {
+      emailCode: { type: String, select: false },
+      emailExpiresAt: { type: Date, select: false },
+      emailAttempts: { type: Number, default: 0, select: false },
+      // The address the code was sent to, so changing it invalidates the code.
+      emailTarget: { type: String, select: false },
+      phoneCode: { type: String, select: false },
+      phoneExpiresAt: { type: Date, select: false },
+      phoneAttempts: { type: Number, default: 0, select: false },
+      phoneTarget: { type: String, select: false },
+    },
     kyc: {
       idNumber: { type: String, select: false },
       docType: {

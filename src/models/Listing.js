@@ -177,7 +177,12 @@ ListingSchema.methods.toFullJSON = function ({ includeProof = false } = {}) {
       upi: this.location?.upi,
       street: this.location?.street,
       houseNumber: this.location?.houseNumber,
-      mapsPin: this.location?.mapsPin,
+      // Only a pin with real coordinates; an empty subdocument would be echoed
+      // straight back on an edit and fail validation.
+      mapsPin:
+        Number.isFinite(this.location?.mapsPin?.lat) && Number.isFinite(this.location?.mapsPin?.lng)
+          ? { lat: this.location.mapsPin.lat, lng: this.location.mapsPin.lng }
+          : undefined,
     },
     ownerType: this.ownerType,
     representative: this.representative,

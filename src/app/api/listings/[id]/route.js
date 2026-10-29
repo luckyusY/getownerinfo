@@ -18,8 +18,11 @@ import {
   expiryFor,
   resolveCatalogChain,
   modelABlockedByDebt,
+  contactVerificationBlocker,
 } from "@/lib/listingForm";
 import { startListingFeeCheckout } from "@/lib/listingCheckout";
+import { agreementBlocker, recordAgreement } from "@/lib/agreementService";
+import User from "@/models/User";
 
 // Statuses an owner may still edit. Once a listing is live (or has history such
 // as unlocks or a reported deal) it is no longer a form the owner can rewrite.
@@ -120,6 +123,8 @@ export async function PATCH(req, { params }) {
   const { category, subcategory } = chain;
 
   if (data.submit) {
+    const contactBlocker = await contactVerificationBlocker(listing.owner);
+    if (contactBlocker) return fail(contactBlocker, 403);
     const blocker = submitBlocker(data, category, { subcategory });
     if (blocker) return fail(blocker, 422);
   }
@@ -135,6 +140,9 @@ export async function PATCH(req, { params }) {
   if (data.submit) {
     const debtBlocker = await modelABlockedByDebt(decision, listing.owner);
     if (debtBlocker) return fail(debtBlocker, 402);
+
+    const agreementIssue = agreementBlocker(data.agreement, { model: decision.model });
+    if (agreementIssue) return fail(agreementIssue, 422);
   }
 
   const listingFee = listingFeeFor(decision, category, data, settings);
@@ -182,6 +190,16 @@ export async function PATCH(req, { params }) {
   }
 
   listing.rejectionReason = undefined;
+
+  const signer = await User.findById(listing.owner).select("email _id");
+  await recordAgreement({
+    listing,
+    user: signer,
+    agreement: data.agreement,
+    category,
+    session: guard.session,
+    request: req,
+  });
 
   if (decision.model === LISTING_MODELS.A) {
     listing.paymentStatus = "not_required";

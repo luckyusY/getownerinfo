@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { BadgeCheck, Mail, Phone, User as UserIcon, Calendar, ShieldAlert } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 import Link from "next/link";
+import ContactVerification from "@/components/ContactVerification";
 import { isValidRwandaPhone } from "@/lib/phone";
 
 const ROLE_LABELS = {
@@ -206,7 +207,18 @@ export default function ProfilePage() {
             </form>
           </section>
 
-          {/* Verification section — only for owners/agents */}
+          {/* Contact verification — required of every account before listing */}
+          <section id="verification" className="card scroll-mt-24 !p-6">
+            <h2 className="font-display text-base font-bold text-ink">Contact verification</h2>
+            <p className="mt-1 text-sm text-ink-soft">
+              Confirm the email and phone number buyers and our team will use to reach you.
+            </p>
+            <div className="mt-4">
+              <ContactVerification />
+            </div>
+          </section>
+
+          {/* Identity verification — only for owners/agents */}
           {isOwnerOrAgent && (
             <section className="card !p-6">
               <h2 className="font-display text-base font-bold text-ink">Identity verification</h2>

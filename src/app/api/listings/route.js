@@ -17,8 +17,11 @@ import {
   expiryFor,
   resolveCatalogChain,
   modelABlockedByDebt,
+  contactVerificationBlocker,
 } from "@/lib/listingForm";
 import { startListingFeeCheckout } from "@/lib/listingCheckout";
+import { agreementBlocker, recordAgreement } from "@/lib/agreementService";
+import User from "@/models/User";
 
 // POST /api/listings — create a listing (draft or submit for approval).
 export async function POST(req) {
@@ -44,6 +47,8 @@ export async function POST(req) {
   const { category, subcategory } = chain;
 
   if (data.submit) {
+    const contactBlocker = await contactVerificationBlocker(guard.session.sub);
+    if (contactBlocker) return fail(contactBlocker, 403);
     const blocker = submitBlocker(data, category, { subcategory });
     if (blocker) return fail(blocker, 422);
   }
@@ -57,6 +62,11 @@ export async function POST(req) {
 
   const debtBlocker = await modelABlockedByDebt(decision, guard.session.sub);
   if (debtBlocker) return fail(debtBlocker, 402);
+
+  if (data.submit) {
+    const agreementIssue = agreementBlocker(data.agreement, { model: decision.model });
+    if (agreementIssue) return fail(agreementIssue, 422);
+  }
 
   const listingFee = listingFeeFor(decision, category, data, settings);
   // Model B requires payment before activation.
@@ -97,6 +107,18 @@ export async function POST(req) {
     paymentStatus,
     status,
   });
+
+  if (data.submit) {
+    const signer = await User.findById(guard.session.sub).select("email _id");
+    await recordAgreement({
+      listing,
+      user: signer,
+      agreement: data.agreement,
+      category,
+      session: guard.session,
+      request: req,
+    });
+  }
 
   if (data.submit && decision.model === LISTING_MODELS.B) {
     const checkout = await startListingFeeCheckout({ listing, userId: guard.session.sub });
