@@ -5,6 +5,8 @@ import { audit } from "@/models/AuditLog";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { enforceRateLimit } from "@/lib/rateLimit";
 import { ROLES, SELLER_ROLES } from "@/lib/constants";
+import { signedPrivateUrl } from "@/lib/cloudinary";
+import { compareFaces } from "@/lib/faceMatch";
 
 const submitSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
@@ -14,6 +16,13 @@ const submitSchema = z.object({
     publicId: z.string().min(1),
     resourceType: z.string().optional().default("image"),
   }),
+  // Live selfie, compared against the ID document (spec Part 13).
+  selfie: z.object({
+    publicId: z.string().min(1),
+    source: z.enum(["camera", "upload"]).default("camera"),
+  }),
+  // Company registration, where the listing party is a business.
+  rdbNumber: z.string().trim().max(32).optional(),
 });
 
 const SUBMITTERS = [...SELLER_ROLES, ROLES.MANAGER];
@@ -61,13 +70,18 @@ export async function POST(req) {
     return fail("Validation failed", 422, { issues: parsed.error.flatten().fieldErrors });
   }
 
-  // The document must be one of our own private identity uploads.
+  // Both assets must be our own private uploads, in the right folder.
   if (!parsed.data.idDocument.publicId.startsWith("getownerinfo/identity/")) {
     return fail("Identity document must be uploaded via /api/upload with kind=identity", 422);
   }
+  if (!parsed.data.selfie.publicId.startsWith("getownerinfo/selfie/")) {
+    return fail("Selfie must be uploaded via /api/upload with kind=selfie", 422);
+  }
 
   await connectDB();
-  const user = await User.findById(guard.session.sub).select("+kyc.idNumber +kyc.idDocumentUrl +kyc.idDocumentPublicId +kyc.fullName");
+  const user = await User.findById(guard.session.sub).select(
+    "+kyc.idNumber +kyc.idDocumentUrl +kyc.idDocumentPublicId +kyc.fullName +kyc.selfiePublicId +kyc.rdbNumber"
+  );
   if (!user) return fail("User not found", 404);
 
   if (user.kyc?.status === "approved") {
@@ -77,6 +91,14 @@ export async function POST(req) {
     return fail("A verification request is already under review", 409);
   }
 
+  // Run the automated comparison now, so the admin sees a result (or an
+  // explicit "not configured") rather than an empty field.
+  const [idUrl, selfieUrl] = [
+    signedPrivateUrl(parsed.data.idDocument.publicId, { resourceType: "image", expiresInSeconds: 120 }),
+    signedPrivateUrl(parsed.data.selfie.publicId, { resourceType: "image", expiresInSeconds: 120 }),
+  ];
+  const faceMatch = await compareFaces({ idImageUrl: idUrl, selfieImageUrl: selfieUrl });
+
   user.kyc = {
     ...(user.kyc?.toObject?.() || user.kyc || {}),
     fullName: parsed.data.fullName,
@@ -84,6 +106,11 @@ export async function POST(req) {
     docType: parsed.data.docType,
     idDocumentPublicId: parsed.data.idDocument.publicId,
     idDocumentUrl: "", // never store a public URL for an identity document
+    selfiePublicId: parsed.data.selfie.publicId,
+    selfieCapturedAt: new Date(),
+    selfieSource: parsed.data.selfie.source,
+    rdbNumber: parsed.data.rdbNumber || undefined,
+    faceMatch,
     status: "pending",
     submittedAt: new Date(),
     reviewedAt: null,
@@ -99,8 +126,15 @@ export async function POST(req) {
     targetType: "User",
     targetId: user._id,
     // Never log the ID number itself.
-    meta: { hasDocument: true, docType: parsed.data.docType },
+    meta: {
+      hasDocument: true,
+      docType: parsed.data.docType,
+      hasSelfie: true,
+      selfieSource: parsed.data.selfie.source,
+      faceMatchStatus: faceMatch.status,
+      hasRdbNumber: Boolean(parsed.data.rdbNumber),
+    },
   });
 
-  return ok({ status: "pending" }, 201);
+  return ok({ status: "pending", faceMatch: { status: faceMatch.status, score: faceMatch.score } }, 201);
 }

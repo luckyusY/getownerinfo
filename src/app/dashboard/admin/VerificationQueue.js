@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/Toast";
 import { SectionHeading } from "@/components/ui/Dashboard";
 import EmptyState from "@/components/ui/EmptyState";
-import { BadgeCheck, CheckCircle2, Eye, Mail, Phone, XCircle } from "lucide-react";
+import { BadgeCheck, CheckCircle2, Eye, Mail, Phone, ScanFace, XCircle } from "lucide-react";
 
 export default function VerificationQueue() {
   const { toast } = useToast();
@@ -97,6 +97,14 @@ export default function VerificationQueue() {
                       </span>
                     )}
                   </div>
+                  {r.rdbNumber && (
+                    <p className="mt-2 text-xs font-semibold text-ink-soft">
+                      RDB registration: <strong className="text-ink">{r.rdbNumber}</strong>
+                    </p>
+                  )}
+
+                  <FaceCheck request={r} />
+
                   {/* A name mismatch is the single most common forgery signal. */}
                   {r.declaredName && r.name && r.declaredName.trim().toLowerCase() !== r.name.trim().toLowerCase() && (
                     <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
@@ -112,6 +120,13 @@ export default function VerificationQueue() {
                   >
                     <Eye className="h-4 w-4" /> View ID
                   </button>
+                  <button
+                    className="btn-outline"
+                    disabled={!r.selfiePublicId}
+                    onClick={() => viewDocument(r.selfiePublicId)}
+                  >
+                    <ScanFace className="h-4 w-4" /> View selfie
+                  </button>
                   <button className="btn-primary" disabled={busyId === r.id} onClick={() => review(r.id, "approve")}>
                     <CheckCircle2 className="h-4 w-4" /> Verify
                   </button>
@@ -125,5 +140,85 @@ export default function VerificationQueue() {
         </div>
       )}
     </section>
+  );
+}
+
+
+/**
+ * The two images side by side with the automated verdict, so an admin can make
+ * the comparison the spec asks for without opening each file separately.
+ */
+function FaceCheck({ request }) {
+  const [urls, setUrls] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  async function loadImages() {
+    setLoading(true);
+    try {
+      const ids = [request.idDocumentPublicId, request.selfiePublicId].filter(Boolean);
+      const results = await Promise.all(
+        ids.map((publicId) =>
+          fetch(`/api/admin/media/signed?publicId=${encodeURIComponent(publicId)}`)
+            .then((r) => r.json())
+            .then((j) => (j.success ? j.data.url : null))
+        )
+      );
+      setUrls({ id: results[0] || null, selfie: results[1] || null });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const tone =
+    request.faceMatch?.tone === "success"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+      : request.faceMatch?.tone === "danger"
+        ? "border-red-200 bg-red-50 text-red-800"
+        : request.faceMatch?.tone === "warning"
+          ? "border-amber-200 bg-amber-50 text-amber-800"
+          : "border-line bg-panel/60 text-ink-soft";
+
+  if (!request.selfiePublicId) {
+    return (
+      <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
+        No selfie was submitted — this request predates the face check. Verify the ID manually.
+      </p>
+    );
+  }
+
+  return (
+    <div className={`mt-3 rounded-lg border px-3 py-2.5 ${tone}`}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs font-black uppercase tracking-wide">
+          Face check — {request.faceMatch?.label}
+        </p>
+        <span className="text-[11px] font-bold opacity-80">
+          Selfie {request.selfieSource === "camera" ? "taken with camera" : "uploaded from device"}
+        </span>
+      </div>
+      <p className="mt-1 text-xs font-semibold">{request.faceMatch?.detail}</p>
+
+      {urls ? (
+        <div className="mt-3 flex flex-wrap gap-3">
+          {[["ID document", urls.id], ["Live selfie", urls.selfie]].map(([label, url]) => (
+            <figure key={label} className="m-0">
+              {url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={url} alt={label} className="h-36 w-36 rounded-lg border border-line object-cover" />
+              ) : (
+                <span className="grid h-36 w-36 place-items-center rounded-lg border border-line bg-surface text-[11px] font-bold text-ink-faint">
+                  Not an image
+                </span>
+              )}
+              <figcaption className="mt-1 text-center text-[11px] font-bold">{label}</figcaption>
+            </figure>
+          ))}
+        </div>
+      ) : (
+        <button type="button" onClick={loadImages} disabled={loading} className="btn-outline mt-2 !min-h-8 !py-1 !text-xs">
+          {loading ? "Loading…" : "Compare side by side"}
+        </button>
+      )}
+    </div>
   );
 }

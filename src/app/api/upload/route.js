@@ -12,7 +12,7 @@ const PROOF_TYPES = [...IMAGE_TYPES, "application/pdf"];
 const schema = z.object({
   // data URI (e.g. "data:image/jpeg;base64,....")
   file: z.string().startsWith("data:"),
-  kind: z.enum(["image", "proof", "identity"]).default("image"),
+  kind: z.enum(["image", "proof", "identity", "selfie"]).default("image"),
 });
 
 /** Pull the MIME type and decoded byte length out of a base64 data URI. */
@@ -53,8 +53,9 @@ export async function POST(req) {
   // happily accept whatever it is given.
   const info = inspectDataUri(parsed.data.file);
   if (!info) return fail("File must be a base64 data URI", 422);
-  const isPrivate = parsed.data.kind === "proof" || parsed.data.kind === "identity";
-  const allowed = isPrivate ? PROOF_TYPES : IMAGE_TYPES;
+  const isPrivate = ["proof", "identity", "selfie"].includes(parsed.data.kind);
+  // A selfie is always a photograph — a PDF would defeat the whole point.
+  const allowed = parsed.data.kind === "selfie" ? IMAGE_TYPES : isPrivate ? PROOF_TYPES : IMAGE_TYPES;
   if (!allowed.includes(info.mime)) {
     return fail(`Unsupported file type "${info.mime}". Allowed: ${allowed.join(", ")}`, 415);
   }
@@ -70,7 +71,9 @@ export async function POST(req) {
       ? "getownerinfo/ownership-proof"
       : parsed.data.kind === "identity"
         ? "getownerinfo/identity"
-        : "getownerinfo/listings";
+        : parsed.data.kind === "selfie"
+          ? "getownerinfo/selfie"
+          : "getownerinfo/listings";
 
   try {
     const res = await uploadToCloudinary(parsed.data.file, {

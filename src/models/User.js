@@ -57,6 +57,27 @@ const UserSchema = new Schema(
       // can mint a signed URL without the raw one ever being stored publicly.
       idDocumentPublicId: { type: String, select: false },
       fullName: { type: String, select: false },
+      // Live selfie for face comparison against the ID document. Private.
+      selfiePublicId: { type: String, select: false },
+      selfieCapturedAt: { type: Date, select: false },
+      // "camera" when taken through the in-app capture, "upload" when the
+      // person chose a file instead. An admin should weigh these differently.
+      selfieSource: { type: String, enum: ["camera", "upload"], select: false },
+      // Company registration, where the listing party is a business.
+      rdbNumber: { type: String, select: false },
+      // Result of the automated ID-to-selfie comparison, when a provider is
+      // configured. Advisory only — the admin decision is what counts.
+      faceMatch: {
+        status: {
+          type: String,
+          enum: ["not_configured", "pending", "match", "no_match", "error"],
+          default: "not_configured",
+          select: false,
+        },
+        score: { type: Number, select: false },
+        provider: { type: String, select: false },
+        checkedAt: { type: Date, select: false },
+      },
       status: {
         type: String,
         enum: ["none", "pending", "approved", "rejected"],

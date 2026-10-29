@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import SelfieCapture from "@/components/SelfieCapture";
 import { useToast } from "@/components/ui/Toast";
 import { BadgeCheck, Clock, ShieldAlert, Upload, XCircle } from "lucide-react";
 
@@ -25,6 +26,8 @@ export default function VerificationCard() {
   const [idNumber, setIdNumber] = useState("");
   const [docType, setDocType] = useState("national_id");
   const [fileName, setFileName] = useState("");
+  const [selfie, setSelfie] = useState(null);
+  const [rdbNumber, setRdbNumber] = useState("");
 
   async function load() {
     try {
@@ -43,6 +46,7 @@ export default function VerificationCard() {
     const file = fileRef.current?.files?.[0];
     if (!file) return toast("Attach a photo or PDF of your ID", { type: "error" });
     if (file.size > MAX_BYTES) return toast("File must be 10MB or smaller", { type: "error" });
+    if (!selfie?.dataUrl) return toast("Take or upload a selfie so we can match it to your ID", { type: "error" });
 
     setBusy(true);
     try {
@@ -57,6 +61,15 @@ export default function VerificationCard() {
       const upJson = await up.json();
       if (!upJson.success) throw new Error(upJson.error);
 
+      // The selfie goes to its own private folder.
+      const selfieUp = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ file: selfie.dataUrl, kind: "selfie" }),
+      });
+      const selfieJson = await selfieUp.json();
+      if (!selfieJson.success) throw new Error(selfieJson.error);
+
       const res = await fetch("/api/verification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -65,12 +78,15 @@ export default function VerificationCard() {
           idNumber,
           docType,
           idDocument: { publicId: upJson.data.publicId, resourceType: upJson.data.resourceType },
+          selfie: { publicId: selfieJson.data.publicId, source: selfie.source },
+          rdbNumber: rdbNumber.trim() || undefined,
         }),
       });
       const j = await res.json();
       if (!j.success) throw new Error(j.error);
       toast("Submitted for review", { type: "success" });
       setFullName(""); setIdNumber(""); setFileName(""); setDocType("national_id");
+      setSelfie(null); setRdbNumber("");
       if (fileRef.current) fileRef.current.value = "";
       load();
     } catch (err) {
@@ -167,6 +183,21 @@ export default function VerificationCard() {
             className="hidden" onChange={(e) => setFileName(e.target.files?.[0]?.name || "")}
           />
         </label>
+
+        <SelfieCapture value={selfie} onCapture={setSelfie} onClear={() => setSelfie(null)} />
+
+        <label className="grid gap-1">
+          <span className="text-xs font-bold uppercase tracking-wide text-ink-faint">
+            RDB registration number <span className="normal-case text-ink-faint">(optional)</span>
+          </span>
+          <input
+            value={rdbNumber}
+            onChange={(e) => setRdbNumber(e.target.value)}
+            placeholder="Only if you are listing as a registered business"
+            className="rounded-lg border border-line bg-surface px-3 py-2 text-sm font-semibold text-ink outline-none focus:border-brand"
+          />
+        </label>
+
         <button className="btn-primary justify-self-start" disabled={busy}>
           {busy ? "Submitting…" : "Submit for verification"}
         </button>

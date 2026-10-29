@@ -22,7 +22,7 @@ export async function GET(req) {
   if (!publicId) return fail("publicId is required", 422);
 
   // Only ever sign assets from our own private folders — never an arbitrary id.
-  if (!/^getownerinfo\/(ownership-proof|identity)\//.test(publicId)) {
+  if (!/^getownerinfo\/(ownership-proof|identity|selfie)\//.test(publicId)) {
     return fail("Not a private asset", 403);
   }
   if (!["image", "raw", "video"].includes(resourceType)) {
