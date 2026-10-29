@@ -13,7 +13,10 @@ export default function DashboardShell({ user, counts, children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-paper">
+    // No bg here: an opaque slab would hide the page canvas, which is why the
+    // dashboard read flatter than the rest of the site. The mobile slide-over
+    // below keeps its own bg-paper, since it does need to be opaque.
+    <div className="min-h-screen">
       <DashboardTopbar
         user={user}
         unreadCount={counts.notifications}

@@ -9,6 +9,7 @@ import {
   UserCircle,
 } from "lucide-react";
 import { ROLES } from "@/lib/constants";
+import { ADMIN_SECTIONS, adminHref } from "@/lib/adminSections";
 
 /**
  * Grouped dashboard navigation: one account, separate workspaces for selling,
@@ -78,13 +79,26 @@ function commonGroups(counts) {
   ];
 }
 
-function staffGroups(role) {
+function staffGroups(role, counts) {
   if (role === ROLES.ADMIN) {
     return [
       {
+        // Every admin section is a route of its own, so the console is reachable
+        // from the sidebar rather than by scrolling one long page.
         title: "Administration",
         items: [
           { label: "Overview", href: "/dashboard/admin", icon: ShieldCheck },
+          ...ADMIN_SECTIONS.map(({ slug, label, icon, countKey }) => ({
+            label,
+            href: adminHref(slug),
+            icon,
+            count: countKey ? counts[countKey] : undefined,
+          })),
+        ],
+      },
+      {
+        title: "Platform",
+        items: [
           { label: "All Listings", href: "/listings", icon: Home },
           { label: "Seeker Requests", href: "/seekers", icon: Inbox },
         ],
@@ -98,6 +112,31 @@ function staffGroups(role) {
         { label: "Overview", href: "/dashboard/manager", icon: LayoutDashboard },
         { label: "Assigned Listings", href: "/dashboard/listings", icon: Home },
         { label: "Browse Listings", href: "/listings", icon: Search },
+      ],
+    },
+  ];
+}
+
+/**
+ * What staff keep from the shared groups. Admins and managers do not sell or
+ * buy through their staff account, so the token, invoice and commission
+ * entries that dominate an owner's sidebar would only be noise here — they
+ * were what made a staff sidebar read almost exactly like a normal user's.
+ */
+function staffCommonGroups(counts) {
+  return [
+    {
+      title: "Messages",
+      items: [
+        { label: "Conversations", href: "/dashboard/messages", icon: MessageSquareText, count: counts.conversations },
+        { label: "Notifications", href: "/dashboard/notifications", icon: Bell, count: counts.notifications },
+      ],
+    },
+    {
+      title: "Account",
+      items: [
+        { label: "My Profile", href: "/dashboard/profile", icon: UserCircle },
+        { label: "Settings", href: "/dashboard/settings", icon: Settings },
       ],
     },
   ];
@@ -121,7 +160,7 @@ export default function DashboardSidebar({ role, counts = {} }) {
 
   const isStaff = role === ROLES.ADMIN || role === ROLES.MANAGER;
   const groups = isStaff
-    ? [...staffGroups(role), ...commonGroups(counts)]
+    ? [...staffGroups(role, counts), ...staffCommonGroups(counts)]
     : [...sellerGroups(counts), ...buyerGroups(counts), ...commonGroups(counts)];
 
   return (

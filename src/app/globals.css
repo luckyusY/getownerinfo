@@ -34,16 +34,43 @@
 }
 
 @layer base {
-  body {
+  /* The base colour lives on html so body can stay transparent and let the
+     fixed canvas layer below show through. */
+  html {
     background-color: var(--paper);
-    background-image:
-      radial-gradient(900px 360px at 50% -8%, rgba(22, 104, 227, 0.07), transparent 62%),
-      linear-gradient(180deg, rgba(255,255,255,0.72), rgba(247,248,250,0) 220px);
-    background-attachment: fixed;
+  }
+
+  body {
     color: var(--ink-soft);
     font-family: var(--font-body), system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+  }
+
+  /*
+   * The page canvas.
+   *
+   * This was `background-attachment: fixed` on body, which makes the browser
+   * re-rasterise the gradient on every scroll frame and is unreliable on iOS
+   * Safari. A fixed pseudo-element is composited once and simply stays put.
+   *
+   * Three soft pools of brand and sky give the paper some depth instead of a
+   * flat slab: a wide one behind the header, one off the top-right corner, and
+   * a fainter one on the left to stop the page looking lit from one side only.
+   * All are under 10% alpha — at full size they should read as warmth, not as
+   * visible shapes.
+   */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      radial-gradient(1100px 520px at 50% -10%, rgba(22, 104, 227, 0.09), transparent 60%),
+      radial-gradient(760px 420px at 100% 0%, rgba(21, 176, 221, 0.07), transparent 62%),
+      radial-gradient(680px 460px at 0% 22%, rgba(22, 104, 227, 0.045), transparent 60%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(247, 248, 250, 0) 260px);
   }
   h1, h2, h3, .font-display {
     font-family: var(--font-display), system-ui, sans-serif;

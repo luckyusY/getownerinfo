@@ -8,6 +8,7 @@ import SeekerRequest from "@/models/SeekerRequest";
 import Conversation from "@/models/Conversation";
 import Notification from "@/models/Notification";
 import Commission from "@/models/Commission";
+import Report from "@/models/Report";
 import { getSession } from "@/lib/auth";
 import { ROLES, LISTING_STATUS } from "@/lib/constants";
 import DashboardShell from "@/components/dashboard/DashboardShell";
@@ -41,7 +42,21 @@ async function loadCounts(session) {
     Commission.countDocuments({ owner: session.sub, status: { $ne: "paid" } }),
   ]);
 
-  return { listings, active, pending, drafts, saved, unlocks, requests, conversations, notifications, invoices };
+  // Badges for the admin console sections. Only an admin sees these entries,
+  // so there is no reason to make every other account pay for the queries.
+  let adminCounts = {};
+  if (isAdmin) {
+    const [pendingKyc, openReports] = await Promise.all([
+      User.countDocuments({ "kyc.status": "pending" }),
+      Report.countDocuments({ status: "open" }),
+    ]);
+    adminCounts = { pendingKyc, openReports };
+  }
+
+  return {
+    listings, active, pending, drafts, saved, unlocks, requests,
+    conversations, notifications, invoices, ...adminCounts,
+  };
 }
 
 export default async function DashboardLayout({ children }) {
