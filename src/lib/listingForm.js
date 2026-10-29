@@ -274,3 +274,35 @@ export async function contactVerificationBlocker(userId) {
   }
   return null;
 }
+
+/**
+ * Every required field a listing is still missing (spec Part 9), for the admin
+ * view of incomplete and abandoned forms. `submitBlocker` stops at the first
+ * problem; this reports all of them so a reminder can be specific.
+ *
+ * @param {object} listing - a Listing document or lean object
+ * @param {object} category - its category, for category-specific rules
+ */
+export function missingFields(listing, category) {
+  const missing = [];
+  if (!listing.subcategory) missing.push("Subcategory");
+  if (!listing.itemType) missing.push("Item type");
+  if (!(listing.price > 0)) missing.push("Price");
+  if (!listing.contact?.ownerName?.trim()) missing.push("Owner name");
+  if (!listing.contact?.ownerPhone?.trim()) missing.push("Owner phone");
+  if (!listing.location?.area?.trim()) missing.push("Public area");
+  if (!listing.images?.length) missing.push("Listing image");
+  if (!listing.ownershipProof?.length) missing.push("Ownership document");
+  if (!listing.title || listing.title.trim().length < 3) missing.push("Title");
+  if (category?.slug === "real-estate" && !isValidRwandaLocation(listing.location || {})) {
+    missing.push("Province / district / sector");
+  }
+  return missing;
+}
+
+/** Required-field completion as a percentage, for the admin drafts view. */
+export function completionPercent(listing, category) {
+  const TOTAL = category?.slug === "real-estate" ? 10 : 9;
+  const missing = missingFields(listing, category).length;
+  return Math.max(0, Math.round(((TOTAL - missing) / TOTAL) * 100));
+}

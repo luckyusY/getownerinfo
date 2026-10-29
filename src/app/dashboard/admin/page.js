@@ -11,6 +11,9 @@ import ReportsQueue from "./ReportsQueue";
 import PenaltiesPanel from "./PenaltiesPanel";
 import AnalyticsPanel from "./AnalyticsPanel";
 import AuditViewer from "./AuditViewer";
+import UsersPanel from "./UsersPanel";
+import AssignmentsPanel from "./AssignmentsPanel";
+import DraftsPanel from "./DraftsPanel";
 
 export default async function AdminDashboard() {
   guardRole(ROLES.ADMIN);
@@ -40,6 +43,9 @@ export default async function AdminDashboard() {
       <VerificationQueue />
       <ReportsQueue />
       <ModerationQueue />
+      <AssignmentsPanel />
+      <DraftsPanel />
+      <UsersPanel />
       <PenaltiesPanel />
       <AuditViewer />
     </div>
