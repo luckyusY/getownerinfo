@@ -7,15 +7,26 @@ import { ALL_ROLES } from "@/lib/constants";
 import { formatRwf, formatDate } from "@/lib/format";
 import { PageHeader, SectionHeading } from "@/components/ui/Dashboard";
 import EmptyState from "@/components/ui/EmptyState";
-import Badge from "@/components/ui/Badge";
+import { StatusBadge } from "@/components/ui/Badge";
 import { MapPin } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
+// Every status a request can hold has to appear somewhere on this page. A
+// request posted but not yet paid for sits at `pending`, and one an admin
+// turned down at `rejected`; neither had a group here, so a seeker who had
+// just started a payment saw nothing at all — the page either told them they
+// had posted no requests, or quietly left that one out of the list.
 const GROUPS = [
+  {
+    key: "pending",
+    title: "Waiting on payment",
+    hint: "Not visible to owners yet. These go live as soon as the post fee settles.",
+  },
   { key: "active", title: "Active requests", hint: "Visible to owners right now." },
   { key: "fulfilled", title: "Fulfilled", hint: "You found what you were looking for." },
   { key: "expired", title: "Expired", hint: "Past their validity window." },
+  { key: "rejected", title: "Not approved", hint: "These were turned down and are not visible to owners." },
 ];
 
 export default async function MyRequestsPage() {
@@ -67,7 +78,10 @@ export default async function MyRequestsPage() {
                           <p className="font-display text-lg font-semibold text-ink">
                             {catName[r.category?.toString()] || "Request"}
                           </p>
-                          <Badge tone={r.status === "active" ? "success" : "neutral"} dot>{r.status}</Badge>
+                          {/* StatusBadge already tones pending as a warning
+                              and rejected as a danger, which the two-way
+                              active/neutral test above could not. */}
+                          <StatusBadge status={r.status} />
                         </div>
                         <p className="mt-1 line-clamp-2 text-sm text-ink-soft">{r.details}</p>
                         <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs font-bold text-ink-faint">
