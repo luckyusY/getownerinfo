@@ -191,7 +191,18 @@ export default async function HomePage() {
                 className="group relative flex min-h-[200px] flex-col justify-end overflow-hidden rounded-2xl bg-navy p-5 text-white shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-lift"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={location.photo} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover opacity-60 transition duration-500 group-hover:scale-105" />
+                {/* Six photos, 1.3MB between them, in a 200px card at 60%
+                    opacity, and the whole section sits well below the fold.
+                    They were eager, so they competed with the hero for
+                    bandwidth on first paint. */}
+                <img
+                  src={location.photo}
+                  alt=""
+                  aria-hidden="true"
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 h-full w-full object-cover opacity-60 transition duration-500 group-hover:scale-105"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/60 to-transparent" />
                 <div className="relative">
                   <p className="text-[11px] font-black uppercase tracking-[0.16em] text-sky-light">{location.eyebrow}</p>

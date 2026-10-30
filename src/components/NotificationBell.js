@@ -28,10 +28,23 @@ export default function NotificationBell() {
     } catch { /* ignore */ }
   }, []);
 
+  // Light polling, but only while the tab is actually being looked at. Each
+  // tick runs a find and a count server-side, and the header is rendered per
+  // page rather than in the layout, so this remounts on every navigation —
+  // a backgrounded tab was still asking every 45 seconds indefinitely.
   useEffect(() => {
-    load();
-    const t = setInterval(load, 45000); // light polling
-    return () => clearInterval(t);
+    function tick() {
+      if (document.hidden) return;
+      load();
+    }
+    tick();
+    const t = setInterval(tick, 45000);
+    // Catch up once on return, rather than waiting out the rest of the period.
+    document.addEventListener("visibilitychange", tick);
+    return () => {
+      clearInterval(t);
+      document.removeEventListener("visibilitychange", tick);
+    };
   }, [load]);
 
   useEffect(() => {

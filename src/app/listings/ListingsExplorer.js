@@ -11,9 +11,16 @@ import {
   ChipRow, DEAL_OPTIONS, FilterSheet, PriceRange, SelectField, SortSelect, TRUST_OPTIONS,
 } from "./FilterControls";
 
-export default function ListingsExplorer({ initialCategory = "", initialLocation = "", initialQuery = "" }) {
-  const [cats, setCats] = useState([]);
-  const [catMap, setCatMap] = useState({});
+export default function ListingsExplorer({
+  initialCategory = "",
+  initialLocation = "",
+  initialQuery = "",
+  initialCategories = null,
+}) {
+  const [cats, setCats] = useState(initialCategories || []);
+  const [catMap, setCatMap] = useState(() =>
+    Object.fromEntries((initialCategories || []).map((c) => [c.id, c.name]))
+  );
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -27,13 +34,22 @@ export default function ListingsExplorer({ initialCategory = "", initialLocation
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
 
+  // Only when the server could not supply it — see listings/page.js. Kept as a
+  // fallback rather than removed so a database blip degrades to the old
+  // behaviour instead of leaving the filters permanently empty.
   useEffect(() => {
-    fetch("/api/catalog").then((r) => r.json()).then((j) => {
-      const list = j.data?.categories || [];
-      setCats(list);
-      setCatMap(Object.fromEntries(list.map((c) => [c.id, c.name])));
-    });
-  }, []);
+    if (initialCategories) return;
+    fetch("/api/catalog")
+      .then((r) => r.json())
+      .then((j) => {
+        const list = j.data?.categories || [];
+        setCats(list);
+        setCatMap(Object.fromEntries(list.map((c) => [c.id, c.name])));
+      })
+      .catch(() => {
+        /* filters stay empty; the listing grid does not depend on this */
+      });
+  }, [initialCategories]);
 
   useEffect(() => {
     setLoading(true);

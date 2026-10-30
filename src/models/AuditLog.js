@@ -16,6 +16,10 @@ const AuditLogSchema = new Schema(
   { timestamps: false }
 );
 
+// The admin viewer pages through this append-only collection with
+// .sort({ at: -1 }).skip().limit(), which had no index to walk.
+AuditLogSchema.index({ at: -1 });
+
 const AuditLog =
   mongoose.models.AuditLog || mongoose.model("AuditLog", AuditLogSchema);
 

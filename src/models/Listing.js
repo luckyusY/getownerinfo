@@ -123,6 +123,15 @@ const ListingSchema = new Schema(
 
 ListingSchema.index({ status: 1, category: 1 });
 
+// Public browse and the "similar listings" block both filter on status and
+// sort by createdAt. With only the single-field status index, that sort was
+// done in memory over every active listing.
+ListingSchema.index({ status: 1, createdAt: -1 });
+
+// Managers see the listings assigned to them, which the dashboard layout, the
+// manager page, /api/listings/mine and /api/conversations/mine all filter on.
+ListingSchema.index({ assignedManager: 1 });
+
 // PUBLIC view: no contact, no exact location, no ownership proof.
 ListingSchema.methods.toPublicJSON = function () {
   return {

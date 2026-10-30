@@ -1,6 +1,8 @@
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import { connectDB } from "@/lib/db";
+import { loadCatalog } from "@/lib/catalog";
 import ListingsExplorer from "./ListingsExplorer";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +12,22 @@ export const metadata = {
   description: "Browse verified property, vehicles and assets across Rwanda. Unlock owner contact with a token fee.",
 };
 
-export default function ListingsPage({ searchParams }) {
+export default async function ListingsPage({ searchParams }) {
+  // The explorer used to ask for this from a useEffect, so the filters only
+  // became usable after the page had rendered, shipped its JS and hydrated.
+  // Reading it here puts the categories in the first HTML response instead.
+  //
+  // Falling back to null rather than failing the page keeps the old behaviour
+  // when the database is unreachable: the explorer then fetches /api/catalog
+  // itself, exactly as it did before.
+  let catalog = null;
+  try {
+    await connectDB();
+    catalog = await loadCatalog();
+  } catch {
+    catalog = null;
+  }
+
   return (
     <div className="min-h-screen">
       <SiteHeader />
@@ -28,7 +45,12 @@ export default function ListingsPage({ searchParams }) {
           </div>
         </section>
         <div className="mt-6">
-          <ListingsExplorer initialCategory={searchParams?.category || ""} initialLocation={searchParams?.location || ""} initialQuery={searchParams?.q || ""} />
+          <ListingsExplorer
+            initialCategory={searchParams?.category || ""}
+            initialLocation={searchParams?.location || ""}
+            initialQuery={searchParams?.q || ""}
+            initialCategories={catalog?.categories || null}
+          />
         </div>
       </main>
       <SiteFooter />

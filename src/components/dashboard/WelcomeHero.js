@@ -8,10 +8,13 @@ export default function WelcomeHero({ user }) {
   return (
     <section className="relative isolate overflow-hidden rounded-2xl border border-line shadow-soft">
       {/* eslint-disable-next-line @next/next/no-img-element */}
+      {/* Same reasoning as the public hero: this is the LCP element of the
+          dashboard's first screen. */}
       <img
         src="/hero-slides/kigali-owner-secure.webp"
         alt=""
         aria-hidden="true"
+        fetchPriority="high"
         className="absolute inset-0 h-full w-full object-cover"
       />
       <div className="absolute inset-0 bg-gradient-to-r from-navy via-navy/90 to-navy/35" />
