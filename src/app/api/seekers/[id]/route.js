@@ -3,18 +3,8 @@ import SeekerRequest, { SEEKER_STATUS } from "@/models/SeekerRequest";
 import SeekerUnlock from "@/models/SeekerUnlock";
 import { getSession } from "@/lib/auth";
 import { ok, fail } from "@/lib/api";
+import { buildSeekerContact } from "@/lib/seekerContact";
 import { ROLES } from "@/lib/constants";
-
-export function buildSeekerContact(request, watermark) {
-  return {
-    watermark,
-    contact: {
-      name: request.contact?.name,
-      phone: request.contact?.phone,
-      preferredContactTime: request.contact?.preferredContactTime,
-    },
-  };
-}
 
 // GET /api/seekers/:id — anonymized, or revealed for the seeker/admin/unlocked viewer.
 export async function GET(_req, { params }) {

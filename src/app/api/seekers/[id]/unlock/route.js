@@ -7,7 +7,7 @@ import PlatformSettings, { getSettings } from "@/models/PlatformSettings";
 import { DEFAULT_SETTINGS } from "@/data/catalog";
 import { safeInitiate, safeVerify } from "@/lib/payments";
 import { audit } from "@/models/AuditLog";
-import { buildSeekerContact } from "../route";
+import { buildSeekerContact } from "@/lib/seekerContact";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { ROLES, PAYMENT_TYPES, PAYMENT_STATUS, SELLER_ROLES } from "@/lib/constants";
 
