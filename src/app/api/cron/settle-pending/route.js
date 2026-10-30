@@ -23,20 +23,27 @@ import { PAYMENT_STATUS, PAYMENT_TYPES } from "@/lib/constants";
  * job would hand over the owner's contact without that gate ever being
  * passed. They stay pending until the buyer confirms in person.
  *
- * Schedule: register in `vercel.json` alongside the daily job. Every five
- * minutes (`asterisk-slash-5 * * * *`) is what makes this feel immediate, and
- * needs a Vercel plan that permits sub-daily crons; on Hobby the expression
- * must be daily or the deploy is rejected. The route is equally callable by
- * any external scheduler holding CRON_SECRET.
+ * Runs every five minutes (see `vercel.json`), which is what makes a settled
+ * payment feel immediate rather than next-day. Sub-daily cron expressions need
+ * a Vercel plan that permits them; on Hobby the schedule must be daily or the
+ * deploy is rejected. The route is equally callable by any external scheduler
+ * holding CRON_SECRET.
  */
+
+// Each payment costs one round trip to the provider, and they are deliberately
+// sequential so a sweep cannot hammer the provider with a burst. 60s leaves
+// room for a slow provider without the platform's default cutting a run in
+// half and leaving the batch half-reconciled.
+export const maxDuration = 60;
 
 // How far back to look. Beyond this a pending payment is stale enough that the
 // provider has almost certainly abandoned it, and re-verifying every one of
 // them forever would grow without limit.
 const LOOKBACK_HOURS = 48;
-// Cap the batch so one run cannot exceed the function timeout; the next run
-// picks up whatever is left.
-const BATCH = 100;
+// Sized to finish inside `maxDuration` rather than to drain the queue: at one
+// run every five minutes this clears 300 an hour, and the oldest are taken
+// first, so anything left over is picked up by the next run.
+const BATCH = 25;
 
 function authorized(req) {
   const secret = process.env.CRON_SECRET;
