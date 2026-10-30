@@ -4,11 +4,14 @@ import Payment from "@/models/Payment";
 import Commission from "@/models/Commission";
 import Listing from "@/models/Listing";
 import ListingAgreement from "@/models/ListingAgreement";
+import TokenUnlock from "@/models/TokenUnlock";
 import User from "@/models/User";
 import { getSession } from "@/lib/auth";
-import { ROLES, PAYMENT_STATUS } from "@/lib/constants";
+import { buildRevealedContact } from "@/lib/unlockService";
+import { ROLES, PAYMENT_STATUS, LISTING_STATUS } from "@/lib/constants";
 import { formatRwf, formatDate } from "@/lib/format";
 import DocumentShell, { AmountTable } from "@/components/documents/DocumentShell";
+import ReportButton from "@/components/ReportButton";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +35,7 @@ const KINDS = {
   receipt: { label: "Receipt", prefix: "RCPT", resolve: resolveReceipt },
   invoice: { label: "Invoice", prefix: "INV", resolve: resolveInvoice },
   agreement: { label: "Agreement", prefix: "AGR", resolve: resolveAgreement },
+  unlock: { label: "Contact sheet", prefix: "UNLK", resolve: resolveUnlock },
 };
 
 const PAYMENT_LABEL = {
@@ -192,6 +196,166 @@ async function resolveInvoice({ id, session, isAdmin }) {
       />
     ),
   };
+}
+
+/**
+ * The buyer's copy of a contact they paid to unlock.
+ *
+ * This is the only place the purchase survives. The listing page refuses
+ * anything that is not ACTIVE (`src/app/listings/[id]/page.js:81`), so the
+ * moment the owner reports the deal, the listing expires or an admin takes it
+ * down, the page the buyer paid for returns 404 — and `TokenUnlock` records
+ * only the *names* of the fields revealed, never the values. A non-refundable
+ * purchase was therefore revocable at the seller's convenience.
+ *
+ * The unlock record is the entitlement. The listing's status is the seller's
+ * business, not the buyer's, so nothing here consults it.
+ */
+async function resolveUnlock({ id, session, isAdmin }) {
+  const unlock = await TokenUnlock.findById(id);
+  if (!unlock) return null;
+  if (!isAdmin && unlock.user.toString() !== session.sub) return null;
+
+  // Deliberately not `publicListingFilter` and no status test.
+  const listing = await Listing.findById(unlock.listing);
+  if (!listing) return null;
+
+  const revealed = buildRevealedContact(listing, unlock.watermark);
+  const buyer = await User.findById(unlock.user).select("name email phone").lean();
+  const stillLive = listing.status === LISTING_STATUS.ACTIVE;
+
+  return {
+    kindLabel: "Contact sheet",
+    title: listing.title,
+    docNumber: docNumber("UNLK", unlock._id.toString(), unlock.at),
+    issuedOn: formatDate(unlock.at),
+    backHref: "/dashboard/unlocks",
+    backLabel: "Contact unlocks",
+    meta: [
+      { label: "Unlocked by", value: buyer?.name || "—" },
+      { label: "Account", value: buyer?.email || buyer?.phone || "—" },
+      { label: "Unlocked on", value: formatDate(unlock.at) },
+      { label: "Token paid", value: formatRwf(unlock.amountPaid) },
+      ...(unlock.tier ? [{ label: "Tier", value: unlock.tier }] : []),
+      {
+        label: "Listing status",
+        value: stillLive ? "Live" : `No longer listed (${String(listing.status).replace(/_/g, " ")})`,
+      },
+    ],
+    footnote: (
+      <p>
+        Issued to {unlock.watermark}. These details were released to this account alone and
+        every release is logged; sharing them is prohibited. Keep this sheet — it stays
+        available whether or not the listing is still on the site.
+      </p>
+    ),
+    children: (
+      <ContactBlock
+        revealed={revealed}
+        listingId={listing._id.toString()}
+        unlockId={unlock._id.toString()}
+      />
+    ),
+  };
+}
+
+function ContactBlock({ revealed, listingId, unlockId }) {
+  const c = revealed.contact || {};
+  const where = revealed.exactLocation || {};
+
+  const people = [
+    ["Owner", c.ownerName, c.ownerPhone],
+    ["Keys manager", c.keysManagerName, c.keysManagerPhone],
+    ["Other contact", c.thirdPartyContact, null],
+  ].filter(([, name, phone]) => name || phone);
+
+  const address = [
+    ["Area", where.area],
+    ["Street", where.street],
+    ["House number", where.houseNumber],
+    ["UPI", where.upi],
+  ].filter(([, v]) => v);
+
+  return (
+    <>
+      <h2 className="text-sm font-black uppercase tracking-wide text-ink-faint">Who to contact</h2>
+      {people.length === 0 ? (
+        <p className="mt-3 text-sm font-semibold text-ink-soft">
+          This listing carries no stored contact. Report it below so we can look into it.
+        </p>
+      ) : (
+        <dl className="mt-3 space-y-2.5">
+          {people.map(([role, name, phone]) => (
+            <div key={role} className="rounded-xl bg-panel px-4 py-3">
+              <dt className="text-[11px] font-black uppercase tracking-wide text-ink-faint">
+                {role}
+              </dt>
+              <dd className="mt-0.5 text-sm font-bold text-ink">{name || "—"}</dd>
+              {phone && (
+                <dd className="mt-0.5">
+                  {/* tel: so the sheet is usable on the phone it is read on. */}
+                  <a
+                    href={`tel:${phone}`}
+                    className="inline-flex min-h-11 items-center font-bold text-brand underline"
+                  >
+                    {phone}
+                  </a>
+                </dd>
+              )}
+            </div>
+          ))}
+        </dl>
+      )}
+
+      {address.length > 0 && (
+        <>
+          <h2 className="mt-7 text-sm font-black uppercase tracking-wide text-ink-faint">
+            Exact location
+          </h2>
+          <dl className="mt-3 grid gap-x-8 gap-y-2 sm:grid-cols-2">
+            {address.map(([label, value]) => (
+              <div key={label} className="border-b border-line pb-2">
+                <dt className="text-[11px] font-black uppercase tracking-wide text-ink-faint">
+                  {label}
+                </dt>
+                <dd className="mt-0.5 text-sm font-bold text-ink">{value}</dd>
+              </div>
+            ))}
+          </dl>
+          {Number.isFinite(where.mapsPin?.lat) && Number.isFinite(where.mapsPin?.lng) && (
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${where.mapsPin.lat},${where.mapsPin.lng}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex min-h-11 items-center text-sm font-bold text-brand underline print:hidden"
+            >
+              Open the map pin ({where.mapsPin.lat}, {where.mapsPin.lng})
+            </a>
+          )}
+        </>
+      )}
+
+      {/* The remedy for a contact that does not work, on the artefact the buyer
+          keeps — reachable long after the listing page has gone. Left out of
+          the printed sheet: it is an action, not part of the record. */}
+      {listingId && (
+        <section id="report" className="mt-8 border-t border-line pt-5 print:hidden">
+          <h2 className="text-sm font-black uppercase tracking-wide text-ink-faint">
+            If this did not work
+          </h2>
+          <p className="mt-2 text-sm font-semibold leading-6 text-ink-soft">
+            Call the number above first — owners miss calls. If nobody answers over a day or
+            two, or the person reached is not the owner, tell us. We check the contact
+            ourselves, take the listing down if it is wrong, and write back with the outcome.
+            The token fee itself is not refunded.
+          </p>
+          <div className="mt-3">
+            <ReportButton listingId={listingId} unlockId={unlockId} />
+          </div>
+        </section>
+      )}
+    </>
+  );
 }
 
 async function resolveAgreement({ id, session, isAdmin }) {

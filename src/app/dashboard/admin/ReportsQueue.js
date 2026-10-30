@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useToast } from "@/components/ui/Toast";
 import { SectionHeading } from "@/components/ui/Dashboard";
 import EmptyState from "@/components/ui/EmptyState";
+import { formatRwf } from "@/lib/format";
 import { AlertTriangle, CheckCircle2, Flag, Trash2, XCircle } from "lucide-react";
 
 const REASON_LABELS = {
@@ -111,6 +112,14 @@ export default function ReportsQueue() {
                       {g.reports.map((r) => (
                         <li key={r.id} className="rounded-lg bg-panel px-3 py-2 text-xs text-ink-soft">
                           <span className="font-bold text-ink">{REASON_LABELS[r.reason] || r.reason}</span>
+                          {/* A complaint from someone who paid for this contact
+                              carries more weight than a passer-by's, and the
+                              amount is what an admin needs to weigh it. */}
+                          {r.paidUnlock && (
+                            <span className="ml-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-black text-amber-700">
+                              paid {formatRwf(r.paidUnlock.amountPaid)} to unlock
+                            </span>
+                          )}
                           {r.details ? ` — ${r.details}` : ""}
                           <span className="ml-1 text-ink-faint">({new Date(r.at).toLocaleDateString()})</span>
                         </li>

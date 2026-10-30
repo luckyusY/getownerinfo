@@ -113,10 +113,13 @@ export const EVENTS = {
   unlock_confirmed: {
     group: PREF_GROUPS.PAYMENTS,
     critical: true,
-    build: ({ listing }) => ({
+    // `unlockId` is the contact sheet — the copy that survives the listing
+    // being sold, expiring or taken down. Without it this said the details
+    // were in /dashboard/unlocks, which until now held only a field count.
+    build: ({ listing, unlockId }) => ({
       title: "Contact unlocked",
-      body: `You unlocked the owner's contact details for “${listing.title}”. They are in your contact unlocks.`,
-      link: "/dashboard/unlocks",
+      body: `You unlocked the owner's contact for “${listing.title}”. Your contact sheet keeps it, whatever happens to the listing.`,
+      link: unlockId ? `/documents/unlock/${unlockId}` : "/dashboard/unlocks",
     }),
   },
   commission_invoiced: {

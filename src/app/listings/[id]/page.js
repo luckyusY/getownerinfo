@@ -11,7 +11,7 @@ import TokenUnlock from "@/models/TokenUnlock";
 import { getSession } from "@/lib/auth";
 import { buildRevealedContact } from "@/lib/unlockService";
 import { LISTING_STATUS, ROLES, SELLER_ROLES } from "@/lib/constants";
-import { publicListingFilter } from "@/lib/listingQuery";
+import { publicListingFilter, verifiedOwnerIds } from "@/lib/listingQuery";
 import { formatRwf, formatDate } from "@/lib/format";
 import UnlockPanel from "./UnlockPanel";
 import Gallery from "./Gallery";
@@ -22,11 +22,44 @@ import ShareButton from "@/components/ShareButton";
 import ReportButton from "@/components/ReportButton";
 import PropertyCard from "@/components/PropertyCard";
 
-const UNLOCK_INCLUDES = [
-  "Owner's full name & phone",
-  "Keys manager / caretaker contact",
-  "Exact address (UPI, street, map pin)",
-];
+/**
+ * What the token actually buys on *this* listing.
+ *
+ * This used to be a fixed three-item list rendered on every listing — owner
+ * contact, keys manager, exact address — while the panel that reveals them
+ * renders each only when it is present. A buyer could pay against three
+ * promises and receive one line. Everything but the owner's own contact is
+ * optional on the model, so the promise is now built from the document.
+ */
+function unlockIncludes(listing) {
+  const c = listing.contact || {};
+  const where = listing.location || {};
+
+  const address = [
+    where.upi && "UPI",
+    where.street && "street",
+    Number.isFinite(where.mapsPin?.lat) && Number.isFinite(where.mapsPin?.lng) && "map pin",
+  ].filter(Boolean);
+
+  return [
+    {
+      label: "Owner's full name & phone",
+      has: Boolean(c.ownerName || c.ownerPhone),
+    },
+    {
+      label: "Keys manager / caretaker contact",
+      has: Boolean(c.keysManagerName || c.keysManagerPhone),
+    },
+    {
+      label: "Other named contact",
+      has: Boolean(c.thirdPartyContact),
+    },
+    {
+      label: address.length ? `Exact address (${address.join(", ")})` : "Exact address",
+      has: address.length > 0,
+    },
+  ].filter((item) => item.has);
+}
 
 const ATTRIBUTE_LABELS = {
   bedrooms: "Bedrooms",
@@ -52,7 +85,7 @@ export async function generateMetadata({ params }) {
     if (!l || l.status !== LISTING_STATUS.ACTIVE) return { title: "Listing" };
     return {
       title: l.title,
-      description: (l.description || `${l.title} unlock verified owner contact with a token fee.`).slice(0, 160),
+      description: (l.description || `${l.title} — unlock the owner’s contact with a token fee.`).slice(0, 160),
       openGraph: { title: l.title, description: `${formatRwf(l.price)} - getownerinfo` },
     };
   } catch {
@@ -99,16 +132,23 @@ export default async function ListingDetail({ params }) {
   const canMessageAsBuyer = !!session && !isListingOwner && [ROLES.BUYER, ...SELLER_ROLES].includes(session.role);
   const canUnlock = !!session && !isListingOwner && [ROLES.BUYER, ...SELLER_ROLES, ROLES.ADMIN].includes(session.role);
   let initialRevealed = null;
+  // The unlock's own id, so the panel can point at the contact sheet that
+  // survives this listing going inactive.
+  let initialUnlockId = null;
 
   if (session) {
     const unlock = await TokenUnlock.findOne({ user: session.sub, listing: listing._id });
-    if (unlock) initialRevealed = buildRevealedContact(listing, unlock.watermark);
+    if (unlock) {
+      initialRevealed = buildRevealedContact(listing, unlock.watermark);
+      initialUnlockId = unlock._id.toString();
+    }
   }
 
   // Similar active listings in the same category (excluding this one).
   const similarDocs = await Listing.find(
     publicListingFilter({ category: listing.category, _id: { $ne: listing._id } })
   ).sort({ createdAt: -1 }).limit(3).lean();
+  const similarVerified = await verifiedOwnerIds(similarDocs, User);
   const similar = similarDocs.map((l) => ({
     id: l._id.toString(),
     title: l.title,
@@ -118,6 +158,7 @@ export default async function ListingDetail({ params }) {
     model: l.model,
     location: { area: l.location?.area || null },
     categoryName: category?.name || "Listing",
+    ownerVerified: similarVerified.has(l.owner?.toString()),
   }));
 
   // JSON-LD structured data for SEO / rich results.
@@ -240,7 +281,7 @@ export default async function ListingDetail({ params }) {
             {!session && (
               <div className="mt-8 rounded-xl border border-brand/20 bg-brand-50 p-4">
                 <h2 className="font-display text-lg font-bold text-ink">Ready to contact the real owner?</h2>
-                <p className="mt-1 text-sm text-ink-soft">Create an account to save listings, unlock verified contact details, or list your own property later.</p>
+                <p className="mt-1 text-sm text-ink-soft">Create an account to save listings, unlock owner contact details, or list your own property later.</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Link href="/login" className="btn-primary"><UserPlus className="h-4 w-4" /> Sign in to unlock</Link>
                   <Link href="/register?role=owner" className="btn-outline"><Store className="h-4 w-4" /> List your property</Link>
@@ -281,13 +322,14 @@ export default async function ListingDetail({ params }) {
               ) : (
                 <>
                   <p className="font-display text-base font-semibold text-ink">Direct owner contact</p>
-                  <p className="mt-0.5 text-sm text-ink-soft">A token fee reveals the verified owner&apos;s details.</p>
+                  <p className="mt-0.5 text-sm text-ink-soft">A token fee reveals the owner&apos;s own contact details.</p>
                   <div className="mt-4">
                     <UnlockPanel
                       listingId={listing._id.toString()}
                       loggedIn={canUnlock}
                       area={pub.location?.area}
                       initialRevealed={initialRevealed}
+                      initialUnlockId={initialUnlockId}
                       tokenFees={category?.tokenFee || null}
                     />
                   </div>
@@ -299,13 +341,23 @@ export default async function ListingDetail({ params }) {
                   <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-ink-faint">
                     <Lock className="h-3.5 w-3.5" /> What you unlock
                   </p>
-                  <ul className="mt-2 space-y-1.5 text-sm text-ink-soft">
-                    {UNLOCK_INCLUDES.map((it) => (
-                      <li key={it} className="flex items-start gap-2">
-                        <KeyRound className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand" /> {it}
-                      </li>
-                    ))}
-                  </ul>
+                  {unlockIncludes(listing).length === 0 ? (
+                    <p className="mt-2 text-sm font-semibold text-ink-soft">
+                      This listing has no contact details stored, so there is nothing to
+                      unlock. Message the owner instead, or report the listing.
+                    </p>
+                  ) : (
+                    <ul className="mt-2 space-y-1.5 text-sm text-ink-soft">
+                      {unlockIncludes(listing).map(({ label }) => (
+                        <li key={label} className="flex items-start gap-2">
+                          <KeyRound className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand" /> {label}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <p className="mt-2 text-[11px] font-semibold text-ink-faint">
+                    Yours to keep as a contact sheet, even if the listing comes down later.
+                  </p>
                 </div>
               )}
             </div>

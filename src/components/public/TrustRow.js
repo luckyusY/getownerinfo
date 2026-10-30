@@ -1,10 +1,10 @@
 import { Grid3x3, Lock, Users, Zap } from "lucide-react";
 
 const ITEMS = [
-  { icon: Users, title: "Verified Owners", body: "Real people, real listings", tone: "bg-brand-50 text-brand" },
+  { icon: Users, title: "Reviewed Listings", body: "Checked by our team before they go live", tone: "bg-brand-50 text-brand" },
   { icon: Grid3x3, title: "Wide Categories", body: "Properties, vehicles, electronics and more", tone: "bg-emerald-50 text-emerald-600" },
   { icon: Lock, title: "Secure Payments", body: "Small token payment to access contact details", tone: "bg-violet-50 text-violet-600" },
-  { icon: Zap, title: "Fast & Easy", body: "Just click and meet the owner", tone: "bg-amber-50 text-amber-600" },
+  { icon: Zap, title: "Straight to the Owner", body: "No agents in between once you unlock", tone: "bg-amber-50 text-amber-600" },
 ];
 
 export default function TrustRow() {

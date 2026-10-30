@@ -68,7 +68,7 @@ export default function SiteFooter() {
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-6">
               A trusted classifieds platform that connects buyers, tenants and clients directly with
-              verified owners.
+              the owners themselves.
             </p>
             <ul className="mt-5 flex gap-3">
               {SOCIALS.map((s) => (

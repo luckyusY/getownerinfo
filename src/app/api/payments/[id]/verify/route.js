@@ -81,5 +81,9 @@ export async function POST(req, { params }) {
   await finalizeUnlock({ payment, listing, user });
   const unlock = await TokenUnlock.findOne({ user: user._id, listing: listing._id });
 
-  return ok({ unlocked: true, ...buildRevealedContact(listing, unlock.watermark) });
+  return ok({
+    unlocked: true,
+    unlockId: unlock._id.toString(),
+    ...buildRevealedContact(listing, unlock.watermark),
+  });
 }

@@ -35,6 +35,12 @@ const ReportSchema = new Schema(
       default: REPORT_STATUS.OPEN,
       index: true,
     },
+    // Set server-side when the report comes from a paid unlock: the unlock,
+    // the payment and the amount. An admin deciding a "the contact did not
+    // work" report needs to know money changed hands; before this the queue
+    // showed the same row whether the reporter had paid or merely browsed.
+    meta: { type: Schema.Types.Mixed },
+
     resolution: String,
     reviewedBy: { type: Schema.Types.ObjectId, ref: "User" },
     reviewedAt: Date,

@@ -6,13 +6,13 @@ import Favorite from "@/models/Favorite";
 import SeekerRequest from "@/models/SeekerRequest";
 import User from "@/models/User";
 import { guardRole } from "@/lib/guardRole";
-import { ROLES } from "@/lib/constants";
+import { ROLES, LISTING_STATUS } from "@/lib/constants";
 import { formatRwf, formatDate } from "@/lib/format";
 import { PageHeader, StatCard, SectionHeading, Table, Tr, Td } from "@/components/ui/Dashboard";
 import EmptyState from "@/components/ui/EmptyState";
 import SavedListings from "./SavedListings";
 import StartSellingButton from "@/components/StartSellingButton";
-import { Search, Target } from "lucide-react";
+import { FileText, Search, Target } from "lucide-react";
 
 export default async function BuyerDashboard() {
   const session = guardRole(ROLES.BUYER);
@@ -21,7 +21,7 @@ export default async function BuyerDashboard() {
     User.findById(session.sub).lean(),
     TokenUnlock.find({ user: session.sub })
       .sort({ at: -1 })
-      .populate({ path: "listing", model: Listing, select: "title price" })
+      .populate({ path: "listing", model: Listing, select: "title price status" })
       .lean(),
     Favorite.countDocuments({ user: session.sub }),
     SeekerRequest.countDocuments({ seeker: session.sub }),
@@ -86,24 +86,59 @@ export default async function BuyerDashboard() {
       </div>
 
       <div className="mt-8">
-        <SectionHeading title="Unlocked contacts" />
+        <SectionHeading
+          title="Unlocked contacts"
+          description="Each unlock keeps its own contact sheet, available whether or not the listing is still live."
+          action={<Link href="/dashboard/unlocks" className="btn-outline">See the details</Link>}
+        />
         {unlocks.length === 0 ? (
           <EmptyState
             title="No unlocks yet"
-            hint="Unlock a listing's verified owner contact to see it here."
+            hint="Unlock a listing's owner contact to see it here."
             action={<Link href="/listings" className="btn-primary">Browse listings</Link>}
           />
         ) : (
           <Table head={["Listing", "Tier", { label: "Paid", numeric: true }, "Unlocked", ""]}>
-            {unlocks.map((u) => (
-              <Tr key={u._id.toString()}>
-                <Td className="font-semibold text-ink">{u.listing?.title || "(removed)"}</Td>
-                <Td className="capitalize text-ink-soft">{u.tier}</Td>
-                <Td numeric className="text-ink">{formatRwf(u.amountPaid)}</Td>
-                <Td className="text-ink-faint">{formatDate(u.at)}</Td>
-                <Td>{u.listing && <Link href={`/listings/${u.listing._id.toString()}`} className="inline-flex min-h-11 items-center font-semibold text-brand hover:underline">View</Link>}</Td>
-              </Tr>
-            ))}
+            {unlocks.map((u) => {
+              const live = u.listing?.status === LISTING_STATUS.ACTIVE;
+              return (
+                <Tr key={u._id.toString()}>
+                  <Td className="font-semibold text-ink">
+                    {u.listing?.title || "(removed)"}
+                    {u.listing && !live && (
+                      <span className="mt-0.5 block text-xs font-semibold text-ink-faint">
+                        No longer listed — your contact sheet still works
+                      </span>
+                    )}
+                  </Td>
+                  <Td className="capitalize text-ink-soft">{u.tier}</Td>
+                  <Td numeric className="text-ink">{formatRwf(u.amountPaid)}</Td>
+                  <Td className="text-ink-faint">{formatDate(u.at)}</Td>
+                  <Td>
+                    {/* The contact sheet, not the listing: the listing page
+                        refuses anything that is not ACTIVE, so "View" was a
+                        404 for exactly the unlocks whose details the buyer can
+                        no longer get anywhere else. */}
+                    <div className="flex flex-wrap items-center gap-3">
+                      <Link
+                        href={`/documents/unlock/${u._id.toString()}`}
+                        className="inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap text-xs font-bold text-brand hover:underline"
+                      >
+                        <FileText className="h-3.5 w-3.5" /> Contact sheet
+                      </Link>
+                      {u.listing && live && (
+                        <Link
+                          href={`/listings/${u.listing._id.toString()}`}
+                          className="inline-flex min-h-11 items-center whitespace-nowrap text-xs font-bold text-ink-soft hover:text-ink hover:underline"
+                        >
+                          Listing
+                        </Link>
+                      )}
+                    </div>
+                  </Td>
+                </Tr>
+              );
+            })}
           </Table>
         )}
       </div>

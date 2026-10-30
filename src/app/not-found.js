@@ -13,7 +13,7 @@ export default function NotFound() {
         <h1 className="mt-4 font-display text-3xl font-bold text-ink">This page wandered off</h1>
         <p className="mt-3 max-w-md text-ink-soft">
           The page you&apos;re looking for doesn&apos;t exist or may have been moved. Let&apos;s get you
-          back to verified listings.
+          back to the listings.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link href="/" className="btn-primary px-6 py-3 text-base">Back home</Link>

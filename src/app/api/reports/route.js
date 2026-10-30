@@ -2,6 +2,7 @@ import { z } from "zod";
 import { connectDB } from "@/lib/db";
 import Listing from "@/models/Listing";
 import Report, { REPORT_REASONS, REPORT_STATUS } from "@/models/Report";
+import TokenUnlock from "@/models/TokenUnlock";
 import { audit } from "@/models/AuditLog";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { enforceRateLimit } from "@/lib/rateLimit";
@@ -10,6 +11,9 @@ const schema = z.object({
   listingId: z.string().min(1),
   reason: z.enum(Object.values(REPORT_REASONS)),
   details: z.string().max(2000).optional(),
+  // Optional: the unlock this complaint is about, so a paid-for contact that
+  // turned out to be wrong is distinguishable from a passer-by's report.
+  unlockId: z.string().min(1).optional(),
 });
 
 // Number of distinct reporters before a listing is auto-flagged for review.
@@ -46,6 +50,29 @@ export async function POST(req) {
     return fail("You cannot report your own listing", 400);
   }
 
+  // The amounts are read from the unlock record, never from the request body:
+  // the client says which unlock, the server says what it cost.
+  let meta;
+  if (parsed.data.unlockId) {
+    const unlock = await TokenUnlock.findOne({
+      _id: parsed.data.unlockId,
+      user: guard.session.sub,
+      listing: listing._id,
+    })
+      .select("payment amountPaid tier at")
+      .lean()
+      .catch(() => null);
+    if (unlock) {
+      meta = {
+        unlockId: unlock._id.toString(),
+        paymentId: unlock.payment?.toString() || null,
+        amountPaid: unlock.amountPaid ?? null,
+        tier: unlock.tier || null,
+        unlockedAt: unlock.at || null,
+      };
+    }
+  }
+
   try {
     await Report.create({
       reporter: guard.session.sub,
@@ -53,6 +80,7 @@ export async function POST(req) {
       listingOwner: listing.owner,
       reason: parsed.data.reason,
       details: parsed.data.details,
+      meta,
     });
   } catch (err) {
     // Unique index on (reporter, listing).
@@ -80,7 +108,7 @@ export async function POST(req) {
     action: "listing.report",
     targetType: "Listing",
     targetId: listing._id,
-    meta: { reason: parsed.data.reason, distinctReporters },
+    meta: { reason: parsed.data.reason, distinctReporters, paidUnlock: Boolean(meta) },
   });
 
   return ok({ reported: true }, 201);

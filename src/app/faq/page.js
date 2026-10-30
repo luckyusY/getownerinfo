@@ -4,7 +4,9 @@ import SiteFooter from "@/components/SiteFooter";
 export const metadata = { title: "FAQ - getownerinfo" };
 
 const FAQS = [
-  ["What is the token fee?", "A small, non-refundable fee that unlocks a listing's verified owner contact and exact location. It keeps inquiries serious and protects owner privacy."],
+  ["What is the token fee?", "A small, non-refundable fee that unlocks a listing's owner contact and exact location. It keeps inquiries serious and protects owner privacy."],
+  ["What if the contact I paid for does not work?", "Report it from the contact sheet in your dashboard, under Contact unlocks. We check the number ourselves, remove the listing if it is wrong, and tell you the outcome. The token fee is not refunded, but a listing with a bad contact does not stay on the site."],
+  ["Do I keep the contact after the listing is gone?", "Yes. Every unlock keeps its own contact sheet under Contact unlocks, with the owner's name, number and exact location. It stays available whether or not the listing is still live."],
   ["Is my contact information safe as an owner?", "Yes. Your phone and exact address stay hidden until a buyer pays the token fee, and every unlock is logged and watermarked to the viewer."],
   ["What's the difference between Model A and Model B?", "Model A is exclusive and commission-based for eligible high-value, single-unit listings. Model B is a simple pay-to-list option for everything else."],
   ["How do payments work?", "We support mobile money, card, and bank transfer. Listing fees and commissions include 18% VAT."],

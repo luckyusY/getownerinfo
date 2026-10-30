@@ -30,7 +30,7 @@ export default function OgImage() {
         </div>
         <div style={{ fontSize: 72, fontWeight: 800, lineHeight: 1.05, color: "#7fd6ee" }}>Skip the brokers.</div>
         <div style={{ marginTop: 36, fontSize: 30, color: "rgba(255,255,255,0.8)", maxWidth: 820 }}>
-          Verified owners across Rwanda. Unlock contact with a secure token fee.
+          Reviewed listings across Rwanda. Unlock contact with a secure token fee.
         </div>
       </div>
     ),

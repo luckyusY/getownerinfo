@@ -107,7 +107,7 @@ export default function LoginPage() {
           </p>
         </form>
         <p className="mt-4 text-center text-xs text-ink-faint">
-          Owner details stay protected until a verified token unlock.
+          Owner details stay protected until you pay the token fee.
         </p>
       </div>
     </div>

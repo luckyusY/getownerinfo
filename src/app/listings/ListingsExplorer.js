@@ -204,7 +204,7 @@ export default function ListingsExplorer({
         <div className="min-w-0">
           <p className="inline-flex items-center gap-2 text-sm font-bold text-ink">
             <Sparkles className="h-4 w-4 text-brand" />
-            {visible.length} verified listing{visible.length === 1 ? "" : "s"}
+            {visible.length} listing{visible.length === 1 ? "" : "s"}
           </p>
           <p className="mt-1 text-xs font-semibold text-ink-faint">
             {activeCount

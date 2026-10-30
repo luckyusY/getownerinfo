@@ -48,6 +48,10 @@ export async function GET(req) {
       details: r.details || "",
       reporterName: r.reporter?.name || "Unknown",
       at: r.createdAt,
+      // Present only when the reporter had paid to unlock this listing.
+      paidUnlock: r.meta?.unlockId
+        ? { amountPaid: r.meta.amountPaid ?? null, tier: r.meta.tier || null, at: r.meta.unlockedAt || null }
+        : null,
     });
   }
 

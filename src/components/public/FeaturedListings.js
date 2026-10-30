@@ -26,7 +26,7 @@ export default function FeaturedListings({ listings = [] }) {
         <div>
           <h2 className="font-display text-2xl font-bold text-ink">Featured Listings</h2>
           <p className="mt-1 text-sm font-semibold text-ink-soft">
-            Handpicked verified listings from real owners
+            Recently approved listings from real owners
           </p>
         </div>
 

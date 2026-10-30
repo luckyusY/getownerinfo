@@ -32,7 +32,7 @@ export default async function PricingPage() {
           <p className="mt-3 text-ink-soft">
             Listing is free for eligible exclusive (Model A) owners — you only pay a commission when
             a deal closes. Everything else is a simple paid listing. Buyers pay a small token fee to
-            unlock verified contact. All amounts include 18% VAT.
+            unlock owner contact. All amounts include 18% VAT.
           </p>
         </div>
 

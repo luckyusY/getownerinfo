@@ -26,8 +26,8 @@ const PRICE_RANGES = [
 ];
 
 const PROMISES = [
-  { icon: UserCheck, title: "Contact Real Owners", body: "Get verified contact information after a small token payment.", tone: "bg-brand-50 text-brand" },
-  { icon: ShieldCheck, title: "Verified Listings", body: "Secure and transparent platform.", tone: "bg-emerald-50 text-emerald-600" },
+  { icon: UserCheck, title: "Contact Real Owners", body: "Get the owner’s own contact details after a small token payment.", tone: "bg-brand-50 text-brand" },
+  { icon: ShieldCheck, title: "Reviewed Listings", body: "Every listing is checked by our team before it goes live.", tone: "bg-emerald-50 text-emerald-600" },
   { icon: MessageSquare, title: "Chat Before You Pay", body: "Ask questions and get more details before unlocking contact info.", tone: "bg-sky-50 text-sky-dark" },
   { icon: Lock, title: "Safe & Private", body: "Your privacy and security come first.", tone: "bg-violet-50 text-violet-600" },
 ];
@@ -94,7 +94,7 @@ export default function HomeHero({ categories = [], locations = [] }) {
             </span>
           </h1>
           <p className="mt-5 text-base font-semibold text-ink-soft sm:text-lg">
-            Verified owners. Real listings. Secure and transparent.
+            Reviewed listings. Real owners. Secure and transparent.
           </p>
 
           <form onSubmit={onSubmit} className="mt-8 overflow-hidden rounded-2xl border border-line bg-surface shadow-lift">

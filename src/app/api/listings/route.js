@@ -3,7 +3,7 @@ import Listing from "@/models/Listing";
 import Category from "@/models/Category";
 import PlatformSettings, { getSettings } from "@/models/PlatformSettings";
 import { DEFAULT_SETTINGS } from "@/data/catalog";
-import { escapeRegex, publicListingFilter } from "@/lib/listingQuery";
+import { escapeRegex, publicListingFilter, verifiedOwnerIds } from "@/lib/listingQuery";
 import { audit } from "@/models/AuditLog";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { SELLER_ROLES, LISTING_STATUS, LISTING_MODELS, PAYMENT_STATUS } from "@/lib/constants";
@@ -219,5 +219,14 @@ export async function GET(req) {
   }
 
   const listings = await Listing.find(query).sort({ createdAt: -1 }).limit(60);
-  return ok({ listings: listings.map((l) => l.toPublicJSON()) });
+  // The grid is where the buyer chooses what to click, so whether the owner
+  // passed identity verification belongs on the card, not only on the page
+  // they reach afterwards. One query for the whole page of results.
+  const verified = await verifiedOwnerIds(listings, User);
+  return ok({
+    listings: listings.map((l) => ({
+      ...l.toPublicJSON(),
+      ownerVerified: verified.has(l.owner?.toString()),
+    })),
+  });
 }

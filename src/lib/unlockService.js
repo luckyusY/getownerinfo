@@ -55,8 +55,12 @@ export async function finalizeUnlock({ payment, listing, user }) {
       userId: listing.owner,
       data: { listing, buyerName: user.name },
     });
-    // The buyer gets their own confirmation: they just paid for this.
-    await dispatch("unlock_confirmed", { userId: user._id, data: { listing } });
+    // The buyer gets their own confirmation: they just paid for this. The
+    // unlock id goes with it so the link lands on their contact sheet.
+    await dispatch("unlock_confirmed", {
+      userId: user._id,
+      data: { listing, unlockId: unlock._id.toString() },
+    });
     await dispatch("payment_successful", {
       userId: user._id,
       data: { payment, what: `unlocking “${listing.title}”` },

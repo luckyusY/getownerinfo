@@ -14,25 +14,25 @@ import Category from "@/models/Category";
 import User from "@/models/User";
 import TokenUnlock from "@/models/TokenUnlock";
 import { ROLES } from "@/lib/constants";
-import { publicListingFilter } from "@/lib/listingQuery";
+import { publicListingFilter, verifiedOwnerIds } from "@/lib/listingQuery";
 import { RWANDA_LOCATIONS, POPULAR_LOCATIONS } from "@/data/locations";
 
 export const dynamic = "force-dynamic";
 
 const STEPS = [
-  { icon: SearchCheck, title: "Browse verified listings", body: "Property, vehicles and assets across Rwanda, with every owner verified by our team." },
+  { icon: SearchCheck, title: "Browse reviewed listings", body: "Property, vehicles and assets across Rwanda. Our team reviews every listing before it goes live." },
   { icon: KeyRound, title: "Unlock with a token", body: "Pay a small, non-refundable fee to reveal the owner's contact and exact location." },
   { icon: Handshake, title: "Deal directly", body: "Call the owner, view, and negotiate. No brokers, no inflated middle-man fees." },
 ];
 
 const JOURNEYS = [
-  { icon: SearchCheck, title: "I want to buy or rent", body: "Search verified listings, save options, then unlock owner contact only when you are serious.", href: "/listings", cta: "Browse listings" },
+  { icon: SearchCheck, title: "I want to buy or rent", body: "Search reviewed listings, save options, then unlock owner contact only when you are serious.", href: "/listings", cta: "Browse listings" },
   { icon: Store, title: "I want to sell or rent out", body: "Create one account, submit proof, and publish property or assets after review.", href: "/register?role=owner", cta: "List your property" },
   { icon: Headphones, title: "I cannot find what I need", body: "Post a request so owners and managers can see exactly what you are looking for.", href: "/seekers/new", cta: "Post what you need" },
 ];
 
 const SAFETY = [
-  { icon: Fingerprint, title: "Identity verified", body: "Owners submit ID and ownership proof. Our team verifies before a listing goes live." },
+  { icon: Fingerprint, title: "Identity verification", body: "Owners can submit ID and ownership proof. Those who pass carry a verified badge on their listings." },
   { icon: Lock, title: "Privacy protected", body: "Contact and exact location stay hidden until a buyer pays the token fee." },
   { icon: ScrollText, title: "Immutable access logs", body: "Every unlock is recorded permanently and used to enforce fair commissions." },
   { icon: FileCheck2, title: "Watermarked contacts", body: "Revealed details are stamped with the viewer's identity to deter sharing." },
@@ -73,6 +73,7 @@ async function loadHomeData() {
   ]);
 
   const catName = Object.fromEntries(categories.map((c) => [c._id.toString(), c.name]));
+  const verified = await verifiedOwnerIds(listings, User);
 
   return {
     categories: categories.map((c) => ({ slug: c.slug, name: c.name })),
@@ -87,10 +88,13 @@ async function loadHomeData() {
       attributes: l.attributes || {},
       location: { area: l.location?.area || null },
       categoryName: catName[l.category?.toString()] || "Listing",
+      ownerVerified: verified.has(l.owner?.toString()),
     })),
     stats: [
       { label: "Active listings", value: compact(activeCount) },
-      { label: "Verified owners", value: compact(ownerCount) },
+      // Counted `role: OWNER`, not `isVerified` — so this read "Verified
+      // owners" over a tally of every owner account on the site.
+      { label: "Owners listing", value: compact(ownerCount) },
       { label: "Contacts unlocked", value: compact(unlockCount) },
       { label: "Categories", value: String(categories.length) },
     ],
@@ -187,7 +191,7 @@ export default async function HomePage() {
               <Link
                 key={location.name}
                 href={location.href}
-                aria-label={`Browse verified listings in ${location.name}, ${location.district}`}
+                aria-label={`Browse listings in ${location.name}, ${location.district}`}
                 className="group relative flex min-h-[200px] flex-col justify-end overflow-hidden rounded-2xl bg-navy p-5 text-white shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-lift"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -258,7 +262,7 @@ export default async function HomePage() {
             <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
             <h2 className="font-display text-3xl font-bold text-white sm:text-4xl">Ready to find the real owner?</h2>
             <p className="mx-auto mt-3 max-w-xl text-white/85">
-              List your property, or browse verified listings and unlock direct owner contact in seconds.
+              List your property, or browse reviewed listings and unlock direct owner contact in seconds.
             </p>
             <div className="mt-7 flex flex-wrap justify-center gap-3">
               <Link href="/register" className="btn bg-white px-6 py-3 text-base text-brand hover:bg-white/90">Get started free</Link>

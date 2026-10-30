@@ -3,7 +3,7 @@ export default function manifest() {
     name: "getownerinfo — Find the real owner",
     short_name: "getownerinfo",
     description:
-      "List property, vehicles and assets. Unlock verified owner contact with a secure token fee.",
+      "List property, vehicles and assets. Unlock the owner's contact with a secure token fee.",
     start_url: "/",
     display: "standalone",
     background_color: "#f7f8fa",

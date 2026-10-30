@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {
-  Bath, BedDouble, Camera, Fuel, Gauge, MapPin, Maximize2, Settings2, Sofa, SquareParking,
+  Bath, BedDouble, Camera, Fuel, Gauge, MapPin, Maximize2, Settings2, ShieldCheck, Sofa, SquareParking,
 } from "lucide-react";
 import { formatRwf } from "@/lib/format";
 import { cardImage } from "@/lib/imageUrl";
@@ -62,6 +62,13 @@ export default function ListingCard({ listing: l }) {
         <div className="absolute right-3 top-3">
           <FavoriteButton listingId={l.id} />
         </div>
+        {/* The home page promises that owners who complete identity
+            verification carry a badge. This is that badge. */}
+        {l.ownerVerified && (
+          <span className="absolute bottom-3 left-3 inline-flex items-center gap-1 rounded-full bg-white/92 px-2.5 py-1 text-[11px] font-black text-emerald-700 backdrop-blur">
+            <ShieldCheck className="h-3.5 w-3.5" /> Verified owner
+          </span>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col p-4">

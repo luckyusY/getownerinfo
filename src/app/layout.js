@@ -55,14 +55,14 @@ export const metadata = {
     template: "%s · getownerinfo",
   },
   description:
-    "List property, vehicles and assets. Unlock verified owner contact and exact location with a secure token fee — no brokers.",
-  keywords: ["Rwanda real estate", "property", "rent", "vehicles", "verified owners", "Kigali"],
+    "List property, vehicles and assets. Unlock the owner's contact and exact location with a secure token fee — no brokers.",
+  keywords: ["Rwanda real estate", "property", "rent", "vehicles", "direct owner contact", "Kigali"],
   openGraph: {
     type: "website",
     siteName: "getownerinfo",
     title: "getownerinfo — Find the real owner",
     description:
-      "Connect directly with verified owners across Rwanda. Privacy and trust built in.",
+      "Connect directly with owners across Rwanda. Privacy and trust built in.",
   },
   twitter: { card: "summary_large_image", title: "getownerinfo", description: "Find the real owner. Skip the brokers." },
 };

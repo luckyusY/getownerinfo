@@ -60,7 +60,11 @@ export async function POST(req, { params }) {
   // Already unlocked? Return the revealed data (idempotent, no new charge).
   const existing = await TokenUnlock.findOne({ user: user._id, listing: listing._id });
   if (existing) {
-    return ok({ alreadyUnlocked: true, ...buildRevealedContact(listing, existing.watermark) });
+    return ok({
+      alreadyUnlocked: true,
+      unlockId: existing._id.toString(),
+      ...buildRevealedContact(listing, existing.watermark),
+    });
   }
 
   const settings = await getSettings(PlatformSettings, DEFAULT_SETTINGS);
@@ -145,7 +149,11 @@ export async function POST(req, { params }) {
   if (init.status === "paid") {
     await finalizeUnlock({ payment, listing, user });
     const unlock = await TokenUnlock.findOne({ user: user._id, listing: listing._id });
-    return ok({ unlocked: true, ...buildRevealedContact(listing, unlock.watermark) });
+    return ok({
+      unlocked: true,
+      unlockId: unlock._id.toString(),
+      ...buildRevealedContact(listing, unlock.watermark),
+    });
   }
 
   return ok({ needsVerify: true, paymentId: payment._id.toString(), redirectUrl: init.redirectUrl });

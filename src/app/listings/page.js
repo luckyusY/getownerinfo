@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Browse listings",
-  description: "Browse verified property, vehicles and assets across Rwanda. Unlock owner contact with a token fee.",
+  description: "Browse reviewed property, vehicles and assets across Rwanda. Unlock owner contact with a token fee.",
 };
 
 export default async function ListingsPage({ searchParams }) {
@@ -34,7 +34,7 @@ export default async function ListingsPage({ searchParams }) {
       <main className="page-shell">
         <section className="page-hero">
           <p className="eyebrow">Marketplace</p>
-          <h1 className="mt-2 font-display text-4xl font-bold text-ink">Browse verified listings</h1>
+          <h1 className="mt-2 font-display text-4xl font-bold text-ink">Browse listings</h1>
           <p className="mt-2 max-w-2xl text-ink-soft">
             Explore property, vehicles, and assets. Contact details and exact location unlock with a token fee.
           </p>

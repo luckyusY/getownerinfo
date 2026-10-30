@@ -43,3 +43,28 @@ export function publicListingFilter(extra = {}) {
 export function escapeRegex(input) {
   return String(input).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
+
+/**
+ * Which of these listings' owners have completed identity verification.
+ *
+ * `isVerified` lives on the User, not the Listing, so the grid had no way to
+ * show it — the badge existed only on the detail page, after the buyer had
+ * already chosen what to click. One `$in` over the distinct owners rather than
+ * a lookup per card, and no denormalised copy to keep in step.
+ *
+ * Returns a Set of owner id strings so both the lean and the document card
+ * paths can use it.
+ *
+ * @param {Array<{owner?: unknown}>} listings
+ * @param {import("mongoose").Model} User
+ * @returns {Promise<Set<string>>}
+ */
+export async function verifiedOwnerIds(listings, User) {
+  const ids = [...new Set((listings || []).map((l) => l.owner?.toString()).filter(Boolean))];
+  if (!ids.length) return new Set();
+  const owners = await User.find({ _id: { $in: ids }, isVerified: true })
+    .select("_id")
+    .lean()
+    .catch(() => []);
+  return new Set(owners.map((o) => o._id.toString()));
+}

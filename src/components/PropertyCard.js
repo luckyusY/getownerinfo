@@ -7,7 +7,7 @@ import { ArrowUpRight, Camera, KeyRound, MapPin, ShieldCheck } from "lucide-reac
 
 /**
  * Presentational listing card, shared by the homepage and browse grid.
- * @param {object} listing - { id, title, images:[url], price, transactionType, model, location:{area}, categoryName }
+ * @param {object} listing - { id, title, images:[url], price, transactionType, model, location:{area}, categoryName, ownerVerified }
  */
 export default function PropertyCard({ listing, style }) {
   const l = listing;
@@ -36,6 +36,14 @@ export default function PropertyCard({ listing, style }) {
         <div className="absolute left-2 top-2 flex flex-wrap gap-1.5">
           <Badge tone={l.transactionType === "rent" ? "info" : "gold"}>{transactionLabel}</Badge>
           {l.model === "A" && <Badge tone="brand">Exclusive owner</Badge>}
+          {/* The real trust signal: this owner's ID and ownership proof were
+              checked. It used to appear only on the detail page, after the
+              buyer had already chosen what to open. */}
+          {l.ownerVerified && (
+            <Badge tone="success">
+              <ShieldCheck className="h-3.5 w-3.5" /> Verified owner
+            </Badge>
+          )}
         </div>
         <div className="absolute right-2 top-2">
           <FavoriteButton listingId={l.id} />
@@ -79,9 +87,14 @@ export default function PropertyCard({ listing, style }) {
         )}
 
         <div className="mt-auto flex items-center justify-between gap-3 pt-4">
+          {/* Both models reveal the contact behind the same token payment, and
+              neither says anything about the owner being verified. This slot
+              read "Verified exclusive" / "Token unlock", which claimed a
+              verification the model does not carry and implied only Model B
+              cost the buyer anything. */}
           <span className="inline-flex items-center gap-1.5 text-xs font-bold text-ink-faint">
-            {l.model === "A" ? <ShieldCheck className="h-4 w-4 text-brand" /> : <KeyRound className="h-4 w-4 text-clay" />}
-            {l.model === "A" ? "Verified exclusive" : "Token unlock"}
+            <KeyRound className="h-4 w-4 text-clay" />
+            Contact by token
           </span>
           <span className="text-sm font-bold text-brand">View details</span>
         </div>
