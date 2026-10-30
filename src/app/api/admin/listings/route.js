@@ -4,8 +4,7 @@ import Listing from "@/models/Listing";
 import Category from "@/models/Category";
 import User from "@/models/User";
 import { audit } from "@/models/AuditLog";
-import { notifyUser } from "@/models/Notification";
-import { notify } from "@/lib/notify";
+import { dispatch } from "@/lib/notificationService";
 import { missingFields, completionPercent } from "@/lib/listingForm";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { ROLES, LISTING_STATUS } from "@/lib/constants";
@@ -112,19 +111,7 @@ export async function PATCH(req) {
 
   // Tell the manager they now have work, so an assignment is not silent.
   if (manager) {
-    await notifyUser({
-      user: manager._id,
-      type: "info",
-      title: "A listing was assigned to you",
-      body: `You are now managing “${listing.title}”.`,
-      link: "/dashboard/manager",
-    });
-    await notify({
-      to: manager.email,
-      channel: "email",
-      subject: "A listing was assigned to you",
-      message: `You have been assigned "${listing.title}" on getownerinfo. Open your manager dashboard to review it.`,
-    });
+    await dispatch("listing_assigned", { userId: manager._id, data: { listing } });
   }
 
   return ok({
@@ -162,26 +149,9 @@ export async function POST(req) {
   const category = await Category.findById(listing.category).select("slug name").lean();
   const missing = missingFields(listing, category);
 
-  await notifyUser({
-    user: listing.owner._id,
-    type: "info",
-    title: "Finish your listing",
-    body: missing.length
-      ? `“${listing.title}” still needs: ${missing.join(", ")}.`
-      : `“${listing.title}” is ready to submit.`,
-    link: `/dashboard/owner/listings/new?draft=${listing._id.toString()}`,
-  });
-
-  const delivery = await notify({
-    to: listing.owner?.email,
-    channel: "email",
-    subject: `Your listing “${listing.title}” is not finished`,
-    message: [
-      `Your draft listing "${listing.title}" has not been submitted yet.`,
-      missing.length ? `Still needed: ${missing.join(", ")}.` : "It looks complete — submit it when ready.",
-      "",
-      "Reopen it from your dashboard to finish and submit.",
-    ].join("\n"),
+  const delivery = await dispatch("draft_reminder", {
+    userId: listing.owner._id,
+    data: { listing, missing },
   });
 
   await audit({
@@ -190,8 +160,8 @@ export async function POST(req) {
     action: "admin.listing_reminder_sent",
     targetType: "Listing",
     targetId: listing._id,
-    meta: { missing, emailDelivered: delivery.delivered },
+    meta: { missing, emailDelivered: delivery.email },
   });
 
-  return ok({ reminded: true, missing, emailDelivered: delivery.delivered });
+  return ok({ reminded: true, missing, emailDelivered: delivery.email });
 }

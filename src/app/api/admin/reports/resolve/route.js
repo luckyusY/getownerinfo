@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/db";
 import Listing from "@/models/Listing";
 import Report, { REPORT_STATUS } from "@/models/Report";
 import { audit } from "@/models/AuditLog";
-import { notifyUser } from "@/models/Notification";
+import { dispatch } from "@/lib/notificationService";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { ROLES, LISTING_STATUS } from "@/lib/constants";
 
@@ -35,6 +35,18 @@ export async function POST(req) {
   if (!listing) return fail("Listing not found", 404);
 
   const upheld = action === "uphold";
+
+  // Collected before the update, because afterwards there is nothing left
+  // matching "open" to read the reporters off. Each of these people filed a
+  // report and, until now, never heard whether anything came of it — which is
+  // the surest way to stop people reporting anything at all.
+  const openReports = await Report.find({
+    listing: listing._id,
+    status: { $in: [REPORT_STATUS.OPEN, REPORT_STATUS.REVIEWING] },
+  })
+    .select("reporter")
+    .lean();
+
   const result = await Report.updateMany(
     { listing: listing._id, status: { $in: [REPORT_STATUS.OPEN, REPORT_STATUS.REVIEWING] } },
     {
@@ -52,13 +64,21 @@ export async function POST(req) {
   await Listing.updateOne({ _id: listing._id }, { $set: listingUpdate });
 
   if (upheld) {
-    await notifyUser({
-      user: listing.owner,
-      type: "listing_reported",
-      title: takedown ? "Your listing was removed" : "Your listing needs attention",
-      body: `"${listing.title}": ${resolution || "reported by users and found to breach our rules"}.`,
-      link: "/dashboard/owner",
+    await dispatch("listing_upheld_report", {
+      userId: listing.owner,
+      data: { listing, resolution, takedown: Boolean(takedown) },
     });
+  }
+
+  // Close the loop with everyone who reported it, whichever way it went.
+  const outcome = upheld
+    ? takedown
+      ? "the listing was removed"
+      : "upheld — the owner has been asked to correct it"
+    : "no violation found";
+  const reporters = [...new Set(openReports.map((r) => r.reporter.toString()))];
+  for (const reporter of reporters) {
+    await dispatch("report_resolved", { userId: reporter, data: { outcome } });
   }
 
   await audit({

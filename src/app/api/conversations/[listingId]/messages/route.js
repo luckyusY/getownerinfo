@@ -4,9 +4,10 @@ import Listing from "@/models/Listing";
 import Conversation from "@/models/Conversation";
 import Message from "@/models/Message";
 import TokenUnlock from "@/models/TokenUnlock";
+import User from "@/models/User";
 import { scanMessage } from "@/lib/contentFilter";
 import { audit } from "@/models/AuditLog";
-import { notifyUser } from "@/models/Notification";
+import { dispatch } from "@/lib/notificationService";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { ROLES, SELLER_ROLES, isSeller } from "@/lib/constants";
 
@@ -116,16 +117,20 @@ export async function POST(req, { params }) {
   await conversation.save();
 
   // Notify the recipient (the other side of the conversation).
+  //
+  // This used to write the in-app record directly, which meant a message only
+  // ever reached someone who happened to open the site: no email, and the
+  // account's message preference was never consulted. Going through `dispatch`
+  // sends both and honours the preference, with the wording held in one place.
   const recipient = senderSide === "buyer" ? listing.owner : conversation.buyer;
-  const recipientLink = senderSide === "buyer"
-    ? "/dashboard/owner/messages"
-    : `/listings/${listing._id.toString()}`;
-  await notifyUser({
-    user: recipient,
-    type: "message",
-    title: "New message",
-    body: `About “${listing.title}”: ${parsed.data.body.slice(0, 60)}`,
-    link: recipientLink,
+  const sender = await User.findById(sub).select("name").lean().catch(() => null);
+  await dispatch("message_received", {
+    userId: recipient,
+    data: {
+      listing,
+      senderName: sender?.name || "Someone",
+      preview: parsed.data.body.slice(0, 60),
+    },
   });
 
   if (onBehalf) {

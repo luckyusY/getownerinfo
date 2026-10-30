@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CheckCircle2, ExternalLink, LockKeyhole, Phone } from "lucide-react";
@@ -35,13 +35,18 @@ export default function SeekerUnlockPanel({
   const [pending, setPending] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  async function fetchRevealed() {
+  // The background check reads the payment id through a ref so that settling
+  // it does not re-create the attempt function and restart the interval.
+  const pendingRef = useRef(null);
+  pendingRef.current = pending;
+
+  const fetchRevealed = useCallback(async () => {
     const res = await fetch(`/api/seekers/${requestId}`);
     const j = await res.json();
     if (!j.success) throw new Error(j.error || "Could not load the contact");
     if (!j.data.revealed) return null;
     return j.data.revealed;
-  }
+  }, [requestId]);
 
   async function unlock() {
     setLoading(true);
@@ -70,22 +75,37 @@ export default function SeekerUnlockPanel({
     }
   }
 
+  /**
+   * One attempt at settling the started payment.
+   *
+   * Shared by the button and the background check below, which is why it
+   * reports rather than toasts: a background attempt that finds the payment
+   * still pending is the expected case, not an error worth interrupting for.
+   */
+  const attemptSettle = useCallback(async () => {
+    if (!pendingRef.current?.paymentId) return { done: false };
+    const res = await fetch(`/api/payments/${pendingRef.current.paymentId}/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    });
+    const j = await res.json();
+    if (!j.success) return { done: false, error: j.error };
+
+    const contact = await fetchRevealed();
+    if (!contact) {
+      return { done: false, error: "Payment went through but the contact is not available yet." };
+    }
+    setRevealed(contact);
+    setPending(null);
+    return { done: true };
+  }, [fetchRevealed]);
+
   async function confirmPayment() {
-    if (!pending?.paymentId) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/payments/${pending.paymentId}/verify`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
-      });
-      const j = await res.json();
-      if (!j.success) throw new Error(j.error);
-
-      const contact = await fetchRevealed();
-      if (!contact) throw new Error("Payment went through but the contact is not available yet.");
-      setRevealed(contact);
-      setPending(null);
+      const result = await attemptSettle();
+      if (!result.done) throw new Error(result.error || "The payment has not settled yet.");
       toast("Seeker contact unlocked", { type: "success" });
     } catch (err) {
       toast(err.message, { type: "error" });
@@ -93,6 +113,41 @@ export default function SeekerUnlockPanel({
       setLoading(false);
     }
   }
+
+  /**
+   * While a payment is outstanding, check for it instead of waiting to be
+   * asked. Mobile money settles seconds to minutes after the user approves it
+   * on their handset, by which point they are looking at this panel — so the
+   * contact should appear on its own rather than behind a button they have to
+   * guess the right moment to press.
+   *
+   * Hidden tabs are skipped, and the checking stops after a few minutes so a
+   * forgotten tab is not left polling for the rest of the day.
+   */
+  useEffect(() => {
+    if (!pending?.paymentId) return;
+    let stopped = false;
+    const until = Date.now() + 5 * 60 * 1000;
+
+    async function check() {
+      if (stopped || document.hidden || Date.now() > until) return;
+      try {
+        const result = await attemptSettle();
+        if (result.done && !stopped) toast("Payment confirmed — contact unlocked", { type: "success" });
+      } catch {
+        // A failed check is not worth reporting: the next one will try again,
+        // and the button is still there if the user wants to force it.
+      }
+    }
+
+    const timer = setInterval(check, 8000);
+    document.addEventListener("visibilitychange", check);
+    return () => {
+      stopped = true;
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", check);
+    };
+  }, [pending, attemptSettle, toast]);
 
   if (revealed) return <RevealedContact revealed={revealed} isSeeker={isSeeker} />;
 
@@ -135,8 +190,12 @@ export default function SeekerUnlockPanel({
             </a>
           )}
           <button className="btn-outline w-full" disabled={loading} onClick={confirmPayment}>
-            {loading ? "Checking..." : "I have paid — check again"}
+            {loading ? "Checking..." : "I have paid — check now"}
           </button>
+          <p className="text-[11px] font-semibold text-ink-faint">
+            Keep this page open: it checks every few seconds and the contact appears here on
+            its own once the payment lands.
+          </p>
         </div>
       ) : (
         <div className="mt-4 space-y-2">

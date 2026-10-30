@@ -150,10 +150,16 @@ export const EVENTS = {
   // --- conversations ---
   message_received: {
     group: PREF_GROUPS.MESSAGES,
-    build: ({ listing, senderName }) => ({
-      title: "New message",
-      body: `${senderName} sent you a message about “${listing.title}”.`,
-      link: `/listings/${listing._id || listing.id}`,
+    build: ({ listing, senderName, preview }) => ({
+      title: `New message from ${senderName}`,
+      // The preview is what makes this worth opening. Without it the reader
+      // has to log in to find out whether the message needs them at all.
+      body: preview
+        ? `About “${listing.title}”: ${preview}`
+        : `${senderName} sent you a message about “${listing.title}”.`,
+      // Both sides of a thread read it at /dashboard/messages — it renders the
+      // same inbox for whichever side the account is on.
+      link: "/dashboard/messages",
     }),
   },
 
@@ -200,6 +206,18 @@ export const EVENTS = {
       title: "Your report was reviewed",
       body: `An admin reviewed the listing you reported. Outcome: ${outcome}.`,
       link: "/dashboard/notifications",
+    }),
+  },
+  // An upheld report changes what the owner is allowed to have on the site, so
+  // it is emailed regardless of preference — a takedown the owner only finds
+  // out about by noticing is not an outcome they can respond to.
+  listing_upheld_report: {
+    group: PREF_GROUPS.ACCOUNT,
+    critical: true,
+    build: ({ listing, resolution, takedown }) => ({
+      title: takedown ? "Your listing was removed" : "Your listing needs attention",
+      body: `“${listing.title}”: ${resolution || "it was reported by users and found to breach our rules"}.`,
+      link: takedown ? "/dashboard/listings?status=rejected" : "/dashboard/owner",
     }),
   },
 };

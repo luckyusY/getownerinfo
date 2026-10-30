@@ -8,6 +8,7 @@ import { DEFAULT_SETTINGS } from "@/data/catalog";
 import { safeInitiate, safeVerify } from "@/lib/payments";
 import { audit } from "@/models/AuditLog";
 import { buildSeekerContact } from "@/lib/seekerContact";
+import { dispatch } from "@/lib/notificationService";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { ROLES, PAYMENT_TYPES, PAYMENT_STATUS, SELLER_ROLES } from "@/lib/constants";
 
@@ -85,6 +86,16 @@ export async function POST(_req, { params }) {
     targetType: "SeekerRequest",
     targetId: request._id,
     meta: { amount },
+  });
+
+  // This route only reaches here when the provider settled inline; the slower
+  // path goes through `settleNonUnlockPayment`, which raises the same two.
+  // Both sides need to hear: the seeker because a stranger now has their
+  // number, the viewer because they just paid for it.
+  await dispatch("seeker_unlocked", { userId: request.seeker, data: { request } });
+  await dispatch("payment_successful", {
+    userId: viewer._id,
+    data: { payment, what: "viewing a buyer request" },
   });
 
   return ok({ unlocked: true, ...buildSeekerContact(request, watermark) });
