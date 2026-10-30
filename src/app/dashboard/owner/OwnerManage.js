@@ -113,42 +113,97 @@ export default function OwnerManage({ status = null, showListings = true, showFi
       {showFinance && penalties.length > 0 && (
         <section>
           <SectionHeading title="Penalties" />
-          <Table head={["Offense", "Reason", { label: "Amount", numeric: true }, "Status", ""]}>
+          {/* Pay is the fifth column of five at 680px, so on a phone the one
+              thing the owner opened this for sat off the right edge. Cards
+              below md, table above. */}
+          <ul className="grid gap-3 md:hidden">
             {penalties.map((p) => (
-              <Tr key={p.id}>
-                <Td className="capitalize text-ink">{p.offenseType.replace(/_/g, " ")}</Td>
-                <Td className="text-ink-soft">{p.reason}</Td>
-                <Td numeric className="font-semibold text-ink">{formatRwf(p.total)}</Td>
-                <Td><StatusBadge status={p.status} /></Td>
-                <Td>{p.status === "active" && <button className="btn-primary" disabled={busy} onClick={() => payPenalty(p.id)}>Pay</button>}</Td>
-              </Tr>
+              <li key={p.id} className="card !p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="font-semibold capitalize leading-snug text-ink">
+                    {p.offenseType.replace(/_/g, " ")}
+                  </p>
+                  <StatusBadge status={p.status} />
+                </div>
+                <p className="mt-1 text-sm text-ink-soft">{p.reason}</p>
+                <p className="mt-3 font-display text-xl font-bold text-ink">{formatRwf(p.total)}</p>
+                {p.status === "active" && (
+                  <button className="btn-primary mt-3 w-full" disabled={busy} onClick={() => payPenalty(p.id)}>
+                    Pay
+                  </button>
+                )}
+              </li>
             ))}
-          </Table>
+          </ul>
+
+          <div className="hidden md:block">
+            <Table head={["Offense", "Reason", { label: "Amount", numeric: true }, "Status", ""]}>
+              {penalties.map((p) => (
+                <Tr key={p.id}>
+                  <Td className="capitalize text-ink">{p.offenseType.replace(/_/g, " ")}</Td>
+                  <Td className="text-ink-soft">{p.reason}</Td>
+                  <Td numeric className="font-semibold text-ink">{formatRwf(p.total)}</Td>
+                  <Td><StatusBadge status={p.status} /></Td>
+                  <Td>{p.status === "active" && <button className="btn-primary" disabled={busy} onClick={() => payPenalty(p.id)}>Pay</button>}</Td>
+                </Tr>
+              ))}
+            </Table>
+          </div>
         </section>
       )}
 
       {showFinance && commissions.length > 0 && (
         <section>
           <SectionHeading title="Commissions (Model A)" />
-          <Table head={["Listing", "Deal", { label: "Due", numeric: true }, "Status", "", ""]}>
+          {/* Six columns at 680px put both the invoice and the Pay button
+              past a phone's right edge — the whole point of the section. */}
+          <ul className="grid gap-3 md:hidden">
             {commissions.map((c) => (
-              <Tr key={c.id}>
-                <Td className="font-semibold text-ink">{c.listingTitle}</Td>
-                <Td className="capitalize text-ink-soft">{c.dealOutcome} - {formatRwf(c.finalAmount)}</Td>
-                <Td numeric className="font-semibold text-ink">{formatRwf(c.total)}</Td>
-                <Td><StatusBadge status={c.status} /></Td>
-                <Td>
-                  <a
-                    href={`/documents/invoice/${c.id}`}
-                    className="inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap text-xs font-bold text-brand hover:underline"
-                  >
-                    <FileText className="h-3.5 w-3.5" /> Invoice
-                  </a>
-                </Td>
-                <Td>{c.status !== "paid" && <button className="btn-primary" disabled={busy} onClick={() => payCommission(c.id)}>Pay</button>}</Td>
-              </Tr>
+              <li key={c.id} className="card !p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="font-semibold leading-snug text-ink">{c.listingTitle}</p>
+                  <StatusBadge status={c.status} />
+                </div>
+                <p className="mt-1 text-sm capitalize text-ink-soft">
+                  {c.dealOutcome} - {formatRwf(c.finalAmount)}
+                </p>
+                <p className="mt-3 font-display text-xl font-bold text-ink">{formatRwf(c.total)}</p>
+                <a
+                  href={`/documents/invoice/${c.id}`}
+                  className="mt-2 inline-flex min-h-11 items-center gap-1.5 text-xs font-bold text-brand hover:underline"
+                >
+                  <FileText className="h-3.5 w-3.5" /> Invoice
+                </a>
+                {c.status !== "paid" && (
+                  <button className="btn-primary mt-2 w-full" disabled={busy} onClick={() => payCommission(c.id)}>
+                    Pay
+                  </button>
+                )}
+              </li>
             ))}
-          </Table>
+          </ul>
+
+          <div className="hidden md:block">
+            <Table head={["Listing", "Deal", { label: "Due", numeric: true }, "Status", "", ""]}>
+              {commissions.map((c) => (
+                <Tr key={c.id}>
+                  <Td className="font-semibold text-ink">{c.listingTitle}</Td>
+                  <Td className="capitalize text-ink-soft">{c.dealOutcome} - {formatRwf(c.finalAmount)}</Td>
+                  <Td numeric className="font-semibold text-ink">{formatRwf(c.total)}</Td>
+                  <Td><StatusBadge status={c.status} /></Td>
+                  <Td>
+                    <a
+                      href={`/documents/invoice/${c.id}`}
+                      className="inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap text-xs font-bold text-brand hover:underline"
+                    >
+                      <FileText className="h-3.5 w-3.5" /> Invoice
+                    </a>
+                  </Td>
+                  <Td>{c.status !== "paid" && <button className="btn-primary" disabled={busy} onClick={() => payCommission(c.id)}>Pay</button>}</Td>
+                </Tr>
+              ))}
+            </Table>
+          </div>
         </section>
       )}
 

@@ -136,6 +136,91 @@ export default function UsersPanel() {
         <EmptyState title="No users match" hint="Try a different role, status or search term." />
       ) : (
         <>
+          {/* Seven columns at 980px is nearly three screens wide on a phone,
+              and the Actions column — suspend, blacklist, promote — is the
+              last of them. Cards below md, table above. */}
+          <ul className="grid gap-3 md:hidden">
+            {data.users.map((u) => (
+              <li key={u.id} className="card !p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-ink">{u.name}</p>
+                    <p className="truncate text-xs text-ink-faint">{u.email}</p>
+                    {u.phone && <p className="text-xs text-ink-faint">{u.phone}</p>}
+                  </div>
+                  {u.isBlacklisted ? (
+                    <Badge tone="danger" dot>Blacklisted</Badge>
+                  ) : !u.isActive ? (
+                    <Badge tone="warning" dot>Suspended</Badge>
+                  ) : (
+                    <Badge tone="success" dot>Active</Badge>
+                  )}
+                </div>
+
+                <div className="mt-2 flex flex-wrap gap-1">
+                  <Badge tone={u.isVerified ? "success" : "neutral"}>
+                    {u.isVerified ? "ID verified" : `KYC ${u.kycStatus}`}
+                  </Badge>
+                  {u.emailVerified && <Badge tone="success">Email</Badge>}
+                  {u.phoneVerified && <Badge tone="success">Phone</Badge>}
+                </div>
+
+                <p className="mt-2 text-xs font-bold text-ink-soft">
+                  {u.listings} listings · {u.unlocks} unlocks
+                  {u.commissionDue + u.penaltyBalance > 0 && (
+                    <span className="text-ink">
+                      {" "}· owes {(u.commissionDue + u.penaltyBalance).toLocaleString("en-RW")} Rwf
+                    </span>
+                  )}
+                </p>
+
+                <label className="mt-3 block">
+                  <span className="sr-only">Role for {u.name}</span>
+                  <select
+                    value={u.role}
+                    disabled={busyId === u.id}
+                    onChange={(e) => update(u.id, { role: e.target.value }, `${u.name} is now ${ROLE_LABELS[e.target.value]}`)}
+                    className="input !py-1 !text-base"
+                  >
+                    {Object.entries(ROLE_LABELS).map(([value, label]) => (
+                      <option key={value} value={value}>{label}</option>
+                    ))}
+                  </select>
+                </label>
+
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    disabled={busyId === u.id}
+                    onClick={() =>
+                      update(u.id, { isActive: !u.isActive }, u.isActive ? `${u.name} suspended` : `${u.name} reinstated`)
+                    }
+                    className="btn-outline !py-1 !text-xs"
+                  >
+                    {u.isActive ? <UserX className="h-3.5 w-3.5" /> : <BadgeCheck className="h-3.5 w-3.5" />}
+                    {u.isActive ? "Suspend" : "Reinstate"}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busyId === u.id}
+                    onClick={() =>
+                      update(
+                        u.id,
+                        { isBlacklisted: !u.isBlacklisted },
+                        u.isBlacklisted ? `${u.name} removed from blacklist` : `${u.name} blacklisted`
+                      )
+                    }
+                    className={`btn-outline !py-1 !text-xs ${u.isBlacklisted ? "" : "text-red-700"}`}
+                  >
+                    {u.isBlacklisted ? <ShieldCheck className="h-3.5 w-3.5" /> : <Ban className="h-3.5 w-3.5" />}
+                    {u.isBlacklisted ? "Un-blacklist" : "Blacklist"}
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <div className="hidden md:block">
           <Table
             minWidth={980}
             head={["User", "Role", "Verification", "Activity", { label: "Owes", numeric: true }, "Status", "Actions"]}
@@ -232,6 +317,7 @@ export default function UsersPanel() {
               </Tr>
             ))}
           </Table>
+          </div>
           <p className="mt-2 text-xs font-semibold text-ink-faint">
             Showing {data.users.length} of {data.total}
           </p>

@@ -107,17 +107,46 @@ export default function PenaltiesPanel() {
       {penalties.length === 0 ? (
         <EmptyState title="No penalties issued" hint="Confirmed abuse and waived penalties will appear here." />
       ) : (
-        <Table head={["User", "Offense", { label: "Amount", numeric: true }, "Status", ""]}>
-          {penalties.map((p) => (
-            <Tr key={p.id}>
-              <Td><div className="font-semibold text-ink">{p.userName}</div><div className="text-xs text-ink-faint">{p.userEmail}</div></Td>
-              <Td className="capitalize text-ink-soft">{p.offenseType.replace(/_/g, " ")}</Td>
-              <Td numeric className="font-semibold text-ink">{formatRwf(p.total)}</Td>
-              <Td><StatusBadge status={p.status} /></Td>
-              <Td>{p.status === "active" && <button className="btn-outline" disabled={busy} onClick={() => waive(p.id)}>Waive</button>}</Td>
-            </Tr>
-          ))}
-        </Table>
+        <>
+          {/* Waive is the last of five columns at 680px, off a phone's right
+              edge. Cards below md, table above. */}
+          <ul className="grid gap-3 md:hidden">
+            {penalties.map((p) => (
+              <li key={p.id} className="card !p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-ink">{p.userName}</p>
+                    <p className="truncate text-xs text-ink-faint">{p.userEmail}</p>
+                  </div>
+                  <StatusBadge status={p.status} />
+                </div>
+                <p className="mt-2 text-sm capitalize text-ink-soft">
+                  {p.offenseType.replace(/_/g, " ")}
+                </p>
+                <p className="mt-3 font-display text-xl font-bold text-ink">{formatRwf(p.total)}</p>
+                {p.status === "active" && (
+                  <button className="btn-outline mt-3 w-full" disabled={busy} onClick={() => waive(p.id)}>
+                    Waive
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+
+          <div className="hidden md:block">
+            <Table head={["User", "Offense", { label: "Amount", numeric: true }, "Status", ""]}>
+              {penalties.map((p) => (
+                <Tr key={p.id}>
+                  <Td><div className="font-semibold text-ink">{p.userName}</div><div className="text-xs text-ink-faint">{p.userEmail}</div></Td>
+                  <Td className="capitalize text-ink-soft">{p.offenseType.replace(/_/g, " ")}</Td>
+                  <Td numeric className="font-semibold text-ink">{formatRwf(p.total)}</Td>
+                  <Td><StatusBadge status={p.status} /></Td>
+                  <Td>{p.status === "active" && <button className="btn-outline" disabled={busy} onClick={() => waive(p.id)}>Waive</button>}</Td>
+                </Tr>
+              ))}
+            </Table>
+          </div>
+        </>
       )}
     </section>
   );

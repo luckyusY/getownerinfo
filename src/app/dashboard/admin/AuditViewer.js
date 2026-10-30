@@ -35,7 +35,29 @@ export default function AuditViewer() {
         <p className="mt-3 text-sm text-ink-faint">No audit entries.</p>
       ) : (
         <>
-          <div className="mt-3">
+          {/* Four columns at 760px left the actor and target off a phone
+              screen. Cards below md carry the same row number, which
+              continues across pages, so row 1 of page 2 is still #26. */}
+          <ul className="mt-3 grid gap-3 md:hidden">
+            {data.entries.map((e, i) => (
+              <li key={e.id} className="card !p-4">
+                <div className="flex items-baseline justify-between gap-3">
+                  <p className="font-mono text-xs font-bold text-ink">{e.action}</p>
+                  <span className="shrink-0 text-xs font-bold text-ink-faint">
+                    #{(data.page - 1) * (data.limit || data.entries.length) + i + 1}
+                  </span>
+                </div>
+                <p className="mt-2 text-sm text-ink">
+                  {e.actorName} <span className="text-xs text-ink-faint">({e.actorRole})</span>
+                </p>
+                <p className="mt-1 text-xs text-ink-faint">
+                  {e.targetType} · {new Date(e.at).toLocaleString()}
+                </p>
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-3 hidden md:block">
             {/* Numbering continues across pages, so row 1 of page 2 is #26. */}
             <Table
               minWidth={760}

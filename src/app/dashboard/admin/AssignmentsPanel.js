@@ -98,38 +98,76 @@ export default function AssignmentsPanel() {
       ) : listings.length === 0 ? (
         <EmptyState title="Nothing in this view" hint="No listings currently have this status." />
       ) : (
-        <Table head={["Listing", "Owner", "Status", "Assigned manager"]}>
-          {listings.map((l) => (
-            <Tr key={l.id}>
-              <Td>
-                <p className="font-semibold text-ink">{l.title}</p>
-                <p className="text-xs text-ink-faint">{l.categoryName} · Model {l.model}</p>
-              </Td>
-              <Td>
-                <p className="text-sm text-ink">{l.ownerName}</p>
-                <p className="text-xs text-ink-faint">{l.ownerEmail}</p>
-              </Td>
-              <Td><StatusBadge status={l.status} /></Td>
-              <Td>
-                <div className="flex items-center gap-2">
+        <>
+          {/* The assignment dropdown — the only control here — is the last of
+              four columns at 680px, so on a phone it sat off the right edge.
+              Cards below md, table above. */}
+          <ul className="grid gap-3 md:hidden">
+            {listings.map((l) => (
+              <li key={l.id} className="card !p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-semibold leading-snug text-ink">{l.title}</p>
+                    <p className="text-xs text-ink-faint">{l.categoryName} · Model {l.model}</p>
+                  </div>
+                  <StatusBadge status={l.status} />
+                </div>
+                <p className="mt-2 text-sm text-ink">{l.ownerName}</p>
+                <p className="truncate text-xs text-ink-faint">{l.ownerEmail}</p>
+                <label className="mt-3 flex items-center gap-2">
                   <UserCog className="h-4 w-4 shrink-0 text-ink-faint" />
+                  <span className="sr-only">Assign a manager to {l.title}</span>
                   <select
                     value={l.assignedManagerId || ""}
                     disabled={busyId === l.id || managers.length === 0}
                     onChange={(e) => assign(l, e.target.value)}
-                    className="input !w-auto !py-1 !text-base lg:!text-xs"
-                    aria-label={`Assign a manager to ${l.title}`}
+                    className="input !py-1 !text-base"
                   >
                     <option value="">Unassigned</option>
                     {managers.map((m) => (
                       <option key={m.id} value={m.id}>{m.name}</option>
                     ))}
                   </select>
-                </div>
-              </Td>
-            </Tr>
-          ))}
-        </Table>
+                </label>
+              </li>
+            ))}
+          </ul>
+
+          <div className="hidden md:block">
+            <Table head={["Listing", "Owner", "Status", "Assigned manager"]}>
+              {listings.map((l) => (
+                <Tr key={l.id}>
+                  <Td>
+                    <p className="font-semibold text-ink">{l.title}</p>
+                    <p className="text-xs text-ink-faint">{l.categoryName} · Model {l.model}</p>
+                  </Td>
+                  <Td>
+                    <p className="text-sm text-ink">{l.ownerName}</p>
+                    <p className="text-xs text-ink-faint">{l.ownerEmail}</p>
+                  </Td>
+                  <Td><StatusBadge status={l.status} /></Td>
+                  <Td>
+                    <div className="flex items-center gap-2">
+                      <UserCog className="h-4 w-4 shrink-0 text-ink-faint" />
+                      <select
+                        value={l.assignedManagerId || ""}
+                        disabled={busyId === l.id || managers.length === 0}
+                        onChange={(e) => assign(l, e.target.value)}
+                        className="input !w-auto !py-1 !text-base lg:!text-xs"
+                        aria-label={`Assign a manager to ${l.title}`}
+                      >
+                        <option value="">Unassigned</option>
+                        {managers.map((m) => (
+                          <option key={m.id} value={m.id}>{m.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </Td>
+                </Tr>
+              ))}
+            </Table>
+          </div>
+        </>
       )}
     </section>
   );
