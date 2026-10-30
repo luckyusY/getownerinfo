@@ -61,7 +61,7 @@ export default async function ContactUnlocksPage() {
                 <Td className="text-ink-faint">{formatDate(u.at)}</Td>
                 <Td>
                   {u.listing && (
-                    <Link href={`/listings/${u.listing._id.toString()}`} className="font-semibold text-brand hover:underline">
+                    <Link href={`/listings/${u.listing._id.toString()}`} className="inline-flex min-h-11 items-center font-semibold text-brand hover:underline">
                       View
                     </Link>
                   )}

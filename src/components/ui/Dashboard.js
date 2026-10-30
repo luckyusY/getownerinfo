@@ -68,7 +68,9 @@ export function Table({
 
   return (
     <div className="dashboard-reveal overflow-hidden rounded-xl border border-line bg-surface shadow-soft">
-      <div className="overflow-x-auto">
+      {/* overscroll-x-contain stops a swipe at the left edge turning into
+          an iOS back-navigation out of the page. */}
+      <div className="table-scroll overflow-x-auto overscroll-x-contain">
         <table className="w-full text-sm" style={{ minWidth }}>
           <thead className="border-b border-line bg-panel/80 text-left text-[11px] uppercase tracking-wide text-ink-faint">
             <tr>

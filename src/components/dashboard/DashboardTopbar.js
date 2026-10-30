@@ -61,12 +61,12 @@ export default function DashboardTopbar({ user, unreadCount = 0, onToggleSidebar
           onClick={onToggleSidebar}
           aria-label={sidebarOpen ? "Close menu" : "Open menu"}
           aria-expanded={sidebarOpen}
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-line text-ink-soft transition hover:text-brand lg:hidden"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-line text-ink-soft transition hover:text-brand lg:hidden"
         >
           {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
 
-        <Link href="/" className="flex shrink-0 items-center" aria-label="Get Owner Info home">
+        <Link href="/" className="flex min-h-11 shrink-0 items-center" aria-label="Get Owner Info home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/brand/logo-getownerinfo-cropped-white.png"
@@ -76,16 +76,19 @@ export default function DashboardTopbar({ user, unreadCount = 0, onToggleSidebar
         </Link>
 
         <form onSubmit={onSearch} className="hidden min-w-0 flex-1 md:block">
-          <div className="input-wrap !min-h-11 !rounded-full bg-paper">
+          {/* A label, not a div: input-wrap carries 10px of padding, so on a div
+              the top and bottom bands of the 44px control did nothing when
+              tapped. A label hands them to the field with no JS. */}
+          <label className="input-wrap !min-h-11 !rounded-full bg-paper">
             <Search className="h-[18px] w-[18px] shrink-0 text-ink-faint" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search listings, requests, messages..."
               aria-label="Search"
-              className="w-full bg-transparent text-sm font-semibold text-ink outline-none placeholder:font-medium placeholder:text-ink-faint"
+              className="self-stretch w-full bg-transparent text-sm font-semibold text-ink outline-none placeholder:font-medium placeholder:text-ink-faint"
             />
-          </div>
+          </label>
         </form>
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
@@ -101,7 +104,7 @@ export default function DashboardTopbar({ user, unreadCount = 0, onToggleSidebar
           <Link
             href="/dashboard/notifications"
             aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ""}`}
-            className="relative grid h-10 w-10 place-items-center rounded-full text-ink-soft transition hover:bg-brand-50 hover:text-brand"
+            className="relative grid h-11 w-11 place-items-center rounded-full text-ink-soft transition hover:bg-brand-50 hover:text-brand"
           >
             <Bell className="h-5 w-5" />
             {unreadCount > 0 && (

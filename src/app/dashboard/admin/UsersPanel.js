@@ -92,16 +92,21 @@ export default function UsersPanel() {
             e.preventDefault();
             load();
           }}
-          className="input-wrap !min-h-10 max-w-xs flex-1"
+          className="max-w-xs flex-1"
         >
-          <Search className="h-4 w-4 shrink-0 text-ink-faint" />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Name, email or phone"
-            aria-label="Search users"
-            className="w-full bg-transparent text-sm font-semibold text-ink outline-none"
-          />
+          {/* input-wrap sits on a nested label rather than the form: a form
+              cannot be a label, and without one the wrapper's 10px padding
+              bands were dead to the touch. */}
+          <label className="input-wrap">
+            <Search className="h-4 w-4 shrink-0 text-ink-faint" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Name, email or phone"
+              aria-label="Search users"
+              className="self-stretch w-full bg-transparent text-sm font-semibold text-ink outline-none"
+            />
+          </label>
         </form>
         <select value={role} onChange={(e) => setRole(e.target.value)} className="input !w-auto" aria-label="Filter by role">
           {ROLE_FILTERS.map((r) => (
@@ -147,7 +152,7 @@ export default function UsersPanel() {
                     value={u.role}
                     disabled={busyId === u.id}
                     onChange={(e) => update(u.id, { role: e.target.value }, `${u.name} is now ${ROLE_LABELS[e.target.value]}`)}
-                    className="input !w-auto !py-1 !text-xs"
+                    className="input !w-auto !py-1 !text-base lg:!text-xs"
                     aria-label={`Role for ${u.name}`}
                   >
                     {Object.entries(ROLE_LABELS).map(([value, label]) => (
@@ -182,13 +187,15 @@ export default function UsersPanel() {
                   )}
                 </Td>
                 <Td>
-                  <div className="flex flex-wrap gap-1.5">
+                  {/* Suspend and Blacklist sit beside a harmless promote button, so they
+                      get more than the six pixels they had. */}
+                  <div className="flex flex-wrap gap-2.5">
                     {u.role !== "platform_listing_manager" && (
                       <button
                         type="button"
                         disabled={busyId === u.id}
                         onClick={() => update(u.id, { role: "platform_listing_manager" }, `${u.name} promoted to Listing Manager`)}
-                        className="btn-outline !min-h-8 !py-1 !text-xs"
+                        className="btn-outline !py-1 !text-xs"
                         title="Promote to listing manager"
                       >
                         <UserCog className="h-3.5 w-3.5" /> Make manager
@@ -200,7 +207,7 @@ export default function UsersPanel() {
                       onClick={() =>
                         update(u.id, { isActive: !u.isActive }, u.isActive ? `${u.name} suspended` : `${u.name} reinstated`)
                       }
-                      className="btn-outline !min-h-8 !py-1 !text-xs"
+                      className="btn-outline !py-1 !text-xs"
                     >
                       {u.isActive ? <UserX className="h-3.5 w-3.5" /> : <BadgeCheck className="h-3.5 w-3.5" />}
                       {u.isActive ? "Suspend" : "Reinstate"}
@@ -215,7 +222,7 @@ export default function UsersPanel() {
                           u.isBlacklisted ? `${u.name} removed from blacklist` : `${u.name} blacklisted`
                         )
                       }
-                      className={`btn-outline !min-h-8 !py-1 !text-xs ${u.isBlacklisted ? "" : "text-red-700"}`}
+                      className={`btn-outline !py-1 !text-xs ${u.isBlacklisted ? "" : "text-red-700"}`}
                     >
                       {u.isBlacklisted ? <ShieldCheck className="h-3.5 w-3.5" /> : <Ban className="h-3.5 w-3.5" />}
                       {u.isBlacklisted ? "Un-blacklist" : "Blacklist"}

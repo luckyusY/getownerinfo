@@ -84,7 +84,7 @@ export default function ManagerListings({ listings = [] }) {
                   </div>
                 </div>
 
-                <Link href={`/listings/${l.id}`} className="btn-outline !min-h-9 shrink-0 !py-1.5 !text-xs">
+                <Link href={`/listings/${l.id}`} className="btn-outline shrink-0 !py-1.5 !text-xs">
                   Open listing
                 </Link>
               </div>

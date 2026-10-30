@@ -177,7 +177,7 @@ export default function DashboardSidebar({ role, counts = {} }) {
           <p className="px-3 pb-2 text-[11px] font-black uppercase tracking-[0.12em] text-ink-faint">
             {group.title}
           </p>
-          <div className="grid gap-0.5">
+          <div className="grid gap-1">
             {group.items.map((item) => (
               <NavItem
                 key={item.label}
@@ -193,7 +193,7 @@ export default function DashboardSidebar({ role, counts = {} }) {
         <button
           type="button"
           onClick={logout}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold text-red-600 transition hover:bg-red-50"
+          className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold text-red-600 transition hover:bg-red-50 active:scale-[0.98]"
         >
           <LogOut className="h-[18px] w-[18px]" />
           Logout
@@ -208,7 +208,7 @@ function NavItem({ href, icon: Icon, label, count, verified, active }) {
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
-      className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold transition ${
+      className={`flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold transition active:scale-[0.98] ${
         active ? "bg-brand text-white shadow-soft" : "text-ink-soft hover:bg-brand-50 hover:text-brand"
       }`}
     >

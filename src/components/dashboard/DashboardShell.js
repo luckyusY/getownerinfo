@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import DashboardTopbar from "./DashboardTopbar";
 import DashboardSidebar from "./DashboardSidebar";
 
@@ -11,6 +11,22 @@ import DashboardSidebar from "./DashboardSidebar";
  */
 export default function DashboardShell({ user, counts, children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Hold the page still behind the slide-over, and close it on Escape. Without
+  // the lock, iOS chains the sidebar's scroll into the page behind it.
+  useEffect(() => {
+    if (!sidebarOpen) return undefined;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e) => {
+      if (e.key === "Escape") setSidebarOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [sidebarOpen]);
 
   return (
     // No bg here: an opaque slab would hide the page canvas, which is why the
@@ -36,7 +52,12 @@ export default function DashboardShell({ user, counts, children }) {
         )}
 
         <aside
-          className={`fixed inset-y-0 left-0 z-40 w-[272px] overflow-y-auto bg-paper p-3 transition-transform duration-200 lg:static lg:z-auto lg:w-60 lg:shrink-0 lg:overflow-visible lg:bg-transparent lg:p-0 lg:transition-none ${
+          /*
+            Starts below the top bar rather than at inset-y-0. It used to cover
+            the bar's left 272px, which is exactly where the button that opens
+            and closes it sits, and the drawer has no close button of its own.
+          */
+          className={`fixed bottom-0 left-0 top-[var(--dash-topbar-h)] z-40 w-[272px] overflow-y-auto overscroll-contain bg-paper p-3 transition-transform duration-200 lg:static lg:z-auto lg:w-60 lg:shrink-0 lg:overflow-visible lg:bg-transparent lg:p-0 lg:transition-none ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
           }`}
         >

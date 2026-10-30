@@ -124,7 +124,7 @@ export default function SelfieCapture({ onCapture, value, onClear }) {
               Only our review team sees this. It is never shown to buyers.
             </p>
           </div>
-          <button type="button" onClick={onClear} className="btn-outline !min-h-9 !py-1.5 !text-xs">
+          <button type="button" onClick={onClear} className="btn-outline !py-1.5 !text-xs">
             <RefreshCw className="h-3.5 w-3.5" /> Retake
           </button>
         </div>

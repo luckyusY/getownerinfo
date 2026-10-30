@@ -18,7 +18,7 @@ export default function AccountOverview({ stats = {}, myUnlocks = 0 }) {
     <section className="rounded-2xl border border-line bg-surface p-5 shadow-soft">
       <div className="flex items-center justify-between gap-3">
         <h2 className="font-display text-lg font-bold text-ink">Account Overview</h2>
-        <Link href="/dashboard/listings" className="inline-flex items-center gap-1 text-sm font-bold text-brand hover:text-brand-dark">
+        <Link href="/dashboard/listings" className="inline-flex min-h-11 items-center gap-1 text-sm font-bold text-brand hover:text-brand-dark">
           View Details <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
@@ -50,7 +50,7 @@ export default function AccountOverview({ stats = {}, myUnlocks = 0 }) {
         <p className="mt-2 text-[11px] font-semibold leading-5 text-ink-faint">
           Each unlock reveals one owner&apos;s contact and exact location.
         </p>
-        <Link href="/listings" className="btn-primary mt-3 w-full !min-h-9 !py-1.5 !text-xs">
+        <Link href="/listings" className="btn-primary mt-3 w-full !py-1.5 !text-xs">
           Unlock more <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </div>

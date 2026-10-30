@@ -33,6 +33,12 @@
      44px so the height does not change with sign-in state. Re-measure both
      whenever the row changes. */
   --header-h: 61px;
+
+  /* Height of the dashboard's own sticky top bar, measured in the browser at
+     375 and 768. The mobile sidebar starts below it so it stops covering the
+     button that opens it. Same rule as --header-h: re-measure if the bar's
+     rows change. */
+  --dash-topbar-h: 67px;
 }
 
 @media (min-width: 1024px) {
@@ -349,6 +355,33 @@
   
 
   
+
+  /*
+   * Horizontal scroll shadows for the dashboard tables.
+   *
+   * Every table sets a minWidth of 640-980px, so on a phone a good part of it
+   * is off screen, including the last column, which on several of them holds
+   * the only button for the row: Pay, Waive, View. The container gave no sign
+   * there was more to the right, and the rounded border made the cut edge look
+   * like the end of the table.
+   *
+   * The two radial gradients are the shadows and the two linear ones are white
+   * covers over them. `background-attachment: local` pins the covers to the
+   * scrolled content while the shadows stay fixed to the frame, so each shadow
+   * is revealed only while there is content that way. No JavaScript and no
+   * scroll listener.
+   */
+  .table-scroll {
+    background-image:
+      linear-gradient(to right, var(--surface) 30%, rgba(255, 255, 255, 0)),
+      linear-gradient(to left, var(--surface) 30%, rgba(255, 255, 255, 0)),
+      radial-gradient(farthest-side at 0 50%, rgba(7, 28, 31, 0.16), rgba(7, 28, 31, 0)),
+      radial-gradient(farthest-side at 100% 50%, rgba(7, 28, 31, 0.16), rgba(7, 28, 31, 0));
+    background-position: left center, right center, left center, right center;
+    background-repeat: no-repeat;
+    background-size: 44px 100%, 44px 100%, 16px 100%, 16px 100%;
+    background-attachment: local, local, scroll, scroll;
+  }
 
   /* Filter chips */
   .chip {

@@ -58,7 +58,7 @@ export default function VerificationStatus({ user }) {
     <section className="rounded-2xl border border-line bg-surface p-5 shadow-soft">
       <div className="flex items-center justify-between gap-3">
         <h2 className="font-display text-lg font-bold text-ink">Verification Status</h2>
-        <Link href="/dashboard/profile#verification" className="text-sm font-bold text-brand hover:text-brand-dark">
+        <Link href="/dashboard/profile#verification" className="inline-flex min-h-11 items-center text-sm font-bold text-brand hover:text-brand-dark">
           View
         </Link>
       </div>

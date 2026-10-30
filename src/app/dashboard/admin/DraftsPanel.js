@@ -131,7 +131,7 @@ export default function DraftsPanel() {
                   type="button"
                   disabled={busyId === l.id}
                   onClick={() => remind(l)}
-                  className="btn-outline !min-h-9 shrink-0 !py-1.5 !text-xs"
+                  className="btn-outline shrink-0 !py-1.5 !text-xs"
                 >
                   <BellRing className="h-3.5 w-3.5" /> Send reminder
                 </button>

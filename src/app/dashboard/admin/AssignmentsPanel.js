@@ -117,7 +117,7 @@ export default function AssignmentsPanel() {
                     value={l.assignedManagerId || ""}
                     disabled={busyId === l.id || managers.length === 0}
                     onChange={(e) => assign(l, e.target.value)}
-                    className="input !w-auto !py-1 !text-xs"
+                    className="input !w-auto !py-1 !text-base lg:!text-xs"
                     aria-label={`Assign a manager to ${l.title}`}
                   >
                     <option value="">Unassigned</option>

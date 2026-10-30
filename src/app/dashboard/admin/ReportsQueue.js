@@ -95,7 +95,7 @@ export default function ReportsQueue() {
                     )}
                   </div>
                   <button
-                    className="mt-3 text-xs font-bold text-brand hover:underline"
+                    className="mt-3 inline-flex min-h-11 items-center text-xs font-bold text-brand hover:underline"
                     onClick={() => setExpanded(expanded === g.listingId ? null : g.listingId)}
                   >
                     {expanded === g.listingId ? "Hide details" : "Show what reporters said"}

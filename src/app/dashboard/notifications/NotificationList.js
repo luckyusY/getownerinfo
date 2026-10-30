@@ -53,7 +53,7 @@ export default function NotificationList({ notifications: initial = [] }) {
           {unread > 0 ? `${unread} unread` : "All caught up"}
         </p>
         {unread > 0 && (
-          <button type="button" onClick={() => markRead(null)} disabled={busy} className="btn-outline !min-h-8 !py-1 !text-xs">
+          <button type="button" onClick={() => markRead(null)} disabled={busy} className="btn-outline !py-1 !text-xs">
             <CheckCheck className="h-3.5 w-3.5" /> Mark all read
           </button>
         )}

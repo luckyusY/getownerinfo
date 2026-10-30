@@ -37,7 +37,7 @@ export default function RecentListings({ listings = [] }) {
     <section className="rounded-2xl border border-line bg-surface p-5 shadow-soft">
       <div className="flex items-center justify-between gap-3">
         <h2 className="font-display text-lg font-bold text-ink">My Recent Listings</h2>
-        <Link href="/dashboard/listings" className="inline-flex items-center gap-1 text-sm font-bold text-brand hover:text-brand-dark">
+        <Link href="/dashboard/listings" className="inline-flex min-h-11 items-center gap-1 text-sm font-bold text-brand hover:text-brand-dark">
           View All <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
@@ -111,7 +111,7 @@ export default function RecentListings({ listings = [] }) {
 
                   <Link
                     href={isDraft ? `/dashboard/owner/listings/new?draft=${l.id}` : `/listings/${l.id}`}
-                    className={`mt-3 ${isDraft ? "btn-primary" : "btn-outline"} w-full !min-h-9 !py-1.5 !text-xs`}
+                    className={`mt-3 ${isDraft ? "btn-primary" : "btn-outline"} w-full !py-1.5 !text-xs`}
                   >
                     {isDraft ? "Continue" : "View listing"}
                   </Link>

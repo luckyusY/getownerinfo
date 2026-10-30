@@ -215,7 +215,7 @@ function FaceCheck({ request }) {
           ))}
         </div>
       ) : (
-        <button type="button" onClick={loadImages} disabled={loading} className="btn-outline mt-2 !min-h-8 !py-1 !text-xs">
+        <button type="button" onClick={loadImages} disabled={loading} className="btn-outline mt-2 !py-1 !text-xs">
           {loading ? "Loading…" : "Compare side by side"}
         </button>
       )}

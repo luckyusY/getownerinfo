@@ -45,7 +45,10 @@ export default function CookieBanner() {
             We use essential cookies to run the platform (login, token unlocks, payments).
             Optional cookies help with analytics and saved preferences. See our{" "}
           </span>
-          <Link href="/privacy" className="text-brand underline">Privacy Policy</Link>.
+          {/* Vertical padding on an inline element grows the hit area without
+              touching the line box, so this sits in the sentence as before but
+              answers to a thumb: 16px of text plus 2x14px of padding. */}
+          <Link href="/privacy" className="text-brand underline py-3.5">Privacy Policy</Link>.
           {customizing && (
             <div className="mt-3 space-y-2">
               <label className="flex min-h-11 items-center gap-2 text-ink">
