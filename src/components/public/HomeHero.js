@@ -7,6 +7,8 @@ import {
   Search, ShieldCheck, Tag, UserCheck,
 } from "lucide-react";
 
+const HERO_TABPANEL_ID = "hero-tabpanel";
+
 const TABS = [
   { key: "sale", label: "Buy", icon: Home },
   { key: "rent", label: "Rent", icon: KeyRound },
@@ -67,10 +69,14 @@ export default function HomeHero({ categories = [], locations = [] }) {
   return (
     <section className="relative isolate overflow-hidden">
       {/* eslint-disable-next-line @next/next/no-img-element */}
+      {/* This is the page's LCP element. As a plain <img> the browser finds
+          it at normal priority partway through parsing the document, so it
+          asks for it high instead. */}
       <img
         src="/hero-slides/kigali-owner-secure.webp"
         alt=""
         aria-hidden="true"
+        fetchPriority="high"
         className="absolute inset-0 h-full w-full object-cover"
       />
       <div className="absolute inset-0 bg-gradient-to-r from-white via-white/85 to-white/10" />
@@ -92,16 +98,39 @@ export default function HomeHero({ categories = [], locations = [] }) {
           </p>
 
           <form onSubmit={onSubmit} className="mt-8 overflow-hidden rounded-2xl border border-line bg-surface shadow-lift">
-            <div role="tablist" aria-label="What do you want to do" className="flex overflow-x-auto border-b border-line">
+            {/*
+              Two columns on a phone, the original single row from sm up. The
+              four tabs need about 460px and a 375px screen leaves 341, so as a
+              scrolling row "Post a Request" started ~119px off screen with
+              nothing to say it was there -- and that tab is the entry point for
+              the whole seeker side of the marketplace.
+
+              gap-px over a bg-line container draws the dividers between cells,
+              so the buttons need no borders of their own; both are switched off
+              at sm, where the row is exactly what it was before.
+            */}
+            <div
+              role="tablist"
+              aria-label="What do you want to do"
+              className="grid grid-cols-2 gap-px border-b border-line bg-line sm:flex sm:gap-0 sm:overflow-x-auto sm:bg-transparent"
+            >
               {TABS.map(({ key, label, icon: Icon }) => (
                 <button
                   key={key}
+                  id={`hero-tab-${key}`}
                   type="button"
                   role="tab"
                   aria-selected={tab === key}
+                  aria-controls={HERO_TABPANEL_ID}
                   onClick={() => setTab(key)}
-                  className={`inline-flex shrink-0 items-center gap-2 px-5 py-3.5 text-sm font-bold transition ${
-                    tab === key ? "bg-brand text-white" : "text-ink-soft hover:bg-panel hover:text-ink"
+                  /* The background sits in the conditional rather than the base
+                     string: bg-surface and bg-brand are both background-color
+                     utilities, so which one won would come down to their order
+                     in the stylesheet, not their order here. */
+                  className={`inline-flex shrink-0 items-center justify-center gap-2 px-3 py-3.5 text-sm font-bold transition sm:justify-start sm:px-5 ${
+                    tab === key
+                      ? "bg-brand text-white"
+                      : "bg-surface text-ink-soft hover:bg-panel hover:text-ink sm:bg-transparent"
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -111,7 +140,12 @@ export default function HomeHero({ categories = [], locations = [] }) {
             </div>
 
             {isSearchTab ? (
-              <div className="grid gap-2 p-3 lg:grid-cols-[1fr_1fr_1fr_1.3fr_auto]">
+              <div
+                role="tabpanel"
+                id={HERO_TABPANEL_ID}
+                aria-labelledby={`hero-tab-${tab}`}
+                className="grid gap-2 p-3 lg:grid-cols-[1fr_1fr_1fr_1.3fr_auto]"
+              >
                 <Field icon={Home} label="Category">
                   <select value={category} onChange={(e) => setCategory(e.target.value)} className="hero-field-input" aria-label="Category">
                     <option value="">All categories</option>
@@ -159,7 +193,12 @@ export default function HomeHero({ categories = [], locations = [] }) {
                 </button>
               </div>
             ) : (
-              <div className="flex flex-wrap items-center justify-between gap-3 p-5">
+              <div
+                role="tabpanel"
+                id={HERO_TABPANEL_ID}
+                aria-labelledby={`hero-tab-${tab}`}
+                className="flex flex-wrap items-center justify-between gap-3 p-5"
+              >
                 <p className="text-sm font-semibold text-ink-soft">
                   {tab === "sell"
                     ? "Create one listing with proof of ownership. We verify it before buyers can unlock your contact."
