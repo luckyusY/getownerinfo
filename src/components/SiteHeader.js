@@ -18,9 +18,11 @@ export default function SiteHeader() {
       {!session && <GoogleOneTap />}
 
       {/*
-        One row at every width. The search used to sit on a second row below
-        this one, which with the bottom tab bar put 184px of chrome on an 812px
-        phone screen before a single piece of content appeared.
+        One row from lg up, two below it. Keeping the search inline on a phone
+        bought vertical space at a price that was too high: sharing 375px with
+        the logo, the region picker and the menu left the input 101px, barely
+        enough to see a word of what you typed. It gets its own row below
+        instead, where it has the full width.
       */}
       <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-2 sm:px-4 lg:gap-4 lg:py-2.5 xl:gap-6">
         <Link href="/" className="flex min-h-11 shrink-0 items-center" aria-label="Get Owner Info home">
@@ -33,11 +35,6 @@ export default function SiteHeader() {
         </Link>
 
         <PublicNav />
-
-        {/* Takes the width the nav leaves behind below lg. */}
-        <div className="min-w-0 flex-1 lg:hidden">
-          <MobileSearch />
-        </div>
 
         <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
           <RegionPicker />
@@ -58,6 +55,13 @@ export default function SiteHeader() {
 
           <MobileMenu loggedIn={!!session} dashboardPath={dashboardPath || "/dashboard"} session={session} />
         </div>
+      </div>
+
+      {/* The second row. No top padding of its own — the row above already
+          ends in some — so this costs the height of the input and little
+          else. */}
+      <div className="mx-auto max-w-7xl px-3 pb-2 sm:px-4 lg:hidden">
+        <MobileSearch />
       </div>
     </header>
   );
