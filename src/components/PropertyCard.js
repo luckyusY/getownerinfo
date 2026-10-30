@@ -2,6 +2,7 @@ import { formatRwf } from "@/lib/format";
 import Badge from "@/components/ui/Badge";
 import MotionCard from "@/components/MotionCard";
 import FavoriteButton from "@/components/FavoriteButton";
+import CardGallery from "@/components/CardGallery";
 import { cardImage } from "@/lib/imageUrl";
 import { ArrowUpRight, Camera, KeyRound, MapPin, ShieldCheck } from "lucide-react";
 
@@ -23,7 +24,12 @@ export default function PropertyCard({ listing, style }) {
       style={style}
     >
       <div className="relative mb-3 aspect-[4/3] overflow-hidden rounded-xl bg-panel">
-        {l.images?.[0] ? (
+        {/* More than one photo turns the still into a strip you can swipe.
+            The hover zoom stays off in that case: it scales the scroll
+            container and drags the neighbouring photo into frame. */}
+        {imageCount > 1 ? (
+          <CardGallery images={l.images} alt={l.title} />
+        ) : l.images?.[0] ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={cardImage(l.images[0])} alt={l.title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
         ) : (
@@ -53,7 +59,9 @@ export default function PropertyCard({ listing, style }) {
             <p className="truncate text-xs font-bold uppercase tracking-wide text-white/76">{l.categoryName || "Listing"}</p>
             <p className="font-display text-xl font-bold text-white">{formatRwf(l.price)}</p>
           </div>
-          {imageCount > 0 && (
+          {/* Only for a lone photo. Past that the gallery's own dots occupy
+              this corner and already say how many there are. */}
+          {imageCount === 1 && (
             <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-white/16 px-2 py-1 text-xs font-bold backdrop-blur">
               <Camera className="h-3.5 w-3.5" /> {imageCount}
             </span>
