@@ -55,8 +55,61 @@ export default async function ContactUnlocksPage() {
             action={<Link href="/listings" className="btn-primary">Browse listings</Link>}
           />
         ) : (
+          <>
+            {/* On a phone the five-column table was 980px laid out inside a
+                ~350px window: a third of a row visible, and "Contact sheet" —
+                the reason this page exists — off the right edge behind a
+                sideways scroll. Below md the same rows are a stack of cards.
+                The table comes back when there is width to hold it. */}
+            <ul className="grid gap-3 md:hidden">
+              {unlocks.map((u) => {
+                const live = u.listing?.status === LISTING_STATUS.ACTIVE;
+                const name = u.listing?.contact?.ownerName;
+                const phone = u.listing?.contact?.ownerPhone;
+                return (
+                  <li key={u._id.toString()} className="card !p-4">
+                    <p className="font-semibold leading-snug text-ink">
+                      {u.listing?.title || "(listing removed)"}
+                    </p>
+                    {u.listing && !live && (
+                      <p className="mt-0.5 text-xs font-semibold text-ink-faint">
+                        No longer listed — your contact sheet still works
+                      </p>
+                    )}
+
+                    <div className="mt-3 rounded-lg bg-panel px-3 py-2">
+                      {phone || name ? (
+                        <>
+                          <span className="block text-sm font-bold text-ink">{name || "—"}</span>
+                          {phone && (
+                            <a
+                              href={`tel:${phone}`}
+                              className="inline-flex min-h-11 items-center font-bold text-brand"
+                            >
+                              {phone}
+                            </a>
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-xs font-semibold text-ink-faint">
+                          Contact not stored
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="mt-2 text-xs font-semibold text-ink-faint">
+                      {formatRwf(u.amountPaid)} · {formatDate(u.at)}
+                    </p>
+
+                    <UnlockActions id={u._id.toString()} listing={u.listing} live={live} />
+                  </li>
+                );
+              })}
+            </ul>
+
+            <div className="hidden md:block">
           <Table
-            minWidth={980}
+            minWidth={720}
             head={["Listing", "Owner contact", { label: "Paid", numeric: true }, "Unlocked", ""]}
           >
             {unlocks.map((u) => {
@@ -95,42 +148,54 @@ export default async function ContactUnlocksPage() {
                   <Td numeric className="text-ink">{formatRwf(u.amountPaid)}</Td>
                   <Td className="text-ink-faint">{formatDate(u.at)}</Td>
                   <Td>
-                    <div className="flex flex-wrap items-center gap-3">
-                      <Link
-                        href={`/documents/unlock/${u._id.toString()}`}
-                        className="inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap text-xs font-bold text-brand hover:underline"
-                      >
-                        <FileText className="h-3.5 w-3.5" /> Contact sheet
-                      </Link>
-                      {u.listing && live && (
-                        <Link
-                          href={`/listings/${u.listing._id.toString()}`}
-                          className="inline-flex min-h-11 items-center whitespace-nowrap text-xs font-bold text-ink-soft hover:text-ink hover:underline"
-                        >
-                          Listing
-                        </Link>
-                      )}
-                      {/* Reporting used to live only on the listing page, which
-                          404s for exactly the listings most likely to need
-                          reporting. The form itself is on the contact sheet,
-                          where there is room for it; this is the way in from
-                          the list of what was bought. */}
-                      {u.listing && (
-                        <Link
-                          href={`/documents/unlock/${u._id.toString()}#report`}
-                          className="inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap text-xs font-bold text-ink-faint transition hover:text-red-600"
-                        >
-                          <Flag className="h-3.5 w-3.5" /> Report a problem
-                        </Link>
-                      )}
-                    </div>
+                    <UnlockActions id={u._id.toString()} listing={u.listing} live={live} />
                   </Td>
                 </Tr>
               );
             })}
           </Table>
+            </div>
+          </>
         )}
       </div>
+    </div>
+  );
+}
+
+/**
+ * The three things you can do with an unlock, shared by the phone cards and
+ * the table so the two can never drift apart.
+ *
+ * Reporting used to live only on the listing page, which 404s for exactly the
+ * listings most likely to need reporting. The form itself is on the contact
+ * sheet, where there is room for it; this is the way in from the list of what
+ * was bought.
+ */
+function UnlockActions({ id, listing, live }) {
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 md:mt-0 md:gap-3">
+      <Link
+        href={`/documents/unlock/${id}`}
+        className="inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap text-xs font-bold text-brand hover:underline"
+      >
+        <FileText className="h-3.5 w-3.5" /> Contact sheet
+      </Link>
+      {listing && live && (
+        <Link
+          href={`/listings/${listing._id.toString()}`}
+          className="inline-flex min-h-11 items-center whitespace-nowrap text-xs font-bold text-ink-soft hover:text-ink hover:underline"
+        >
+          Listing
+        </Link>
+      )}
+      {listing && (
+        <Link
+          href={`/documents/unlock/${id}#report`}
+          className="inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap text-xs font-bold text-ink-faint transition hover:text-red-600"
+        >
+          <Flag className="h-3.5 w-3.5" /> Report a problem
+        </Link>
+      )}
     </div>
   );
 }
