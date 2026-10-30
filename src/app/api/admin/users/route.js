@@ -5,6 +5,7 @@ import Listing from "@/models/Listing";
 import TokenUnlock from "@/models/TokenUnlock";
 import { audit } from "@/models/AuditLog";
 import { ok, fail, requireAuth } from "@/lib/api";
+import { escapeRegex } from "@/lib/listingQuery";
 import { ROLES, ALL_ROLES } from "@/lib/constants";
 
 const PAGE_SIZE = 25;
@@ -29,7 +30,7 @@ export async function GET(req) {
   if (status === "unverified") filter.isVerified = false;
   if (status === "kyc_pending") filter["kyc.status"] = "pending";
   if (q) {
-    const rx = { $regex: q, $options: "i" };
+    const rx = { $regex: escapeRegex(q), $options: "i" };
     filter.$or = [{ name: rx }, { email: rx }, { phone: rx }];
   }
 

@@ -205,7 +205,10 @@ export function FileUploadBox({ label, hint, accept, multiple, onChange, count =
 
 export function SubmitButton({ children, loading, className = "", ...props }) {
   return (
-    <button className={`btn-primary ${className}`} disabled={loading || props.disabled} {...props}>
+    // The spread has to come before `disabled`, not after: a caller that
+    // passes its own `disabled` used to overwrite the one computed here, which
+    // left the button live while the request was in flight.
+    <button className={`btn-primary ${className}`} {...props} disabled={loading || props.disabled}>
       {loading && <Loader2 className="h-4 w-4 animate-spin" />}
       {children}
     </button>

@@ -3,7 +3,7 @@ import Listing from "@/models/Listing";
 import Category from "@/models/Category";
 import PlatformSettings, { getSettings } from "@/models/PlatformSettings";
 import { DEFAULT_SETTINGS } from "@/data/catalog";
-import { publicListingFilter } from "@/lib/listingQuery";
+import { escapeRegex, publicListingFilter } from "@/lib/listingQuery";
 import { audit } from "@/models/AuditLog";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { SELLER_ROLES, LISTING_STATUS, LISTING_MODELS, PAYMENT_STATUS } from "@/lib/constants";
@@ -211,10 +211,10 @@ export async function GET(req) {
   const model = searchParams.get("model");
   if (model === "A" || model === "B") query.model = model;
   const location = searchParams.get("location");
-  if (location) query["location.area"] = { $regex: location, $options: "i" };
+  if (location) query["location.area"] = { $regex: escapeRegex(location), $options: "i" };
   const q = searchParams.get("q");
   if (q) {
-    const rx = { $regex: q, $options: "i" };
+    const rx = { $regex: escapeRegex(q), $options: "i" };
     query.$or = [{ title: rx }, { itemType: rx }, { "location.area": rx }, { description: rx }];
   }
 

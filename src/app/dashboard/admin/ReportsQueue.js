@@ -38,9 +38,15 @@ export default function ReportsQueue() {
   useEffect(() => { load(); }, []);
 
   async function resolve(listingId, action, takedown = false) {
-    const resolution = action === "uphold"
-      ? prompt("What did you find? (shown to the owner)") || "Reported by users and found to breach our rules"
-      : prompt("Why is this being dismissed? (internal)") || "No violation found";
+    // Cancel used to fall through to the default text and resolve the report
+    // regardless — on the uphold path that takes the listing down.
+    const upholding = action === "uphold";
+    const entered = prompt(
+      upholding ? "What did you find? (shown to the owner)" : "Why is this being dismissed? (internal)"
+    );
+    if (entered === null) return;
+    const resolution = entered.trim()
+      || (upholding ? "Reported by users and found to breach our rules" : "No violation found");
     setBusyId(listingId);
     try {
       const res = await fetch("/api/admin/reports/resolve", {

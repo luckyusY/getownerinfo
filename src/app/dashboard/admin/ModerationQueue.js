@@ -23,7 +23,14 @@ export default function ModerationQueue() {
   useEffect(() => { load(); }, []);
 
   async function moderate(id, action) {
-    const reason = action === "reject" ? prompt("Reason for rejection?") || "Rejected" : undefined;
+    let reason;
+    if (action === "reject") {
+      // null means the admin pressed Cancel. `|| "Rejected"` used to swallow
+      // that and reject the listing anyway.
+      const entered = prompt("Reason for rejection?");
+      if (entered === null) return;
+      reason = entered.trim() || "Rejected";
+    }
     setBusyId(id);
     try {
       const res = await fetch(`/api/listings/${id}/moderate`, {

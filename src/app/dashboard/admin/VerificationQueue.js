@@ -39,7 +39,13 @@ export default function VerificationQueue() {
   }
 
   async function review(id, action) {
-    const reason = action === "reject" ? prompt("Why is this being rejected?") || "Documents could not be verified" : undefined;
+    let reason;
+    if (action === "reject") {
+      // Cancel used to reject the applicant's identity documents anyway.
+      const entered = prompt("Why is this being rejected?");
+      if (entered === null) return;
+      reason = entered.trim() || "Documents could not be verified";
+    }
     setBusyId(id);
     try {
       const res = await fetch(`/api/admin/verification/${id}`, {

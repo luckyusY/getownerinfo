@@ -31,3 +31,15 @@ export function publicListingFilter(extra = {}) {
     $and: [...(extra.$and || []), notExpired()],
   };
 }
+
+/**
+ * Escape a user-supplied string for use inside a `$regex`.
+ *
+ * Search terms used to reach the query untouched, so a visitor typing `c++`
+ * or an unbalanced `(` built an invalid pattern and the query threw. The
+ * browse page catches fetch errors silently, so that surfaced as a skeleton
+ * that never resolved.
+ */
+export function escapeRegex(input) {
+  return String(input).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
