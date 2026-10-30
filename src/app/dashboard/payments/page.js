@@ -57,8 +57,52 @@ export default async function PaymentHistoryPage() {
             action={<Link href="/listings" className="btn-primary">Browse listings</Link>}
           />
         ) : (
+          <>
+            {/* Eight columns at 1020px inside a phone's ~360px of room left
+                two thirds of every row, the Receipt link included, behind a
+                sideways scroll. Below md each payment is a card instead. */}
+            <ul className="grid gap-3 md:hidden">
+              {payments.map((p) => (
+                <li key={p._id.toString()} className="card !p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-semibold text-ink">{TYPE_LABEL[p.type] || p.type}</p>
+                      <p className="mt-0.5 text-xs font-semibold text-ink-faint">
+                        {formatDate(p.createdAt)}
+                        {p.provider ? ` · ${p.provider}` : ""}
+                      </p>
+                    </div>
+                    <StatusBadge status={p.status} />
+                  </div>
+
+                  {p.listing?.title && (
+                    <p className="mt-2 truncate text-sm text-ink-soft">{p.listing.title}</p>
+                  )}
+
+                  <p className="mt-3 font-display text-xl font-bold text-ink">
+                    {formatRwf(p.amount)}
+                  </p>
+                  {p.vatPortion != null && (
+                    <p className="text-xs font-semibold text-ink-faint">
+                      includes {formatRwf(p.vatPortion)} VAT
+                    </p>
+                  )}
+
+                  {p.status === PAYMENT_STATUS.PAID && (
+                    <Link
+                      href={`/documents/receipt/${p._id.toString()}`}
+                      className="mt-2 inline-flex min-h-11 items-center gap-1.5 text-xs font-bold text-brand hover:underline"
+                    >
+                      <FileText className="h-3.5 w-3.5" /> Receipt
+                    </Link>
+                  )}
+                </li>
+              ))}
+            </ul>
+
+            <div className="hidden md:block">
           <Table
-            minWidth={1020}
+            minWidth={900}
             head={["Date", "Type", "Listing", { label: "Amount", numeric: true }, { label: "VAT", numeric: true }, "Method", "Status", "Receipt"]}
           >
             {payments.map((p) => (
@@ -87,6 +131,8 @@ export default async function PaymentHistoryPage() {
               </Tr>
             ))}
           </Table>
+            </div>
+          </>
         )}
       </div>
     </div>

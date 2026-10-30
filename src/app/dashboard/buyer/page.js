@@ -98,6 +98,47 @@ export default async function BuyerDashboard() {
             action={<Link href="/listings" className="btn-primary">Browse listings</Link>}
           />
         ) : (
+          <>
+            {/* Half of this table sat off a phone screen, the contact sheet
+                link with it. Cards below md, table above. */}
+            <ul className="grid gap-3 md:hidden">
+              {unlocks.map((u) => {
+                const live = u.listing?.status === LISTING_STATUS.ACTIVE;
+                return (
+                  <li key={u._id.toString()} className="card !p-4">
+                    <p className="font-semibold leading-snug text-ink">
+                      {u.listing?.title || "(removed)"}
+                    </p>
+                    {u.listing && !live && (
+                      <p className="mt-0.5 text-xs font-semibold text-ink-faint">
+                        No longer listed — your contact sheet still works
+                      </p>
+                    )}
+                    <p className="mt-2 text-xs font-semibold capitalize text-ink-faint">
+                      {u.tier} · {formatRwf(u.amountPaid)} · {formatDate(u.at)}
+                    </p>
+                    <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
+                      <Link
+                        href={`/documents/unlock/${u._id.toString()}`}
+                        className="inline-flex min-h-11 items-center gap-1.5 text-xs font-bold text-brand hover:underline"
+                      >
+                        <FileText className="h-3.5 w-3.5" /> Contact sheet
+                      </Link>
+                      {u.listing && live && (
+                        <Link
+                          href={`/listings/${u.listing._id.toString()}`}
+                          className="inline-flex min-h-11 items-center text-xs font-bold text-ink-soft hover:text-ink"
+                        >
+                          Listing
+                        </Link>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+
+            <div className="hidden md:block">
           <Table head={["Listing", "Tier", { label: "Paid", numeric: true }, "Unlocked", ""]}>
             {unlocks.map((u) => {
               const live = u.listing?.status === LISTING_STATUS.ACTIVE;
@@ -140,6 +181,8 @@ export default async function BuyerDashboard() {
               );
             })}
           </Table>
+            </div>
+          </>
         )}
       </div>
 

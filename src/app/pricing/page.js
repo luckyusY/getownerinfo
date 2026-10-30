@@ -64,7 +64,34 @@ export default async function PricingPage() {
         <h2 className="mt-12 font-display text-2xl font-bold text-ink">Fees by category</h2>
         {/* Three money columns read as a comparison, so they are right-aligned
             with lined-up digits rather than ragged against the category name. */}
-        <div className="mt-4">
+        {/* Four columns at 640px left nearly half the fees off a phone screen,
+            on a public page whose whole job is stating prices. Below md each
+            category states its own three numbers as rows of a small card. */}
+        <ul className="mt-4 grid gap-3 md:hidden">
+          {categories.map((c) => (
+            <li key={c._id.toString()} className="card !p-4">
+              <p className="font-semibold text-ink">{c.name}</p>
+              <dl className="mt-2 space-y-1 text-sm">
+                <div className="flex items-baseline justify-between gap-3">
+                  <dt className="text-ink-soft">Listing fee (Model B / mo)</dt>
+                  <dd className="font-bold tabular-nums text-ink">{formatRwf(c.listingFeeMonthly)}</dd>
+                </div>
+                <div className="flex items-baseline justify-between gap-3">
+                  <dt className="text-ink-soft">Buyer token</dt>
+                  <dd className="font-bold tabular-nums text-ink">{formatRwf(c.tokenFee?.buyer)}</dd>
+                </div>
+                <div className="flex items-baseline justify-between gap-3">
+                  <dt className="text-ink-soft">Commission (Model A)</dt>
+                  <dd className="font-bold tabular-nums text-ink">
+                    {Math.round((c.commissionPercent || 0) * 100)}%
+                  </dd>
+                </div>
+              </dl>
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-4 hidden md:block">
           <Table
             minWidth={640}
             head={[
