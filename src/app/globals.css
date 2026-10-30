@@ -453,3 +453,39 @@
     font-size: 16px !important;
   }
 }
+
+/*
+ * Printing a generated document (/documents/...).
+ *
+ * The documents are ordinary pages with `print:` utilities on the chrome, so
+ * most of the work is done at the call site. What cannot be expressed there is
+ * here: the sheet geometry, and forcing the browser to keep the few colours the
+ * documents rely on to be readable, since print defaults drop backgrounds.
+ */
+@page {
+  size: A4;
+  margin: 16mm;
+}
+
+@media print {
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  /* Tables carrying money must not break across a page mid-total. */
+  .print-sheet table {
+    break-inside: avoid;
+  }
+
+  .print-sheet {
+    /* Already margined by @page; a second inset wastes a third of the sheet. */
+    max-width: none !important;
+  }
+
+  /* Keep rules and the signature block visible — print drops them otherwise. */
+  .print-sheet * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

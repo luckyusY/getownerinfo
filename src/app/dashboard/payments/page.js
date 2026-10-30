@@ -8,6 +8,7 @@ import { formatRwf, formatDate } from "@/lib/format";
 import { PageHeader, StatCard, SectionHeading, Table, Tr, Td } from "@/components/ui/Dashboard";
 import { StatusBadge } from "@/components/ui/Badge";
 import EmptyState from "@/components/ui/EmptyState";
+import { FileText } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -57,8 +58,8 @@ export default async function PaymentHistoryPage() {
           />
         ) : (
           <Table
-            minWidth={900}
-            head={["Date", "Type", "Listing", { label: "Amount", numeric: true }, { label: "VAT", numeric: true }, "Method", "Status"]}
+            minWidth={1020}
+            head={["Date", "Type", "Listing", { label: "Amount", numeric: true }, { label: "VAT", numeric: true }, "Method", "Status", "Receipt"]}
           >
             {payments.map((p) => (
               <Tr key={p._id.toString()}>
@@ -69,6 +70,20 @@ export default async function PaymentHistoryPage() {
                 <Td numeric className="text-ink-faint">{formatRwf(p.vatPortion)}</Td>
                 <Td className="capitalize text-ink-soft">{p.provider || "—"}</Td>
                 <Td><StatusBadge status={p.status} /></Td>
+                <Td>
+                  {/* Only a settled payment has a receipt to show, which is
+                      also what the document route enforces. */}
+                  {p.status === PAYMENT_STATUS.PAID ? (
+                    <Link
+                      href={`/documents/receipt/${p._id.toString()}`}
+                      className="inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap text-xs font-bold text-brand hover:underline"
+                    >
+                      <FileText className="h-3.5 w-3.5" /> Receipt
+                    </Link>
+                  ) : (
+                    <span className="text-xs font-semibold text-ink-faint">—</span>
+                  )}
+                </Td>
               </Tr>
             ))}
           </Table>

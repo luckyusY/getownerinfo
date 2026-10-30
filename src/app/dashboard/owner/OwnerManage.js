@@ -130,13 +130,21 @@ export default function OwnerManage({ status = null, showListings = true, showFi
       {showFinance && commissions.length > 0 && (
         <section>
           <SectionHeading title="Commissions (Model A)" />
-          <Table head={["Listing", "Deal", { label: "Due", numeric: true }, "Status", ""]}>
+          <Table head={["Listing", "Deal", { label: "Due", numeric: true }, "Status", "", ""]}>
             {commissions.map((c) => (
               <Tr key={c.id}>
                 <Td className="font-semibold text-ink">{c.listingTitle}</Td>
                 <Td className="capitalize text-ink-soft">{c.dealOutcome} - {formatRwf(c.finalAmount)}</Td>
                 <Td numeric className="font-semibold text-ink">{formatRwf(c.total)}</Td>
                 <Td><StatusBadge status={c.status} /></Td>
+                <Td>
+                  <a
+                    href={`/documents/invoice/${c.id}`}
+                    className="inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap text-xs font-bold text-brand hover:underline"
+                  >
+                    <FileText className="h-3.5 w-3.5" /> Invoice
+                  </a>
+                </Td>
                 <Td>{c.status !== "paid" && <button className="btn-primary" disabled={busy} onClick={() => payCommission(c.id)}>Pay</button>}</Td>
               </Tr>
             ))}
@@ -207,6 +215,13 @@ export default function OwnerManage({ status = null, showListings = true, showFi
                       <button className="btn-outline" onClick={() => { setReportFor(reportFor === l.id ? null : l.id); setOutcome("sold"); setFinalAmount(""); }}>
                         Report deal
                       </button>
+                    )}
+                    {/* The signed agreement was only ever sent as an email.
+                        This is the owner's way back to it. */}
+                    {l.hasAgreement && (
+                      <a className="btn-outline" href={`/documents/agreement/${l.id}`}>
+                        <FileText className="h-4 w-4" /> Agreement
+                      </a>
                     )}
                   </div>
                 </div>

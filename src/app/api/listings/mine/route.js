@@ -1,5 +1,6 @@
 import { connectDB } from "@/lib/db";
 import Listing from "@/models/Listing";
+import ListingAgreement from "@/models/ListingAgreement";
 import { ok, requireAuth } from "@/lib/api";
 import { ROLES, SELLER_ROLES } from "@/lib/constants";
 
@@ -15,5 +16,21 @@ export async function GET() {
       ? { assignedManager: guard.session.sub }
       : { owner: guard.session.sub };
   const listings = await Listing.find(filter).sort({ createdAt: -1 });
-  return ok({ listings: listings.map((l) => l.toFullJSON({ includeProof: true })) });
+
+  // Which of these have a signed agreement on file, so the workspace can offer
+  // the copy of it only where there is one to open. A single distinct() over
+  // an indexed field, rather than a lookup per listing.
+  const ids = listings.map((l) => l._id);
+  const withAgreement = new Set(
+    (await ListingAgreement.distinct("listing", { listing: { $in: ids } })).map((id) =>
+      id.toString()
+    )
+  );
+
+  return ok({
+    listings: listings.map((l) => ({
+      ...l.toFullJSON({ includeProof: true }),
+      hasAgreement: withAgreement.has(l._id.toString()),
+    })),
+  });
 }
