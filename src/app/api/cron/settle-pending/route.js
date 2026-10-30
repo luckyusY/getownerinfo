@@ -23,11 +23,17 @@ import { PAYMENT_STATUS, PAYMENT_TYPES } from "@/lib/constants";
  * job would hand over the owner's contact without that gate ever being
  * passed. They stay pending until the buyer confirms in person.
  *
- * Runs every five minutes (see `vercel.json`), which is what makes a settled
- * payment feel immediate rather than next-day. Sub-daily cron expressions need
- * a Vercel plan that permits them; on Hobby the schedule must be daily or the
- * deploy is rejected. The route is equally callable by any external scheduler
- * holding CRON_SECRET.
+ * Scheduled daily in `vercel.json`, which is all a Hobby plan permits — a
+ * sub-daily expression is not throttled, it is rejected, and the whole deploy
+ * fails with it. Daily is therefore the floor this repo can carry on its own,
+ * and it makes this sweep a true backstop: a lost webhook that the user never
+ * returns to settle waits up to a day.
+ *
+ * To settle those in minutes instead, point an external scheduler (cron-job.org,
+ * a GitHub Actions schedule, any host's cron) at this route every five minutes
+ * with CRON_SECRET in the Authorization header. That is the intended route to
+ * a faster sweep without a Vercel plan change; nothing here needs to change
+ * for it, and the daily run stays as a floor if the scheduler goes quiet.
  */
 
 // Each payment costs one round trip to the provider, and they are deliberately
