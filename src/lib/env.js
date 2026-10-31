@@ -31,8 +31,13 @@ export const env = {
     },
   },
   afripay: {
-    baseUrl: process.env.AFRIPAY_BASE_URL || "",
-    apiKey: process.env.AFRIPAY_API_KEY || "",
+    // AfriPay's hosted checkout is a form POST authenticated by an app_id /
+    // app_secret pair, not a REST base URL + bearer key. See
+    // src/lib/payments/afripay.js for the probed contract.
+    appId: process.env.AFRIPAY_APP_ID || "",
+    appSecret: process.env.AFRIPAY_APP_SECRET || "",
+    // Reserved for webhook signature verification, if AfriPay ever documents
+    // one. Unused until then.
     secret: process.env.AFRIPAY_SECRET || "",
   },
   google: {

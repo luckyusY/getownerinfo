@@ -15,9 +15,18 @@ import { settleNonUnlockPayment } from "@/lib/paymentSettlement";
 // /api/payments/:id/verify route is a convenience for the happy path; if the
 // buyer closes the tab mid-flow, only this route completes the unlock.
 //
-// TODO: confirm the signature header name and digest scheme against the chosen
-// provider's docs before going live. The HMAC-SHA256-over-raw-body scheme below
-// is what IremboPay, Paypack, and Flutterwave all use, but the header differs.
+// BLOCKING, before this can settle anything: AfriPay has not been shown to send
+// a webhook at all. Their checkout is a browser form POST (see
+// src/lib/payments/afripay.js) and publishes no callback or signature spec.
+//
+// The HMAC-SHA256-over-raw-body scheme below is the IremboPay / Paypack /
+// Flutterwave convention, carried over as a placeholder — it is NOT known to
+// match AfriPay. It fails closed: with AFRIPAY_SECRET unset every call 401s, so
+// nothing is ever settled by accident. The cost is that nothing is settled at
+// all, which is correct until the real contract is known.
+//
+// Ask AfriPay for: the callback URL they POST to, the body shape, and the
+// signature header + digest scheme. Then fix this and afripayProvider.verify().
 const SIGNATURE_HEADER = "x-payment-signature";
 
 function signatureValid(rawBody, header) {

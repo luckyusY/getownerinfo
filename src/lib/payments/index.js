@@ -5,6 +5,9 @@
 // Provider contract:
 //   initiate({ amount, currency, type, reference, metadata })
 //     -> { providerRef, status: 'pending'|'paid', redirectUrl?: string }
+//   For AfriPay, redirectUrl points at a LOCAL handoff page that auto-submits
+//   the real checkout form from the buyer's browser; see ./afripay.js for why
+//   the POST cannot be made server-side.
 //   verify(providerRef)
 //     -> { status: 'pending'|'paid'|'failed' }
 //
@@ -22,17 +25,11 @@ const IS_PROD = process.env.NODE_ENV === "production";
 // provider refuses to take payments at all.
 const ALLOW_STUB = process.env.PAYMENTS_ALLOW_STUB === "true";
 
-// Only use the real provider when it is configured with a valid http(s) base
-// URL and a key. A blank or malformed value is treated as unconfigured.
+// Only use the real provider when both halves of the AfriPay app credential are
+// present. A blank value on either side is treated as unconfigured, so the app
+// falls back to the stub in dev and refuses payments in production.
 function afripayConfigured() {
-  const url = env.afripay.baseUrl;
-  if (!url || !env.afripay.apiKey) return false;
-  try {
-    const u = new URL(url);
-    return u.protocol === "http:" || u.protocol === "https:";
-  } catch {
-    return false;
-  }
+  return Boolean(env.afripay.appId && env.afripay.appSecret);
 }
 
 /** True when no real provider is configured, so payments would be simulated. */
@@ -50,7 +47,7 @@ export function getPaymentProvider() {
   if (afripayConfigured()) return afripayProvider;
   if (!stubAllowed()) {
     throw new Error(
-      "No payment provider is configured. Set AFRIPAY_BASE_URL and AFRIPAY_API_KEY, " +
+      "No payment provider is configured. Set AFRIPAY_APP_ID and AFRIPAY_APP_SECRET, " +
         "or set PAYMENTS_ALLOW_STUB=true to explicitly allow simulated payments."
     );
   }
