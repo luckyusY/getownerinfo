@@ -25,6 +25,19 @@ const IS_PROD = process.env.NODE_ENV === "production";
 // provider refuses to take payments at all.
 const ALLOW_STUB = process.env.PAYMENTS_ALLOW_STUB === "true";
 
+// Explicit provider override, for local work.
+//
+// Once real AfriPay credentials sit in .env.local the automatic choice below
+// picks AfriPay, and every local unlock then bounces to a real checkout that
+// can never settle (no verification API, and the webhook fails closed). Setting
+// PAYMENTS_PROVIDER=stub keeps the simulated provider without having to delete
+// the credentials. PAYMENTS_PROVIDER=afripay forces the real one. Unset = auto.
+//
+// Forcing the stub is still subject to stubAllowed(), so it cannot silently
+// hand out paid content in production.
+const FORCED = (process.env.PAYMENTS_PROVIDER || "").trim().toLowerCase();
+const VALID_PROVIDERS = ["stub", "afripay"];
+
 // Only use the real provider when both halves of the AfriPay app credential are
 // present. A blank value on either side is treated as unconfigured, so the app
 // falls back to the stub in dev and refuses payments in production.
@@ -32,8 +45,24 @@ function afripayConfigured() {
   return Boolean(env.afripay.appId && env.afripay.appSecret);
 }
 
-/** True when no real provider is configured, so payments would be simulated. */
-export const isStubPayments = () => !afripayConfigured();
+/**
+ * Which provider this environment resolves to, before asking whether it is
+ * permitted to run. Throws on a typo rather than quietly falling back.
+ */
+function resolveProviderName() {
+  if (FORCED) {
+    if (!VALID_PROVIDERS.includes(FORCED)) {
+      throw new Error(
+        `PAYMENTS_PROVIDER="${FORCED}" is not a known provider. Use one of: ${VALID_PROVIDERS.join(", ")}.`
+      );
+    }
+    return FORCED;
+  }
+  return afripayConfigured() ? "afripay" : "stub";
+}
+
+/** True when payments would be simulated rather than really charged. */
+export const isStubPayments = () => resolveProviderName() === "stub";
 
 /** True when the stub is actually permitted to run in this environment. */
 export const stubAllowed = () => !IS_PROD || ALLOW_STUB;
@@ -44,11 +73,22 @@ export const stubAllowed = () => !IS_PROD || ALLOW_STUB;
  * a 502 so no unlock is ever granted against a simulated payment.
  */
 export function getPaymentProvider() {
-  if (afripayConfigured()) return afripayProvider;
+  if (resolveProviderName() === "afripay") {
+    if (!afripayConfigured()) {
+      throw new Error(
+        "PAYMENTS_PROVIDER=afripay, but AFRIPAY_APP_ID and AFRIPAY_APP_SECRET are not both set."
+      );
+    }
+    return afripayProvider;
+  }
+
   if (!stubAllowed()) {
     throw new Error(
-      "No payment provider is configured. Set AFRIPAY_APP_ID and AFRIPAY_APP_SECRET, " +
-        "or set PAYMENTS_ALLOW_STUB=true to explicitly allow simulated payments."
+      FORCED === "stub"
+        ? "PAYMENTS_PROVIDER=stub is refused in production. Set PAYMENTS_ALLOW_STUB=true to " +
+          "deliberately allow simulated payments against a production build."
+        : "No payment provider is configured. Set AFRIPAY_APP_ID and AFRIPAY_APP_SECRET, " +
+          "or set PAYMENTS_ALLOW_STUB=true to explicitly allow simulated payments."
     );
   }
   return stubProvider;
