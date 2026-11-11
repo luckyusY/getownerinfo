@@ -17,7 +17,7 @@ const MAX_OTP_ATTEMPTS = 5;
 // POST /api/payments/:id/verify — confirm a payment (with OTP if required) and,
 // for token-fee payments, finalize the unlock and reveal the gated fields.
 export async function POST(req, { params }) {
-  const guard = requireAuth();
+  const guard = await requireAuth();
   if (guard.error) return guard.error;
 
   let body = {};
@@ -26,7 +26,10 @@ export async function POST(req, { params }) {
   } catch {
     /* otp optional */
   }
-  const { otp } = schema.parse(body || {});
+  const parsedBody = schema.safeParse(body || {});
+  if (!parsedBody.success) return fail("OTP must be a string", 422);
+  const { otp } = parsedBody.data;
+  if (!/^[a-f\d]{24}$/i.test(params.id)) return fail("Payment not found", 404);
 
   await connectDB();
   // Need otp fields, normally select:false.
@@ -41,25 +44,39 @@ export async function POST(req, { params }) {
     if (payment.otpExpiresAt && payment.otpExpiresAt < new Date()) {
       return fail("OTP expired. Restart the unlock.", 410);
     }
-    if ((payment.otpAttempts || 0) >= MAX_OTP_ATTEMPTS) {
+    // Spend an attempt BEFORE comparing, in one atomic update. Reading the
+    // counter, comparing, then saving let a burst of parallel requests all see
+    // "0 attempts" and try far more than five codes against a 6-digit OTP.
+    const claimed = await Payment.updateOne(
+      { _id: payment._id, otpAttempts: { $not: { $gte: MAX_OTP_ATTEMPTS } } },
+      { $inc: { otpAttempts: 1 } }
+    );
+    if (!claimed.modifiedCount) {
       return fail("Too many incorrect codes. Restart the unlock.", 429);
     }
     if (!verifyOtp(otp, payment.otp)) {
-      payment.otpAttempts = (payment.otpAttempts || 0) + 1;
-      await payment.save();
       return fail("Incorrect OTP", 401);
     }
   }
 
-  // Confirm with the provider (stub returns paid).
-  const result = await safeVerify(payment.providerRef);
+  // Confirm with the provider (stub returns paid). A payment the webhook has
+  // already settled needs no second opinion — and AfriPay has no verification
+  // API to give one, so asking would answer "pending" forever and leave a buyer
+  // who really paid stuck on this screen.
+  const result =
+    payment.status === PAYMENT_STATUS.PAID
+      ? { ok: true, status: "paid" }
+      : await safeVerify(payment.providerRef);
   if (!result.ok) {
     return fail("Payment could not be verified right now. Please try again later.", 502);
   }
   if (result.status !== "paid") {
     if (result.status === "failed") {
-      payment.status = PAYMENT_STATUS.FAILED;
-      await payment.save();
+      // Only a pending payment can fail; never overwrite one settled meanwhile.
+      await Payment.updateOne(
+        { _id: payment._id, status: PAYMENT_STATUS.PENDING },
+        { $set: { status: PAYMENT_STATUS.FAILED } }
+      );
       return fail("Payment failed", 402);
     }
     return fail("Payment still pending", 402);

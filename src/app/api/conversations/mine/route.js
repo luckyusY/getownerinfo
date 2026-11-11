@@ -11,7 +11,7 @@ import { ROLES, SELLER_ROLES } from "@/lib/constants";
 // One account both sells and buys, so a non-staff user gets BOTH sides: the
 // threads on listings they own and the threads where they are the buyer.
 export async function GET() {
-  const guard = requireAuth([ROLES.BUYER, ...SELLER_ROLES, ROLES.ADMIN, ROLES.MANAGER]);
+  const guard = await requireAuth([ROLES.BUYER, ...SELLER_ROLES, ROLES.ADMIN, ROLES.MANAGER]);
   if (guard.error) return guard.error;
   const { role, sub } = guard.session;
 

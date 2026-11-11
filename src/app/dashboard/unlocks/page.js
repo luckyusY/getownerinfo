@@ -27,7 +27,7 @@ export default async function ContactUnlocksPage() {
 
   return (
     <div>
-      <PageHeader
+      <PageHeader eyebrow="Buy / rent"
         title="Contact unlocks"
         subtitle="Every owner contact you have paid to reveal, with the details themselves. Each unlock is a permanent access record."
         actions={<Link href="/listings" className="btn-primary">Browse listings</Link>}

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/Toast";
+import { fileToUploadDataUrl } from "@/lib/uploadFile";
 import {
   Banknote,
   Boxes,
@@ -99,15 +100,6 @@ function hydrateForm(listing) {
 
 function money(n) {
   return n == null ? "-" : new Intl.NumberFormat("en-RW").format(n) + " Rwf";
-}
-
-async function fileToDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onload = () => resolve(r.result);
-    r.onerror = reject;
-    r.readAsDataURL(file);
-  });
 }
 
 export default function NewListingPage() {
@@ -219,14 +211,14 @@ export default function NewListingPage() {
     try {
       const uploaded = [];
       for (const file of files) {
-        const dataUrl = await fileToDataUrl(file);
+        const dataUrl = await fileToUploadDataUrl(file);
         const res = await fetch("/api/upload", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ file: dataUrl, kind }),
         });
-        const j = await res.json();
-        if (!j.success) throw new Error(j.error);
+        const j = await res.json().catch(() => null);
+        if (!j?.success) throw new Error(j?.error || `the server refused the file (${res.status})`);
         uploaded.push({ url: j.data.url, publicId: j.data.publicId });
       }
       if (kind === "image") set({ images: [...form.images, ...uploaded] });

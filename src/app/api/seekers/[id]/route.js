@@ -1,8 +1,7 @@
 import { connectDB } from "@/lib/db";
 import SeekerRequest, { SEEKER_STATUS } from "@/models/SeekerRequest";
 import SeekerUnlock from "@/models/SeekerUnlock";
-import { getSession } from "@/lib/auth";
-import { ok, fail } from "@/lib/api";
+import { ok, fail, getLiveSession } from "@/lib/api";
 import { buildSeekerContact } from "@/lib/seekerContact";
 import { ROLES } from "@/lib/constants";
 
@@ -12,7 +11,7 @@ export async function GET(_req, { params }) {
   const request = await SeekerRequest.findById(params.id);
   if (!request) return fail("Request not found", 404);
 
-  const session = getSession();
+  const session = await getLiveSession();
   const isOwner = session && request.seeker.toString() === session.sub;
   const isAdmin = session?.role === ROLES.ADMIN;
 

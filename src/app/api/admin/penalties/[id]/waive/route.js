@@ -7,7 +7,7 @@ import { ROLES } from "@/lib/constants";
 
 // POST /api/admin/penalties/:id/waive — admin waives an active penalty.
 export async function POST(_req, { params }) {
-  const guard = requireAuth([ROLES.ADMIN]);
+  const guard = await requireAuth([ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   await connectDB();

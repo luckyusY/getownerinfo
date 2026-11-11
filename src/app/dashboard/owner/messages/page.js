@@ -7,7 +7,7 @@ export default function OwnerMessagesPage() {
   guardRole(SELLER_ROLES);
   return (
     <div>
-      <PageHeader
+      <PageHeader eyebrow="Messages"
         title="Messages"
         subtitle="Replies are filtered until the buyer unlocks. Do not share contact details early."
       />

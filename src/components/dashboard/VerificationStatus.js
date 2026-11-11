@@ -48,19 +48,48 @@ export default function VerificationStatus({ user }) {
       icon: ScanFace,
       title: "Face Verification",
       detail: "Live selfie check",
-      // No capture flow exists yet, so this never reports as done.
-      state: "none",
+      // The live selfie is a required part of the identity submission, so it
+      // shares that submission's state. It used to be pinned to "Not verified",
+      // which told a fully approved owner they still had a step outstanding.
+      state: kycStatus === "approved" ? "verified" : kycStatus === "none" ? "none" : kycStatus,
       href: "/dashboard/profile#verification",
     },
   ];
+
+  const doneCount = rows.filter((r) => r.state === "verified" || r.state === "completed").length;
+  const allDone = doneCount === rows.length;
 
   return (
     <section className="rounded-2xl border border-line bg-surface p-5 shadow-soft">
       <div className="flex items-center justify-between gap-3">
         <h2 className="font-display text-lg font-bold text-ink">Verification Status</h2>
         <Link href="/dashboard/profile#verification" className="inline-flex min-h-11 items-center text-sm font-bold text-brand hover:text-brand-dark">
-          View
+          {allDone ? "View" : "Continue"}
         </Link>
+      </div>
+
+      {/* How far along, before the detail: four rows of badges made the reader
+          count them to learn whether they were finished. */}
+      <div className="mt-1">
+        <div className="flex items-center justify-between text-xs font-bold">
+          <span className="text-ink-soft">
+            {allDone ? "All steps complete" : `${doneCount} of ${rows.length} steps complete`}
+          </span>
+          <span className="stat-figure text-ink-faint">{Math.round((doneCount / rows.length) * 100)}%</span>
+        </div>
+        <div
+          className="mt-2 h-1.5 overflow-hidden rounded-full bg-panel"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={rows.length}
+          aria-valuenow={doneCount}
+          aria-label="Verification progress"
+        >
+          <div
+            className={`h-full rounded-full transition-all duration-500 ${allDone ? "bg-emerald-500" : "bg-brand"}`}
+            style={{ width: `${(doneCount / rows.length) * 100}%` }}
+          />
+        </div>
       </div>
 
       <ul className="mt-3 divide-y divide-line">

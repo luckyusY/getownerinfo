@@ -30,7 +30,7 @@ function targetFor(channel, user) {
 
 // GET /api/verification/contact — current state of both channels.
 export async function GET() {
-  const guard = requireAuth();
+  const guard = await requireAuth();
   if (guard.error) return guard.error;
 
   await connectDB();
@@ -56,7 +56,7 @@ export async function GET() {
 
 // POST /api/verification/contact — send a code to one channel.
 export async function POST(req) {
-  const guard = requireAuth();
+  const guard = await requireAuth();
   if (guard.error) return guard.error;
 
   const limited = await enforceRateLimit(req, {
@@ -113,12 +113,16 @@ export async function POST(req) {
   };
   await user.save();
 
-  await notify({
+  const sent = await notify({
     to: target,
     channel: channel === "email" ? "email" : "sms",
     subject: "Your getownerinfo verification code",
     message: `Your verification code is ${code}. It expires in 10 minutes.`,
   });
+  // Do not report "sent" for a message the provider rejected.
+  if (!sent.ok) {
+    return fail("We could not send your verification code. Please try again shortly.", 502);
+  }
 
   await audit({
     actor: user._id,
@@ -140,7 +144,7 @@ export async function POST(req) {
 
 // PUT /api/verification/contact — confirm a code.
 export async function PUT(req) {
-  const guard = requireAuth();
+  const guard = await requireAuth();
   if (guard.error) return guard.error;
 
   const limited = await enforceRateLimit(req, {

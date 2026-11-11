@@ -5,7 +5,7 @@ import { createSessionPayload, setAuthCookie, signToken } from "@/lib/auth";
 import User from "@/models/User";
 
 export async function POST() {
-  const guard = requireAuth();
+  const guard = await requireAuth();
   if (guard.error) return guard.error;
 
   if (guard.session.role !== ROLES.BUYER) {

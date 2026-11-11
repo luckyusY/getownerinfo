@@ -36,8 +36,8 @@ export const env = {
     // src/lib/payments/afripay.js for the probed contract.
     appId: process.env.AFRIPAY_APP_ID || "",
     appSecret: process.env.AFRIPAY_APP_SECRET || "",
-    // Reserved for webhook signature verification, if AfriPay ever documents
-    // one. Unused until then.
+    // Shared key for the payment callback: AfriPay sends no signature, so the
+    // registered callback URL carries ?key=<this>. See api/payments/webhook.
     secret: process.env.AFRIPAY_SECRET || "",
   },
   google: {

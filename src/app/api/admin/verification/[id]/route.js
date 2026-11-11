@@ -13,7 +13,7 @@ const schema = z.object({
 
 // POST /api/admin/verification/:id — approve or reject an identity submission.
 export async function POST(req, { params }) {
-  const guard = requireAuth([ROLES.ADMIN]);
+  const guard = await requireAuth([ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   let body;

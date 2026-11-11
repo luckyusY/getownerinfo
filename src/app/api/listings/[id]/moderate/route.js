@@ -14,7 +14,7 @@ const schema = z.object({
 
 // POST /api/listings/:id/moderate — admin approves or rejects a pending listing.
 export async function POST(req, { params }) {
-  const guard = requireAuth([ROLES.ADMIN]);
+  const guard = await requireAuth([ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   let body;

@@ -2,14 +2,24 @@
 
 import { Children, cloneElement, isValidElement } from "react";
 
-export function PageHeader({ title, subtitle, actions }) {
+/**
+ * Page masthead.
+ *
+ * `eyebrow` names the area the page belongs to ("Payments", "Administration").
+ * It used to read "Dashboard" on every page, which told nobody anything they
+ * could not see from the sidebar; without one the line is simply not drawn.
+ * The brand rule down the left edge is what marks this as the head of the page
+ * rather than one more card in the stack beneath it.
+ */
+export function PageHeader({ title, subtitle, actions, eyebrow }) {
   return (
-    <div className="dashboard-reveal rounded-xl border border-line bg-surface px-5 py-5 shadow-soft sm:px-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-wide text-brand">Dashboard</p>
-          <h1 className="mt-1 font-display text-2xl font-bold text-ink sm:text-3xl">{title}</h1>
-          {subtitle && <p className="mt-1 max-w-2xl text-sm leading-relaxed text-ink-soft">{subtitle}</p>}
+    <div className="dashboard-reveal relative overflow-hidden rounded-2xl border border-line bg-surface px-5 py-5 shadow-soft sm:px-7 sm:py-6">
+      <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-brand to-sky" />
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+        <div className="min-w-0">
+          {eyebrow && <p className="eyebrow mb-1">{eyebrow}</p>}
+          <h1 className="text-balance font-display text-2xl font-bold leading-tight text-ink sm:text-[1.75rem]">{title}</h1>
+          {subtitle && <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-ink-soft">{subtitle}</p>}
         </div>
         {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
       </div>
@@ -21,7 +31,7 @@ export function SectionHeading({ title, description, action }) {
   return (
     <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h2 className="font-display text-xl font-bold text-ink">{title}</h2>
+        <h2 className="font-display text-lg font-bold text-ink sm:text-xl">{title}</h2>
         {description && <p className="mt-1 text-sm text-ink-soft">{description}</p>}
       </div>
       {action}
@@ -29,15 +39,27 @@ export function SectionHeading({ title, description, action }) {
   );
 }
 
+/**
+ * A single figure with its label.
+ *
+ * Tone is carried by a dot beside the label and by the figure itself. The card
+ * used to wear a full-width coloured bar and a hover glow: the bar made a row
+ * of neutral stats look like four black-topped alerts, and the glow promised a
+ * click on something that is not a link. A stat that needs attention ("brand",
+ * "danger") now stands out because the quiet ones are actually quiet.
+ */
 export function StatCard({ label, value, hint, tone = "default" }) {
   const accent = tone === "brand" ? "text-brand" : tone === "danger" ? "text-red-600" : "text-ink";
-  const bar = tone === "brand" ? "bg-brand" : tone === "danger" ? "bg-red-500" : "bg-ink";
+  const dot = tone === "brand" ? "bg-brand" : tone === "danger" ? "bg-red-500" : "bg-line";
+  const frame = tone === "danger" ? "!border-red-200" : "";
   return (
-    <div className="card premium-hover dashboard-reveal relative overflow-hidden !p-5">
-      <span className={`absolute inset-x-0 top-0 h-1 ${bar}`} />
-      <p className="text-xs font-semibold uppercase tracking-wide text-ink-faint">{label}</p>
-      <p className={`mt-2 font-display text-2xl font-bold ${accent}`}>{value}</p>
-      {hint && <p className="mt-1 text-xs text-ink-faint">{hint}</p>}
+    <div className={`card dashboard-reveal !p-5 ${frame}`}>
+      <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-ink-faint">
+        <span aria-hidden="true" className={`h-2 w-2 shrink-0 rounded-full ${dot}`} />
+        {label}
+      </p>
+      <p className={`stat-figure mt-2.5 font-display text-[1.75rem] font-bold leading-none ${accent}`}>{value}</p>
+      {hint && <p className="mt-2 text-xs leading-relaxed text-ink-faint">{hint}</p>}
     </div>
   );
 }

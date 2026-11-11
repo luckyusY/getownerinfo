@@ -5,7 +5,7 @@ import { ok, fail, requireAuth } from "@/lib/api";
 
 // POST /api/favorites/:listingId — toggle a favorite. Returns { favorited }.
 export async function POST(_req, { params }) {
-  const guard = requireAuth();
+  const guard = await requireAuth();
   if (guard.error) return guard.error;
 
   await connectDB();

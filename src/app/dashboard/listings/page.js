@@ -50,7 +50,7 @@ export default async function MyListingsPage({ searchParams }) {
 
   return (
     <div>
-      <PageHeader
+      <PageHeader eyebrow="Listings"
         title="My listings"
         subtitle="Every listing on this account, grouped by where it is in the process."
         actions={

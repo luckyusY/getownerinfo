@@ -26,7 +26,7 @@ const schema = z.object({ tier: z.enum(["buyer", "tenant", "client"]).default("b
 
 // POST /api/listings/:id/unlock — begin (and possibly complete) a token unlock.
 export async function POST(req, { params }) {
-  const guard = requireAuth([ROLES.BUYER, ...SELLER_ROLES, ROLES.ADMIN]);
+  const guard = await requireAuth([ROLES.BUYER, ...SELLER_ROLES, ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   // Per-account throttle on top of the daily unlock cap below — this one also
@@ -45,12 +45,20 @@ export async function POST(req, { params }) {
   } catch {
     /* tier defaults to buyer */
   }
-  const { tier } = schema.parse({ tier: body?.tier });
+  const parsedTier = schema.safeParse({ tier: body?.tier ?? undefined });
+  if (!parsedTier.success) return fail("tier must be buyer, tenant or client", 422);
+  const { tier } = parsedTier.data;
+  if (!/^[a-f\d]{24}$/i.test(params.id)) return fail("Listing not found", 404);
 
   await connectDB();
   const listing = await Listing.findById(params.id);
   if (!listing) return fail("Listing not found", 404);
   if (listing.status !== LISTING_STATUS.ACTIVE) return fail("Listing is not available", 409);
+  // The expiry cron runs once a day. Until it does, a lapsed listing still says
+  // ACTIVE — and nobody should pay to unlock one the owner has stopped paying for.
+  if (listing.expiresAt && listing.expiresAt < new Date()) {
+    return fail("Listing is not available", 409);
+  }
   if (listing.owner.toString() === guard.session.sub) {
     return fail("You cannot unlock your own listing", 400);
   }
@@ -85,7 +93,13 @@ export async function POST(req, { params }) {
   }
 
   const category = await Category.findById(listing.category);
-  const amount = category?.tokenFee?.[tier] ?? 0;
+  const amount = Number(category?.tokenFee?.[tier]);
+  // A missing fee used to fall back to 0 — which the stub provider "charged"
+  // and then handed over the owner's contact for nothing. No price, no unlock.
+  if (!Number.isFinite(amount) || amount <= 0) {
+    console.error(`unlock blocked: no ${tier} token fee configured for category ${listing.category}`);
+    return fail("Unlock is temporarily unavailable for this listing. Please try again shortly.", 503);
+  }
   const vatPortion = Math.round(amount - amount / (1 + (settings.vatRate ?? VAT_RATE)));
 
   // Create the payment record and initiate with the provider.
@@ -128,12 +142,19 @@ export async function POST(req, { params }) {
     payment.otp = hashOtp(otp);
     payment.otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
     await payment.save();
-    await notify({
+    const sent = await notify({
       to: user.email,
       channel: "email",
       subject: "Your getownerinfo unlock code",
       message: `Your verification code is ${otp}. It expires in 10 minutes.`,
     });
+    // A code that never left is a gate nobody can pass. Stop before the buyer
+    // is sent to pay for an unlock they could not then confirm.
+    if (!sent.ok) {
+      payment.status = PAYMENT_STATUS.FAILED;
+      await payment.save();
+      return fail("We could not send your verification code. Please try again shortly.", 502);
+    }
     return ok({
       needsOtp: true,
       paymentId: payment._id.toString(),

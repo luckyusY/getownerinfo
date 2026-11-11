@@ -6,7 +6,7 @@ import { describeFaceMatch } from "@/lib/faceMatch";
 
 // GET /api/admin/verification?status=pending — verification review queue.
 export async function GET(req) {
-  const guard = requireAuth([ROLES.ADMIN]);
+  const guard = await requireAuth([ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   const { searchParams } = new URL(req.url);

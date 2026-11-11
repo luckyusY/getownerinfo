@@ -6,7 +6,7 @@ import { ROLES } from "@/lib/constants";
 
 // GET /api/admin/settings — current platform settings (admin only).
 export async function GET() {
-  const guard = requireAuth([ROLES.ADMIN]);
+  const guard = await requireAuth([ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   await connectDB();
@@ -18,7 +18,7 @@ export async function GET() {
 const ALLOWED = ["vatRate", "currency", "durationDiscounts", "seeker", "penalty", "tokenAccess"];
 
 export async function PATCH(req) {
-  const guard = requireAuth([ROLES.ADMIN]);
+  const guard = await requireAuth([ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   let body;

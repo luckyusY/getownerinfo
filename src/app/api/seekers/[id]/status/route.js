@@ -11,7 +11,7 @@ const schema = z.object({
 
 // POST /api/seekers/:id/status — seeker marks fulfilled/closed; admin can reject/reactivate.
 export async function POST(req, { params }) {
-  const guard = requireAuth([ROLES.BUYER, ROLES.ADMIN]);
+  const guard = await requireAuth([ROLES.BUYER, ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   let body;

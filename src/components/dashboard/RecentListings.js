@@ -6,12 +6,15 @@ import FavoriteButton from "@/components/FavoriteButton";
 import EmptyState from "@/components/ui/EmptyState";
 
 const STATUS_STYLE = {
-  active: "bg-emerald-500 text-white",
+  // White text on these needs 4.5:1. The 500-step fills measured 2.5-3.8:1,
+  // so the label — the one thing an owner scans this row for — was the
+  // hardest text on the card to read.
+  active: "bg-emerald-700 text-white",
   pending_approval: "bg-amber-400 text-amber-950",
-  draft: "bg-violet-500 text-white",
-  rejected: "bg-red-500 text-white",
+  draft: "bg-violet-600 text-white",
+  rejected: "bg-red-600 text-white",
   expired: "bg-ink-faint text-white",
-  under_negotiation: "bg-sky text-white",
+  under_negotiation: "bg-brand text-white",
   sold: "bg-navy text-white",
   rented: "bg-navy text-white",
 };

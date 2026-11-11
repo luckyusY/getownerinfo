@@ -7,7 +7,7 @@ import { LISTING_STATUS } from "@/lib/constants";
 
 // GET /api/favorites/mine — the user's saved listings (active only), card shape.
 export async function GET() {
-  const guard = requireAuth();
+  const guard = await requireAuth();
   if (guard.error) return guard.error;
 
   await connectDB();

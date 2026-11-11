@@ -17,7 +17,7 @@ const schema = z.object({
 
 // POST /api/admin/reports/resolve — resolve every open report on one listing.
 export async function POST(req) {
-  const guard = requireAuth([ROLES.ADMIN]);
+  const guard = await requireAuth([ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   let body;

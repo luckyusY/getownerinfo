@@ -10,7 +10,7 @@ import { ROLES } from "@/lib/constants";
 // separate rows.
 export async function GET(req) {
   // There is no report-to-manager assignment model yet; this is a global queue.
-  const guard = requireAuth([ROLES.ADMIN]);
+  const guard = await requireAuth([ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   const { searchParams } = new URL(req.url);

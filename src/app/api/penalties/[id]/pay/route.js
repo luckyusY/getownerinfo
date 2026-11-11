@@ -4,12 +4,13 @@ import Payment from "@/models/Payment";
 import User from "@/models/User";
 import { safeInitiate, safeVerify } from "@/lib/payments";
 import { audit } from "@/models/AuditLog";
+import { settleNonUnlockPayment } from "@/lib/paymentSettlement";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { PAYMENT_TYPES, PAYMENT_STATUS } from "@/lib/constants";
 
 // POST /api/penalties/:id/pay — offender settles a penalty.
 export async function POST(_req, { params }) {
-  const guard = requireAuth();
+  const guard = await requireAuth();
   if (guard.error) return guard.error;
 
   await connectDB();
@@ -46,17 +47,11 @@ export async function POST(_req, { params }) {
     return ok({ pending: true, paymentId: payment._id.toString(), redirectUrl: init.redirectUrl });
   }
 
-  payment.status = PAYMENT_STATUS.PAID;
-  await payment.save();
-
-  penalty.status = "paid";
-  penalty.payment = payment._id;
-  penalty.paidAt = new Date();
-  await penalty.save();
-
-  const user = await User.findById(penalty.user);
-  user.penaltyBalance = Math.max(0, (user.penaltyBalance || 0) - penalty.total);
-  await user.save();
+  // One settlement path for every way a payment can complete. It claims the
+  // payment and the penalty with conditional updates, so this request racing
+  // the provider webhook (or a double click) cannot deduct the balance twice.
+  await settleNonUnlockPayment(payment);
+  const user = await User.findById(penalty.user).select("penaltyBalance").lean();
 
   await audit({
     actor: guard.session.sub,
@@ -67,5 +62,5 @@ export async function POST(_req, { params }) {
     meta: { total: penalty.total },
   });
 
-  return ok({ paid: true, penaltyBalance: user.penaltyBalance });
+  return ok({ paid: true, penaltyBalance: user?.penaltyBalance || 0 });
 }

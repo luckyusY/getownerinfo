@@ -67,6 +67,14 @@ export default async function DashboardLayout({ children }) {
   const user = await User.findById(session.sub).lean();
   if (!user) redirect("/login");
 
+  // The cookie carries the role it was signed with and lives for a week. When
+  // it has drifted from the account — demoted, promoted, suspended or
+  // blacklisted — every page guard below would be judging a stale role, so
+  // stop here and let the refresh route re-issue or revoke the cookie.
+  if (user.isActive === false || user.isBlacklisted || user.role !== session.role) {
+    redirect("/api/auth/refresh");
+  }
+
   const counts = await loadCounts(session);
 
   return (

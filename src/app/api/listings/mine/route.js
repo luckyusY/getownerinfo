@@ -6,7 +6,7 @@ import { ROLES, SELLER_ROLES } from "@/lib/constants";
 
 // GET /api/listings/mine — the authenticated owner's own listings (full view).
 export async function GET() {
-  const guard = requireAuth([...SELLER_ROLES, ROLES.MANAGER, ROLES.ADMIN]);
+  const guard = await requireAuth([...SELLER_ROLES, ROLES.MANAGER, ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   await connectDB();

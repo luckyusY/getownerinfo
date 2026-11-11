@@ -179,7 +179,9 @@ export default async function ListingDetail({ params }) {
 
   return (
     <div className="min-h-screen">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" // Escape "<" so a title or description containing "</script>" cannot close
+        // this tag and run as markup — the content is owner-supplied.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       <SiteHeader />
       <main className="mx-auto max-w-7xl px-4 py-8">
         <Link href="/listings" className="inline-flex items-center gap-2 text-sm font-semibold text-ink-soft hover:text-ink">

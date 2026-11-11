@@ -3,18 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import SelfieCapture from "@/components/SelfieCapture";
 import { useToast } from "@/components/ui/Toast";
+import { fileToUploadDataUrl, shrinkDataUrl } from "@/lib/uploadFile";
 import { BadgeCheck, Clock, ShieldAlert, Upload, XCircle } from "lucide-react";
 
 const MAX_BYTES = 10 * 1024 * 1024;
-
-function fileToDataUri(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
 
 export default function VerificationCard() {
   const { toast } = useToast();
@@ -52,7 +44,7 @@ export default function VerificationCard() {
     try {
       // Upload as a private "identity" asset first — the API only accepts a
       // publicId from that folder.
-      const dataUri = await fileToDataUri(file);
+      const dataUri = await fileToUploadDataUrl(file);
       const up = await fetch("/api/upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -65,7 +57,7 @@ export default function VerificationCard() {
       const selfieUp = await fetch("/api/upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ file: selfie.dataUrl, kind: "selfie" }),
+        body: JSON.stringify({ file: await shrinkDataUrl(selfie.dataUrl), kind: "selfie" }),
       });
       const selfieJson = await selfieUp.json();
       if (!selfieJson.success) throw new Error(selfieJson.error);

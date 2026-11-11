@@ -28,7 +28,7 @@ import { dispatch } from "@/lib/notificationService";
 // POST /api/listings — create a listing (draft or submit for approval).
 export async function POST(req) {
   // Staff review and moderate listings; sellers create their own listings.
-  const guard = requireAuth(SELLER_ROLES);
+  const guard = await requireAuth(SELLER_ROLES);
   if (guard.error) return guard.error;
 
   let body;
@@ -210,9 +210,11 @@ export async function GET(req) {
   }
   const model = searchParams.get("model");
   if (model === "A" || model === "B") query.model = model;
-  const location = searchParams.get("location");
+  // Capped: these become unanchored regex scans, and nothing a person types
+  // into a search box is longer than this.
+  const location = searchParams.get("location")?.trim().slice(0, 80);
   if (location) query["location.area"] = { $regex: escapeRegex(location), $options: "i" };
-  const q = searchParams.get("q");
+  const q = searchParams.get("q")?.trim().slice(0, 80);
   if (q) {
     const rx = { $regex: escapeRegex(q), $options: "i" };
     query.$or = [{ title: rx }, { itemType: rx }, { "location.area": rx }, { description: rx }];

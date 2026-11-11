@@ -5,7 +5,7 @@ import { ROLES } from "@/lib/constants";
 
 // GET /api/seekers/mine — the current buyer's own seeker requests (with contact).
 export async function GET() {
-  const guard = requireAuth([ROLES.BUYER, ROLES.ADMIN]);
+  const guard = await requireAuth([ROLES.BUYER, ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   await connectDB();

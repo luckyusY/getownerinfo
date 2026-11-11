@@ -4,6 +4,19 @@ import { ArrowRight, BadgeCheck, ShieldAlert } from "lucide-react";
 /** Masthead for the dashboard: who you are and whether you are verified. */
 export default function WelcomeHero({ user }) {
   const verified = Boolean(user.isVerified);
+  // "Verification pending" used to show for everyone unverified, including
+  // people who had never submitted anything. It read as "we are on it" when in
+  // fact nothing would happen until they acted.
+  const inReview = !verified && user.kyc?.status === "pending";
+  const rejected = !verified && user.kyc?.status === "rejected";
+  const statusLabel = verified
+    ? "Verified Owner"
+    : inReview
+      ? "Verification in review"
+      : rejected
+        ? "Verification needs attention"
+        : "Not verified yet";
+  const needsAction = !verified && !inReview;
 
   return (
     <section className="relative isolate overflow-hidden rounded-2xl border border-line shadow-soft">
@@ -29,17 +42,17 @@ export default function WelcomeHero({ user }) {
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <span
             className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-bold ${
-              verified ? "bg-emerald-500 text-white" : "bg-amber-400 text-amber-950"
+              verified ? "bg-emerald-700 text-white" : "bg-amber-400 text-amber-950"
             }`}
           >
             {verified ? <BadgeCheck className="h-4 w-4" /> : <ShieldAlert className="h-4 w-4" />}
-            {verified ? "Verified Owner" : "Verification pending"}
+            {statusLabel}
           </span>
           <Link
-            href="/dashboard/profile"
-            className="inline-flex items-center gap-1.5 text-sm font-bold text-white transition hover:text-sky-light"
+            href={needsAction ? "/dashboard/profile#verification" : "/dashboard/profile"}
+            className="inline-flex min-h-11 items-center gap-1.5 text-sm font-bold text-white underline-offset-4 transition hover:text-sky-light hover:underline"
           >
-            View Profile <ArrowRight className="h-4 w-4" />
+            {needsAction ? "Get verified" : "View Profile"} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </div>

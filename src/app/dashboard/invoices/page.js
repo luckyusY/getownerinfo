@@ -19,7 +19,7 @@ export default async function InvoicesPage() {
 
   return (
     <div id="commissions">
-      <PageHeader
+      <PageHeader eyebrow="Payments"
         title="Invoices & commissions"
         subtitle="Model A commissions on closed deals, and any penalties applied to this account."
       />

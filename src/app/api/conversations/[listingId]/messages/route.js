@@ -21,7 +21,7 @@ const STAFF = [ROLES.ADMIN, ROLES.MANAGER];
 
 // POST /api/conversations/:listingId/messages — send a message.
 export async function POST(req, { params }) {
-  const guard = requireAuth([ROLES.BUYER, ...SELLER_ROLES, ...STAFF]);
+  const guard = await requireAuth([ROLES.BUYER, ...SELLER_ROLES, ...STAFF]);
   if (guard.error) return guard.error;
 
   let body;
@@ -149,7 +149,7 @@ export async function POST(req, { params }) {
 
 // GET /api/conversations/:listingId/messages?buyerId=... — fetch a thread.
 export async function GET(req, { params }) {
-  const guard = requireAuth([ROLES.BUYER, ...SELLER_ROLES, ...STAFF]);
+  const guard = await requireAuth([ROLES.BUYER, ...SELLER_ROLES, ...STAFF]);
   if (guard.error) return guard.error;
   const { role, sub } = guard.session;
 

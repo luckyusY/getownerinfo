@@ -4,12 +4,13 @@ import Payment from "@/models/Payment";
 import User from "@/models/User";
 import { safeInitiate, safeVerify } from "@/lib/payments";
 import { audit } from "@/models/AuditLog";
+import { settleNonUnlockPayment } from "@/lib/paymentSettlement";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { ROLES, PAYMENT_TYPES, PAYMENT_STATUS, SELLER_ROLES } from "@/lib/constants";
 
 // POST /api/commissions/:id/pay — owner settles a commission invoice.
 export async function POST(_req, { params }) {
-  const guard = requireAuth([...SELLER_ROLES, ROLES.ADMIN]);
+  const guard = await requireAuth([...SELLER_ROLES, ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   await connectDB();
@@ -50,18 +51,11 @@ export async function POST(_req, { params }) {
     return ok({ pending: true, paymentId: payment._id.toString(), redirectUrl: init.redirectUrl });
   }
 
-  payment.status = PAYMENT_STATUS.PAID;
-  await payment.save();
-
-  commission.status = "paid";
-  commission.payment = payment._id;
-  commission.paidAt = new Date();
-  await commission.save();
-
-  // Reduce the owner's outstanding balance (never below zero).
-  const owner = await User.findById(commission.owner);
-  owner.commissionDue = Math.max(0, (owner.commissionDue || 0) - commission.total);
-  await owner.save();
+  // One settlement path for every way a payment can complete. It claims the
+  // payment and the invoice with conditional updates, so this request racing
+  // the provider webhook (or a double click) cannot deduct the balance twice.
+  await settleNonUnlockPayment(payment);
+  const owner = await User.findById(commission.owner).select("commissionDue").lean();
 
   await audit({
     actor: guard.session.sub,
@@ -72,5 +66,5 @@ export async function POST(_req, { params }) {
     meta: { amount: commission.total },
   });
 
-  return ok({ paid: true, commissionDue: owner.commissionDue });
+  return ok({ paid: true, commissionDue: owner?.commissionDue || 0 });
 }

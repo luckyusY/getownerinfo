@@ -22,15 +22,19 @@ function sellerGroups(counts) {
   return [
     {
       title: "Listings (sell / let)",
+      // The status entries are views of "My Listings", not destinations of
+      // their own, so they are marked `sub` and drawn as a quieter, indented
+      // list hanging off it. Flat, they were six of the sidebar's twenty-one
+      // equally loud rows and pushed Messages and Payments below the fold.
       items: [
-        { label: "My Listings", href: "/dashboard/listings", icon: Home, count: counts.listings },
         { label: "New Listing", href: "/dashboard/owner/listings/new", icon: ListPlus },
-        { label: "Active Listings", href: "/dashboard/listings?status=active", icon: BadgeCheck, count: counts.active },
-        { label: "Pending Approval", href: "/dashboard/listings?status=pending_approval", icon: Clock, count: counts.pending },
-        { label: "Drafts", href: "/dashboard/listings?status=draft", icon: FileText, count: counts.drafts },
-        { label: "Expired", href: "/dashboard/listings?status=expired", icon: Archive },
-        { label: "Sold / Rented", href: "/dashboard/listings?status=sold", icon: Store },
-        { label: "Under Negotiation", href: "/dashboard/listings?status=under_negotiation", icon: Handshake },
+        { label: "My Listings", href: "/dashboard/listings", icon: Home, count: counts.listings },
+        { sub: true, label: "Active", href: "/dashboard/listings?status=active", icon: BadgeCheck, count: counts.active },
+        { sub: true, label: "Pending approval", href: "/dashboard/listings?status=pending_approval", icon: Clock, count: counts.pending },
+        { sub: true, label: "Drafts", href: "/dashboard/listings?status=draft", icon: FileText, count: counts.drafts },
+        { sub: true, label: "Under negotiation", href: "/dashboard/listings?status=under_negotiation", icon: Handshake },
+        { sub: true, label: "Sold / Rented", href: "/dashboard/listings?status=sold", icon: Store },
+        { sub: true, label: "Expired", href: "/dashboard/listings?status=expired", icon: Archive },
       ],
     },
   ];
@@ -174,10 +178,10 @@ export default function DashboardSidebar({ role, counts = {} }) {
 
       {groups.map((group) => (
         <div key={group.title}>
-          <p className="px-3 pb-2 text-[11px] font-black uppercase tracking-[0.12em] text-ink-faint">
+          <p className="px-3 pb-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-ink-faint">
             {group.title}
           </p>
-          <div className="grid gap-1">
+          <div className="grid gap-0.5">
             {group.items.map((item) => (
               <NavItem
                 key={item.label}
@@ -193,7 +197,7 @@ export default function DashboardSidebar({ role, counts = {} }) {
         <button
           type="button"
           onClick={logout}
-          className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold text-red-600 transition hover:bg-red-50 active:scale-[0.98]"
+          className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50 active:scale-[0.98]"
         >
           <LogOut className="h-[18px] w-[18px]" />
           Logout
@@ -203,29 +207,55 @@ export default function DashboardSidebar({ role, counts = {} }) {
   );
 }
 
-function NavItem({ href, icon: Icon, label, count, verified, active }) {
+/**
+ * One sidebar row.
+ *
+ * Weight does the work here. Every row used to be bold and the current one a
+ * solid brand slab, so the sidebar shouted evenly and the page you were on was
+ * just the loudest of twenty. Rows now rest at semibold in soft ink; only the
+ * current one is bold, in brand, on a tint, with a rule on its leading edge.
+ *
+ * A `sub` row is a filtered view of the row above it: no icon, indented along
+ * a hairline, and a little smaller — but still a full 44px target on touch.
+ */
+function NavItem({ href, icon: Icon, label, count, verified, active, sub = false }) {
   return (
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
-      className={`flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold transition active:scale-[0.98] ${
-        active ? "bg-brand text-white shadow-soft" : "text-ink-soft hover:bg-brand-50 hover:text-brand"
+      className={`group relative flex min-h-11 items-center gap-3 rounded-lg transition active:scale-[0.98] lg:min-h-0 ${
+        sub ? "ml-[21px] border-l border-line py-2 pl-[18px] pr-3 text-[13px] lg:py-1.5" : "px-3 py-2.5 text-sm lg:py-2"
+      } ${sub ? "rounded-l-none" : ""} ${
+        active
+          ? "bg-brand-50 font-bold text-brand"
+          : "font-semibold text-ink-soft hover:bg-paper hover:text-ink"
       }`}
     >
-      <Icon className="h-[18px] w-[18px] shrink-0" />
+      {/* Leading-edge rule: says "you are here" without filling the row. */}
+      {active && (
+        <span
+          aria-hidden="true"
+          className={`absolute top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-brand ${sub ? "-left-[2px]" : "left-0"}`}
+        />
+      )}
+      {!sub && (
+        <Icon
+          className={`h-[18px] w-[18px] shrink-0 transition-colors ${
+            active ? "text-brand" : "text-ink-faint group-hover:text-ink-soft"
+          }`}
+        />
+      )}
       <span className="min-w-0 flex-1 truncate">{label}</span>
       {count > 0 && (
         <span
-          className={`inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-black ${
-            active ? "bg-white/20 text-white" : "bg-brand-50 text-brand"
+          className={`stat-figure inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold ${
+            active ? "bg-brand text-white" : "bg-panel text-ink-soft"
           }`}
         >
           {count > 99 ? "99+" : count}
         </span>
       )}
-      {verified && !count && (
-        <BadgeCheck className={`h-4 w-4 shrink-0 ${active ? "text-white" : "text-emerald-600"}`} />
-      )}
+      {verified && !count && <BadgeCheck className="h-4 w-4 shrink-0 text-emerald-600" />}
     </Link>
   );
 }

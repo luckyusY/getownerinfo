@@ -37,7 +37,7 @@ export default async function PaymentHistoryPage() {
 
   return (
     <div>
-      <PageHeader
+      <PageHeader eyebrow="Payments"
         title="Payment history"
         subtitle="Every listing fee, contact unlock, commission and penalty charged to this account."
       />

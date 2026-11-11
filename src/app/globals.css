@@ -207,7 +207,29 @@
     @apply rounded-2xl p-6;
     background: var(--surface);
     border: 1px solid var(--line);
-    box-shadow: 0 1px 2px rgba(21, 33, 28, 0.04), 0 14px 36px -24px rgba(21, 33, 28, 0.22);
+    box-shadow: 0 1px 2px rgba(12, 35, 64, 0.04), 0 14px 36px -24px rgba(12, 35, 64, 0.22);
+  }
+
+  /*
+   * Dashboard entrance. The class was on some thirty panels and defined
+   * nowhere, so every dashboard page arrived all at once. Panels now rise a few
+   * pixels in reading order: enough to show the page has a top and a sequence,
+   * short enough (the last starts at 240ms) never to be waited for. Only the
+   * first few siblings are staggered; the rest land with the last step.
+   * prefers-reduced-motion is honoured by the global rule in the base layer.
+   */
+  .dashboard-reveal {
+    animation: fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .dashboard-reveal:nth-child(2) { animation-delay: 60ms; }
+  .dashboard-reveal:nth-child(3) { animation-delay: 120ms; }
+  .dashboard-reveal:nth-child(4) { animation-delay: 180ms; }
+  .dashboard-reveal:nth-child(n + 5) { animation-delay: 240ms; }
+
+  /* Figures that are compared down a column or across tiles. */
+  .stat-figure {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
   }
 
   .premium-hover {
@@ -227,9 +249,17 @@
     transition: opacity 220ms ease, transform 220ms ease;
   }
 
-  .premium-hover:hover::after {
-    opacity: 1;
-    transform: scale(1.015);
+  /* Only things you can actually click light up. The class sits on plenty of
+     plain panels (queue rows, form sections, pricing blocks), and a glow that
+     follows the pointer across them promised an action that was not there.
+     Gated on a real pointer for the same reason as the buttons above. */
+  @media (hover: hover) {
+    a.premium-hover:hover::after,
+    button.premium-hover:hover::after,
+    .property-card.premium-hover:hover::after {
+      opacity: 1;
+      transform: scale(1.015);
+    }
   }
 
   .magnetic-link {

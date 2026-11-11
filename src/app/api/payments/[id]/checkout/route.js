@@ -29,7 +29,7 @@ function esc(value) {
 }
 
 export async function GET(req, { params }) {
-  const guard = requireAuth();
+  const guard = await requireAuth();
   if (guard.error) return guard.error;
 
   const providerRef = params.id;

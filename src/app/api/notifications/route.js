@@ -4,7 +4,7 @@ import { ok, requireAuth } from "@/lib/api";
 
 // GET /api/notifications — latest notifications + unread count for the user.
 export async function GET() {
-  const guard = requireAuth();
+  const guard = await requireAuth();
   if (guard.error) return guard.error;
 
   await connectDB();

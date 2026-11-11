@@ -34,7 +34,7 @@ const createSchema = z.object({
 
 // POST /api/seekers — post a seeker request (charges the post fee, then activates).
 export async function POST(req) {
-  const guard = requireAuth([ROLES.BUYER, ROLES.ADMIN]);
+  const guard = await requireAuth([ROLES.BUYER, ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   let body;

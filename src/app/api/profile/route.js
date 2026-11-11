@@ -28,7 +28,7 @@ const patchSchema = z
 
 // GET /api/profile — return the caller's own profile (safe fields only)
 export async function GET() {
-  const guard = requireAuth(ALL_ROLES);
+  const guard = await requireAuth(ALL_ROLES);
   if (guard.error) return guard.error;
 
   await connectDB();
@@ -58,7 +58,7 @@ export async function GET() {
 
 // PATCH /api/profile — update name and/or phone
 export async function PATCH(req) {
-  const guard = requireAuth(ALL_ROLES);
+  const guard = await requireAuth(ALL_ROLES);
   if (guard.error) return guard.error;
 
   let body;
@@ -72,7 +72,12 @@ export async function PATCH(req) {
   if (!user) return fail("User not found", 404);
 
   if (parsed.data.name !== undefined) user.name = parsed.data.name;
-  if (parsed.data.phone !== undefined) user.phone = parsed.data.phone;
+  if (parsed.data.phone !== undefined && parsed.data.phone !== (user.phone || "")) {
+    user.phone = parsed.data.phone;
+    // Verification belongs to the number that was verified. Without this a
+    // user could verify one phone, swap in another, and keep the "verified" mark.
+    user.phoneVerifiedAt = null;
+  }
   if (parsed.data.emailNotifications) {
     user.notificationPrefs = user.notificationPrefs || {};
     user.notificationPrefs.email = {

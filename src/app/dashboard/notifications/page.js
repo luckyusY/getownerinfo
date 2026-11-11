@@ -20,7 +20,7 @@ export default async function NotificationsPage() {
 
   return (
     <div>
-      <PageHeader
+      <PageHeader eyebrow="Messages"
         title="Notifications"
         subtitle="Approvals, unlocks, messages, expiry warnings and payment activity on your account."
       />

@@ -14,7 +14,12 @@ module.exports = {
         paper: "#F7F8FA",
         surface: "#FFFFFF",
         panel: "#EEF2F5",
-        ink: { DEFAULT: "#071C1F", soft: "#5C727D", faint: "#93A1A8" },
+        // `faint` was #93A1A8 — 2.66:1 on white, well under the 4.5:1 that small
+        // text needs, and it carries every table header, stat label and hint in
+        // the product. #64767F measures 4.73:1 on white and 4.45:1 on paper.
+        // It now sits close to `soft`; the two are told apart by size and
+        // weight, which is how a tertiary level should read anyway.
+        ink: { DEFAULT: "#071C1F", soft: "#5C727D", faint: "#64767F" },
         line: "#E4E9ED",
         brand: {
           DEFAULT: "#1668E3", // primary action blue
@@ -46,8 +51,10 @@ module.exports = {
         "2xl": "1.25rem",
       },
       boxShadow: {
-        soft: "0 1px 2px rgba(21,33,28,0.04), 0 8px 24px -12px rgba(21,33,28,0.12)",
-        lift: "0 2px 4px rgba(21,33,28,0.05), 0 18px 40px -16px rgba(21,33,28,0.22)",
+        // Tinted with the brand navy. These were a green-black left over from an
+        // earlier teal palette, which greyed the blue surfaces they sat under.
+        soft: "0 1px 2px rgba(12,35,64,0.04), 0 8px 24px -12px rgba(12,35,64,0.12)",
+        lift: "0 2px 4px rgba(12,35,64,0.05), 0 18px 40px -16px rgba(12,35,64,0.22)",
       },
       keyframes: {
         shimmer: { "100%": { transform: "translateX(100%)" } },

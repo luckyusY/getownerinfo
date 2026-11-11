@@ -33,7 +33,7 @@ export default async function BuyerDashboard() {
 
   return (
     <div>
-      <PageHeader
+      <PageHeader eyebrow="Buy / rent"
         title="Your activity"
         subtitle="Unlocked contacts, saved listings and seeker requests."
         actions={

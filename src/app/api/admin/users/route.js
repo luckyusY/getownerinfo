@@ -13,7 +13,7 @@ const PAGE_SIZE = 25;
 // GET /api/admin/users?role=&q=&status=&page= — directory with per-account
 // activity, so an admin can see what a user actually does, not just who they are.
 export async function GET(req) {
-  const guard = requireAuth([ROLES.ADMIN]);
+  const guard = await requireAuth([ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   await connectDB();
@@ -86,7 +86,7 @@ const patchSchema = z.object({
 
 // PATCH /api/admin/users — change a role, or suspend / blacklist an account.
 export async function PATCH(req) {
-  const guard = requireAuth([ROLES.ADMIN]);
+  const guard = await requireAuth([ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   let body;

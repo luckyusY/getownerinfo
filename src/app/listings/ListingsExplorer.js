@@ -5,7 +5,7 @@ import Link from "next/link";
 import PropertyCard from "@/components/PropertyCard";
 import { ListingCardSkeleton } from "@/components/ui/Skeleton";
 import EmptyState from "@/components/ui/EmptyState";
-import { BadgeCheck, Filter, MapPin, RotateCcw, Search, SlidersHorizontal, Sparkles, Tag } from "lucide-react";
+import { BadgeCheck, Filter, MapPin, RotateCcw, Search, SearchX, SlidersHorizontal, Sparkles, Tag, WifiOff } from "lucide-react";
 import { RWANDA_LOCATIONS } from "@/data/locations";
 import {
   ChipRow, DEAL_OPTIONS, FilterSheet, PriceRange, SelectField, SortSelect, TRUST_OPTIONS,
@@ -23,6 +23,12 @@ export default function ListingsExplorer({
   );
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
+  // A request that failed is not an empty result. Without this the grid said
+  // "No listings match — try clearing a filter" when the server was down,
+  // sending the visitor off to fix filters that were never the problem; a
+  // dropped connection left the skeletons shimmering forever.
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const [category, setCategory] = useState(initialCategory);
@@ -53,6 +59,7 @@ export default function ListingsExplorer({
 
   useEffect(() => {
     setLoading(true);
+    setFailed(false);
     const qs = new URLSearchParams();
     if (category) qs.set("category", category);
     if (location) qs.set("location", location);
@@ -62,11 +69,21 @@ export default function ListingsExplorer({
     const t = setTimeout(() => {
       fetch(`/api/listings?${qs}`, { signal: ctrl.signal })
         .then((r) => r.json())
-        .then((j) => { setListings(j.data?.listings || []); setLoading(false); })
-        .catch(() => {});
+        .then((j) => {
+          if (!j?.success) throw new Error(j?.error || "Request failed");
+          setListings(j.data?.listings || []);
+          setLoading(false);
+        })
+        .catch((err) => {
+          // An abort is this effect being superseded by a newer search.
+          if (err?.name === "AbortError") return;
+          setListings([]);
+          setFailed(true);
+          setLoading(false);
+        });
     }, q ? 250 : 0);
     return () => { clearTimeout(t); ctrl.abort(); };
-  }, [category, location, model, q]);
+  }, [category, location, model, q, attempt]);
 
   // The sheet sits over the page, so stop the page behind it scrolling.
   useEffect(() => {
@@ -204,7 +221,7 @@ export default function ListingsExplorer({
         <div className="min-w-0">
           <p className="inline-flex items-center gap-2 text-sm font-bold text-ink">
             <Sparkles className="h-4 w-4 text-brand" />
-            {visible.length} listing{visible.length === 1 ? "" : "s"}
+            {failed ? "Listings unavailable" : `${visible.length} listing${visible.length === 1 ? "" : "s"}`}
           </p>
           <p className="mt-1 text-xs font-semibold text-ink-faint">
             {activeCount
@@ -227,9 +244,20 @@ export default function ListingsExplorer({
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => <ListingCardSkeleton key={i} />)}
         </div>
+      ) : failed ? (
+        <EmptyState
+          icon={WifiOff}
+          title="We couldn't load listings"
+          hint="This is a problem on our side or with your connection, not with your search. Your filters are still set."
+          action={
+            <button className="btn-primary" onClick={() => setAttempt((n) => n + 1)}>
+              <RotateCcw className="h-4 w-4" /> Try again
+            </button>
+          }
+        />
       ) : visible.length === 0 ? (
         <EmptyState
-          icon="?"
+          icon={SearchX}
           title="No listings match"
           hint="Try clearing a filter, using a broader category, or searching a different term."
           action={

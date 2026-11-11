@@ -26,16 +26,26 @@ export async function finalizeUnlock({ payment, listing, user }) {
   let unlock = await TokenUnlock.findOne({ user: user._id, listing: listing._id });
   if (!unlock) {
     const watermark = `${user.name} · ${user._id.toString().slice(-6)}`;
-    unlock = await TokenUnlock.create({
-      user: user._id,
-      listing: listing._id,
-      owner: listing.owner,
-      payment: payment._id,
-      tier: payment.tier,
-      amountPaid: payment.amount,
-      fieldsUnlocked: UNLOCKED_FIELDS,
-      watermark,
-    });
+    try {
+      unlock = await TokenUnlock.create({
+        user: user._id,
+        listing: listing._id,
+        owner: listing.owner,
+        payment: payment._id,
+        tier: payment.tier,
+        amountPaid: payment.amount,
+        fieldsUnlocked: UNLOCKED_FIELDS,
+        watermark,
+      });
+    } catch (err) {
+      // The webhook and the buyer's own "I have paid" can land together. The
+      // unique (user, listing) index lets exactly one of them create the
+      // record; the other used to crash with a 500 on a payment that had in
+      // fact succeeded. Whoever lost the race returns the winner's unlock and
+      // skips the counters and notifications the winner already raised.
+      if (err?.code !== 11000) throw err;
+      return TokenUnlock.findOne({ user: user._id, listing: listing._id });
+    }
 
     // Mark the listing as under negotiation (flag only — stays browsable).
     const update = { $inc: { unlockCount: 1 }, $set: { underNegotiation: true } };

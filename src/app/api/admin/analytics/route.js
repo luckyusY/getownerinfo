@@ -10,7 +10,7 @@ import { ROLES, PAYMENT_STATUS } from "@/lib/constants";
 
 // GET /api/admin/analytics — platform revenue & usage rollups (admin).
 export async function GET() {
-  const guard = requireAuth([ROLES.ADMIN]);
+  const guard = await requireAuth([ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   await connectDB();

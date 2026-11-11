@@ -21,7 +21,7 @@ const issueSchema = z
 
 // POST /api/admin/penalties — issue a penalty (admin, for confirmed abuse).
 export async function POST(req) {
-  const guard = requireAuth([ROLES.ADMIN]);
+  const guard = await requireAuth([ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   let body;
@@ -54,7 +54,7 @@ export async function POST(req) {
 
 // GET /api/admin/penalties — all penalties + outstanding summary (admin).
 export async function GET(req) {
-  const guard = requireAuth([ROLES.ADMIN]);
+  const guard = await requireAuth([ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   await connectDB();

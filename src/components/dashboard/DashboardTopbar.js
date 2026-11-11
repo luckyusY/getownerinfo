@@ -132,9 +132,15 @@ export default function DashboardTopbar({ user, unreadCount = 0, onToggleSidebar
               </span>
               <span className="hidden text-left leading-tight sm:block">
                 <span className="block text-sm font-bold text-ink">{user.name}</span>
-                <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-600">
-                  <BadgeCheck className="h-3 w-3" />
-                  {user.isVerified ? "Verified User" : "Unverified"}
+                {/* An unverified account used to get the same green tick as a
+                    verified one, with only the word to tell them apart. */}
+                <span
+                  className={`flex items-center gap-1 text-[11px] font-bold ${
+                    user.isVerified ? "text-emerald-700" : "text-amber-700"
+                  }`}
+                >
+                  {user.isVerified ? <BadgeCheck className="h-3 w-3" /> : <ShieldCheck className="h-3 w-3" />}
+                  {user.isVerified ? "Verified" : "Not verified"}
                 </span>
               </span>
               <ChevronDown className="h-4 w-4 shrink-0 text-ink-faint" />
@@ -160,7 +166,7 @@ export default function DashboardTopbar({ user, unreadCount = 0, onToggleSidebar
                     href={href}
                     role="menuitem"
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-ink-soft transition hover:bg-brand-50 hover:text-brand"
+                    className="flex min-h-11 items-center gap-3 px-4 py-2.5 text-sm font-semibold text-ink-soft transition hover:bg-brand-50 hover:text-brand"
                   >
                     <Icon className="h-4 w-4" />
                     {label}
@@ -170,7 +176,7 @@ export default function DashboardTopbar({ user, unreadCount = 0, onToggleSidebar
                   type="button"
                   role="menuitem"
                   onClick={logout}
-                  className="flex w-full items-center gap-3 border-t border-line px-4 py-2.5 text-sm font-bold text-red-600 transition hover:bg-red-50"
+                  className="flex min-h-11 w-full items-center gap-3 border-t border-line px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50"
                 >
                   <LogOut className="h-4 w-4" />
                   Logout

@@ -6,7 +6,7 @@ import { ROLES, SELLER_ROLES } from "@/lib/constants";
 
 // GET /api/commissions/mine — owner's commission invoices.
 export async function GET() {
-  const guard = requireAuth([...SELLER_ROLES, ROLES.ADMIN]);
+  const guard = await requireAuth([...SELLER_ROLES, ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   await connectDB();

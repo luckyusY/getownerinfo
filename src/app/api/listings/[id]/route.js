@@ -3,10 +3,9 @@ import Listing from "@/models/Listing";
 import TokenUnlock from "@/models/TokenUnlock";
 import PlatformSettings, { getSettings } from "@/models/PlatformSettings";
 import { DEFAULT_SETTINGS } from "@/data/catalog";
-import { getSession } from "@/lib/auth";
 import { buildRevealedContact } from "@/lib/unlockService";
 import { audit } from "@/models/AuditLog";
-import { ok, fail, requireAuth } from "@/lib/api";
+import { ok, fail, requireAuth, getLiveSession } from "@/lib/api";
 import { ROLES, SELLER_ROLES, LISTING_STATUS, LISTING_MODELS, PAYMENT_STATUS } from "@/lib/constants";
 import {
   listingInputSchema,
@@ -58,7 +57,7 @@ export async function GET(_req, { params }) {
   const listing = await Listing.findById(params.id);
   if (!listing) return fail("Listing not found", 404);
 
-  const session = getSession();
+  const session = await getLiveSession();
   const isAdmin = session?.role === ROLES.ADMIN;
   const isOwner = session && listing.owner.toString() === session.sub;
   const isAssignedManager =
@@ -91,7 +90,7 @@ export async function GET(_req, { params }) {
 // PATCH /api/listings/:id — continue a draft (or fix a rejected listing) and
 // optionally submit it. Held to exactly the same rules as creation.
 export async function PATCH(req, { params }) {
-  const guard = requireAuth([...SELLER_ROLES, ROLES.ADMIN]);
+  const guard = await requireAuth([...SELLER_ROLES, ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   let body;
@@ -259,7 +258,7 @@ export async function PATCH(req, { params }) {
 
 // DELETE /api/listings/:id — discard a draft (or a rejected listing).
 export async function DELETE(_req, { params }) {
-  const guard = requireAuth([...SELLER_ROLES, ROLES.ADMIN]);
+  const guard = await requireAuth([...SELLER_ROLES, ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   await connectDB();

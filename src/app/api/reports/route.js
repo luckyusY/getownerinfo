@@ -21,7 +21,7 @@ const AUTO_FLAG_THRESHOLD = 3;
 
 // POST /api/reports — any signed-in user can report a listing.
 export async function POST(req) {
-  const guard = requireAuth();
+  const guard = await requireAuth();
   if (guard.error) return guard.error;
 
   const limited = await enforceRateLimit(req, {

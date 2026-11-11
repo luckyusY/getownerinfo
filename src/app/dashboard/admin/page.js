@@ -37,7 +37,7 @@ export default async function AdminDashboard() {
 
   return (
     <div>
-      <PageHeader
+      <PageHeader eyebrow="Administration"
         title="Admin overview"
         subtitle={
           waiting

@@ -11,7 +11,7 @@ export default function SavedListingsPage() {
 
   return (
     <div>
-      <PageHeader
+      <PageHeader eyebrow="Buy / rent"
         title="Saved listings"
         subtitle="Your shortlist. Saving a listing never reveals your interest to the owner."
         actions={<Link href="/listings" className="btn-primary">Browse listings</Link>}

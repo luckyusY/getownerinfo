@@ -34,7 +34,7 @@ export default async function OwnerDashboard() {
 
   return (
     <div>
-      <PageHeader
+      <PageHeader eyebrow="Listings"
         title="Your listings"
         subtitle="Create listings, track unlocks, report deals and settle commissions."
         actions={

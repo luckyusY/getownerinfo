@@ -7,7 +7,7 @@ const schema = z.object({ id: z.string().optional(), all: z.boolean().optional()
 
 // POST /api/notifications/read — mark one (id) or all (all:true) as read.
 export async function POST(req) {
-  const guard = requireAuth();
+  const guard = await requireAuth();
   if (guard.error) return guard.error;
 
   let body = {};

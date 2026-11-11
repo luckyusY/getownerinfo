@@ -27,7 +27,7 @@ function inspectDataUri(uri) {
 
 // POST /api/upload — upload a single file to Cloudinary. Owners/managers/admin.
 export async function POST(req) {
-  const guard = requireAuth([...SELLER_ROLES, ROLES.MANAGER, ROLES.ADMIN]);
+  const guard = await requireAuth([...SELLER_ROLES, ROLES.MANAGER, ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   const limited = await enforceRateLimit(req, {

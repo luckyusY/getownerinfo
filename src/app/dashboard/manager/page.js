@@ -62,7 +62,7 @@ export default async function ManagerDashboard() {
 
   return (
     <div>
-      <PageHeader
+      <PageHeader eyebrow="Assigned work"
         title="Listing manager"
         subtitle="Your assigned listings, the owners behind them, and the buyer conversations on those listings."
         actions={<Link href="/listings" className="btn-outline">Browse public listings</Link>}

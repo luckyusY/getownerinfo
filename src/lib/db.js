@@ -10,12 +10,22 @@ if (!cached) {
 }
 
 export async function connectDB() {
+  // readyState 0 = disconnected. A connection that dropped and did not come
+  // back used to stay cached forever, so every later request failed until the
+  // process was restarted. Drop it and connect again instead.
+  if (cached.conn && mongoose.connection.readyState === 0) {
+    cached.conn = null;
+    cached.promise = null;
+  }
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
     cached.promise = mongoose
       .connect(env.mongodbUri, {
         bufferCommands: false,
+        // Fail in 10s rather than the 30s default: a page that cannot reach the
+        // database should say so before the platform's own timeout cuts it off.
+        serverSelectionTimeoutMS: 10_000,
       })
       .then((m) => m);
   }

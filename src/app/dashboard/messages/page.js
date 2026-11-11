@@ -9,7 +9,7 @@ export default function MessagesPage() {
   guardRole(ALL_ROLES);
   return (
     <div>
-      <PageHeader
+      <PageHeader eyebrow="Messages"
         title="Conversations"
         subtitle="Threads where you are the owner and threads where you are the buyer, on one account. Contact details stay filtered until the token fee is paid."
       />

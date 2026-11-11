@@ -7,7 +7,7 @@ import { ROLES } from "@/lib/constants";
 
 // GET /api/admin/commissions — all commissions + revenue summary (admin).
 export async function GET(req) {
-  const guard = requireAuth([ROLES.ADMIN]);
+  const guard = await requireAuth([ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   await connectDB();

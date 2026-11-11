@@ -68,7 +68,9 @@ export async function GET(req) {
   }
 
   const profile = await profileRes.json();
-  if (!profile.email || profile.email_verified === false) {
+  // Must be positively verified: an absent flag is not a verified address, and
+  // signing in links to any existing account with the same email.
+  if (!profile.email || (profile.email_verified !== true && profile.email_verified !== "true")) {
     return redirectWithError("Please use a verified Google email address.", origin);
   }
 

@@ -5,7 +5,7 @@ import { ok, requireAuth } from "@/lib/api";
 
 // GET /api/penalties/mine — the current user's penalties.
 export async function GET() {
-  const guard = requireAuth();
+  const guard = await requireAuth();
   if (guard.error) return guard.error;
 
   await connectDB();

@@ -22,7 +22,7 @@ const schema = z.object({
 // POST /api/listings/:id/outcome — owner reports the off-platform deal result.
 // For Model A sold/rented, the system auto-calculates and invoices commission.
 export async function POST(req, { params }) {
-  const guard = requireAuth([...SELLER_ROLES, ROLES.ADMIN]);
+  const guard = await requireAuth([...SELLER_ROLES, ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   let body;

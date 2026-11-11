@@ -14,7 +14,7 @@ import { ROLES, LISTING_STATUS } from "@/lib/constants";
 // For drafts this also reports how complete each form is and what is still
 // missing, which is the admin view of incomplete and abandoned forms.
 export async function GET(req) {
-  const guard = requireAuth([ROLES.ADMIN]);
+  const guard = await requireAuth([ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   await connectDB();
@@ -67,7 +67,7 @@ const patchSchema = z.object({
 
 // PATCH /api/admin/listings — assign (or clear) the listing manager.
 export async function PATCH(req) {
-  const guard = requireAuth([ROLES.ADMIN]);
+  const guard = await requireAuth([ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   let body;
@@ -127,7 +127,7 @@ const remindSchema = z.object({
 
 // POST /api/admin/listings — nudge the owner of an incomplete form (spec Part 9).
 export async function POST(req) {
-  const guard = requireAuth([ROLES.ADMIN]);
+  const guard = await requireAuth([ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   let body;

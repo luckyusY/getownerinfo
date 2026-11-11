@@ -30,7 +30,7 @@ const SUBMITTERS = [...SELLER_ROLES, ROLES.MANAGER];
 // GET /api/verification — the caller's own verification status.
 // Deliberately returns status only: never the ID number or document.
 export async function GET() {
-  const guard = requireAuth();
+  const guard = await requireAuth();
   if (guard.error) return guard.error;
 
   await connectDB();
@@ -48,7 +48,7 @@ export async function GET() {
 
 // POST /api/verification — submit (or re-submit) identity documents for review.
 export async function POST(req) {
-  const guard = requireAuth(SUBMITTERS);
+  const guard = await requireAuth(SUBMITTERS);
   if (guard.error) return guard.error;
 
   const limited = await enforceRateLimit(req, {

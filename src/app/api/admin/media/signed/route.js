@@ -13,7 +13,7 @@ import { ROLES } from "@/lib/constants";
 export async function GET(req) {
   // Individual verification assignment is not implemented, so private files
   // remain admin-only instead of granting managers a global document view.
-  const guard = requireAuth([ROLES.ADMIN]);
+  const guard = await requireAuth([ROLES.ADMIN]);
   if (guard.error) return guard.error;
 
   const { searchParams } = new URL(req.url);

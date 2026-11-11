@@ -44,7 +44,7 @@ export default async function MyRequestsPage() {
 
   return (
     <div>
-      <PageHeader
+      <PageHeader eyebrow="Buy / rent"
         title="My requests"
         subtitle="What you have asked owners to bring to you. Your contact stays hidden until someone pays the view token."
         actions={<Link href="/seekers/new" className="btn-primary">Post a request</Link>}
