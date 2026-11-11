@@ -4,9 +4,9 @@ export default function AccountActivity({ series = [], labels = [] }) {
   const total = series.reduce((sum, s) => sum + s.points.reduce((a, b) => a + b, 0), 0);
 
   return (
-    <section className="rounded-2xl border border-line bg-surface p-5 shadow-soft">
+    <section className="card !p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-display text-lg font-bold text-ink">Account Activity</h2>
+        <h2 className="font-display text-xl font-bold text-ink">Account Activity</h2>
         <span className="rounded-lg border border-line bg-paper px-2.5 py-1 text-xs font-bold text-ink-soft">
           Last 30 days
         </span>

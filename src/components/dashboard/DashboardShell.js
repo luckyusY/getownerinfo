@@ -72,7 +72,7 @@ export default function DashboardShell({ user, counts, children }) {
             className="lg:sticky lg:top-[76px] lg:max-h-[calc(100vh-92px)] lg:overflow-y-auto lg:overscroll-contain"
             onClick={() => setSidebarOpen(false)}
           >
-            <Suspense fallback={<div className="h-96 rounded-2xl border border-line bg-surface shadow-soft" />}>
+            <Suspense fallback={<div className="dash-nav h-96" />}>
               <DashboardSidebar role={user.role} counts={counts} />
             </Suspense>
           </div>

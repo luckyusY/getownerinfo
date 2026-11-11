@@ -57,17 +57,16 @@ export default function LoginPage() {
 
   return (
     <AuthShell
-      title="Welcome back to the people who actually own it."
-      lead="Sign in to manage your listings, unlocked contacts, messages and payments in one place."
+      title="Find the real owner. Deal with confidence."
     >
       <GoogleOneTap />
 
       <div className="rise space-y-5">
         <div>
           <p className="eyebrow">Secure access</p>
-          <h1 className="mt-1 font-display text-3xl font-bold text-ink">Sign in</h1>
-          <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
-            New here?{" "}
+          <h1 className="mt-2 font-display text-[2rem] font-extrabold text-ink">Welcome back</h1>
+          <p className="mt-2 text-sm leading-relaxed text-ink-soft">
+            Sign in to your listings, unlocks and messages. New here?{" "}
             <Link href="/register" className="font-bold text-brand underline-offset-4 hover:underline">
               Create an account
             </Link>

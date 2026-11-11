@@ -1,5 +1,4 @@
 import { formatRwf } from "@/lib/format";
-import Badge from "@/components/ui/Badge";
 import MotionCard from "@/components/MotionCard";
 import FavoriteButton from "@/components/FavoriteButton";
 import CardGallery from "@/components/CardGallery";
@@ -20,10 +19,12 @@ export default function PropertyCard({ listing, style }) {
   return (
     <MotionCard
       href={l.href || `/listings/${l.id}`}
-      className="property-card card premium-hover group flex h-full flex-col !p-3 transition duration-300 hover:border-brand/30 hover:shadow-lift"
+      className="property-card listing-card group"
       style={style}
     >
-      <div className="relative mb-3 aspect-[4/3] overflow-hidden rounded-xl bg-panel">
+      {/* The photo runs to the card's edges. Inset inside a padded card it
+          was a picture in a frame; full-bleed, the card is the picture. */}
+      <div className="relative aspect-[4/3] overflow-hidden bg-panel">
         {/* More than one photo turns the still into a strip you can swipe.
             The hover zoom stays off in that case: it scales the scroll
             container and drags the neighbouring photo into frame. */}
@@ -31,80 +32,94 @@ export default function PropertyCard({ listing, style }) {
           <CardGallery images={l.images} alt={l.title} />
         ) : l.images?.[0] ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={cardImage(l.images[0])} alt={l.title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+          <img src={cardImage(l.images[0])} alt={l.title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-110" />
         ) : (
-          <div className="flex h-full flex-col items-center justify-center gap-2 text-xs text-ink-faint">
-            <Camera className="h-6 w-6" />
+          <div className="flex h-full flex-col items-center justify-center gap-2 text-xs font-semibold text-ink-faint">
+            <Camera className="h-7 w-7" />
             No image yet
           </div>
         )}
-        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-ink/70 to-transparent" />
-        <div className="absolute left-2 top-2 flex flex-wrap gap-1.5">
-          <Badge tone={l.transactionType === "rent" ? "info" : "gold"}>{transactionLabel}</Badge>
-          {l.model === "A" && <Badge tone="brand">Exclusive owner</Badge>}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-ink/45 to-transparent" />
+        <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
+          <span
+            className={`inline-flex items-center rounded-full px-3 py-1 font-display text-[11px] font-semibold uppercase tracking-[0.08em] shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_0_rgba(0,0,0,0.25)] ${
+              l.transactionType === "rent" ? "bg-brand text-white" : "bg-gold text-ink"
+            }`}
+          >
+            {transactionLabel}
+          </span>
           {/* The real trust signal: this owner's ID and ownership proof were
               checked. It used to appear only on the detail page, after the
               buyer had already chosen what to open. */}
           {l.ownerVerified && (
-            <Badge tone="success">
+            <span className="inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-emerald-800 shadow-[0_2px_0_rgba(0,0,0,0.2)]">
               <ShieldCheck className="h-3.5 w-3.5" /> Verified owner
-            </Badge>
-          )}
-        </div>
-        <div className="absolute right-2 top-2">
-          <FavoriteButton listingId={l.id} />
-        </div>
-        <div className="absolute bottom-2 left-2 right-2 flex items-end justify-between gap-2 text-white">
-          <div className="min-w-0">
-            <p className="truncate text-xs font-bold uppercase tracking-wide text-white/76">{l.categoryName || "Listing"}</p>
-            <p className="font-display text-xl font-bold text-white">{formatRwf(l.price)}</p>
-          </div>
-          {/* Only for a lone photo. Past that the gallery's own dots occupy
-              this corner and already say how many there are. */}
-          {imageCount === 1 && (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-white/16 px-2 py-1 text-xs font-bold backdrop-blur">
-              <Camera className="h-3.5 w-3.5" /> {imageCount}
             </span>
           )}
         </div>
-      </div>
-      <div className="flex flex-1 flex-col px-1 pb-1">
-        <div className="flex items-start justify-between gap-3">
-          <h3 className="line-clamp-2 min-h-[3.1rem] font-display text-lg font-semibold leading-snug text-ink">{l.title}</h3>
-          <span className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line bg-surface text-ink-soft transition group-hover:border-brand/40 group-hover:text-brand">
-            <ArrowUpRight className="h-4 w-4" />
-          </span>
+        <div className="absolute right-3 top-3">
+          <FavoriteButton listingId={l.id} />
         </div>
+        {/* Only for a lone photo. Past that the gallery's own dots occupy
+            this corner and already say how many there are. */}
+        {imageCount === 1 && (
+          <span className="absolute bottom-3 right-3 inline-flex items-center gap-1 rounded-full bg-ink/55 px-2 py-1 text-xs font-bold text-white backdrop-blur">
+            <Camera className="h-3.5 w-3.5" /> {imageCount}
+          </span>
+        )}
+      </div>
 
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-sm font-semibold text-ink-soft">
+      <div className="flex flex-1 flex-col p-5">
+        <p className="font-display text-[10px] font-semibold uppercase tracking-[0.16em] text-brand">
+          {l.categoryName || "Listing"}
+          {l.model === "A" && <span className="text-ink-faint"> · Exclusive owner</span>}
+        </p>
+
+        {/* Price leads: it is the first thing a buyer filters on, and it used
+            to sit in white on the photo where a bright image swallowed it. */}
+        <p className="stat-figure mt-1.5 text-2xl font-extrabold leading-tight text-ink">
+          {formatRwf(l.price)}
+          {l.transactionType === "rent" && <span className="font-body text-sm font-semibold tracking-normal text-ink-faint"> / month</span>}
+        </p>
+
+        <h3 className="mt-1.5 line-clamp-2 min-h-[2.75rem] font-body text-[15px] font-semibold leading-snug tracking-normal text-ink-soft">
+          {l.title}
+        </h3>
+
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-sm font-semibold text-ink">
           <span className="inline-flex min-w-0 items-center gap-1.5">
             <MapPin className="h-4 w-4 shrink-0 text-brand" />
             <span className="truncate">{area}</span>
           </span>
-          {l.itemType && <span className="rounded-full bg-panel px-2 py-0.5 text-xs font-bold text-ink-soft">{l.itemType}</span>}
+          {l.itemType && <span className="rounded-full bg-panel px-2.5 py-0.5 text-xs font-bold text-ink-soft">{l.itemType}</span>}
         </div>
 
         {features.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-1.5">
             {features.map((feature) => (
-              <span key={feature} className="rounded-full border border-line bg-surface px-2.5 py-1 text-xs font-semibold text-ink-soft">
+              <span key={feature} className="rounded-full border border-line bg-paper px-2.5 py-1 text-xs font-semibold text-ink-soft">
                 {feature}
               </span>
             ))}
           </div>
         )}
 
-        <div className="mt-auto flex items-center justify-between gap-3 pt-4">
+        <div className="mt-auto flex items-center justify-between gap-3 border-t border-line pt-4">
           {/* Both models reveal the contact behind the same token payment, and
               neither says anything about the owner being verified. This slot
               read "Verified exclusive" / "Token unlock", which claimed a
               verification the model does not carry and implied only Model B
               cost the buyer anything. */}
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-ink-faint">
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-ink-soft">
             <KeyRound className="h-4 w-4 text-clay" />
             Contact by token
           </span>
-          <span className="text-sm font-bold text-brand">View details</span>
+          <span className="inline-flex items-center gap-1 text-sm font-bold text-brand">
+            View
+            <span className="grid h-8 w-8 place-items-center rounded-full bg-brand-50 text-brand transition duration-300 group-hover:bg-brand group-hover:text-white">
+              <ArrowUpRight className="h-4 w-4 transition duration-300 group-hover:rotate-45" />
+            </span>
+          </span>
         </div>
       </div>
     </MotionCard>

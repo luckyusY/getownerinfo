@@ -1,27 +1,31 @@
 // Shared dashboard layout primitives, on the design tokens.
 
 import { Children, cloneElement, isValidElement } from "react";
+import {
+  AlertTriangle, BadgeCheck, Banknote, BarChart3, Clock, FileText, Handshake,
+  Heart, Home, KeyRound, Receipt, Users,
+} from "lucide-react";
 
 /**
  * Page masthead.
  *
+ * A navy band with the survey grid, the same dark material as the footer and
+ * the sign-in stage. A dashboard page is otherwise white cards on a pale
+ * canvas; this is what gives it a top, and it makes the page's one primary
+ * action (passed as `actions`) the brightest thing on the screen.
+ *
  * `eyebrow` names the area the page belongs to ("Payments", "Administration").
- * It used to read "Dashboard" on every page, which told nobody anything they
- * could not see from the sidebar; without one the line is simply not drawn.
- * The brand rule down the left edge is what marks this as the head of the page
- * rather than one more card in the stack beneath it.
  */
 export function PageHeader({ title, subtitle, actions, eyebrow }) {
   return (
-    <div className="dashboard-reveal relative overflow-hidden rounded-2xl border border-line bg-surface px-5 py-5 shadow-soft sm:px-7 sm:py-6">
-      <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-brand to-sky" />
-      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+    <div className="dash-hero dashboard-reveal">
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-5">
         <div className="min-w-0">
-          {eyebrow && <p className="eyebrow mb-1">{eyebrow}</p>}
-          <h1 className="text-balance font-display text-2xl font-bold leading-tight text-ink sm:text-[1.75rem]">{title}</h1>
-          {subtitle && <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-ink-soft">{subtitle}</p>}
+          {eyebrow && <p className="eyebrow mb-2">{eyebrow}</p>}
+          <h1 className="font-display text-[1.75rem] font-extrabold sm:text-4xl">{title}</h1>
+          {subtitle && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/75 sm:text-[15px]">{subtitle}</p>}
         </div>
-        {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
+        {actions && <div className="flex flex-wrap gap-2.5">{actions}</div>}
       </div>
     </div>
   );
@@ -31,7 +35,7 @@ export function SectionHeading({ title, description, action }) {
   return (
     <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h2 className="font-display text-lg font-bold text-ink sm:text-xl">{title}</h2>
+        <h2 className="font-display text-xl font-bold text-ink sm:text-2xl">{title}</h2>
         {description && <p className="mt-1 text-sm text-ink-soft">{description}</p>}
       </div>
       {action}
@@ -39,27 +43,59 @@ export function SectionHeading({ title, description, action }) {
   );
 }
 
+// What a stat is about decides its icon and colour, so call sites keep passing
+// just a label and a value. Colours are "r, g, b" for the --tile variable.
+const TILE = {
+  blue: "22, 104, 227",
+  sky: "17, 135, 176",
+  green: "5, 150, 105",
+  amber: "217, 119, 6",
+  violet: "124, 58, 237",
+  red: "220, 38, 38",
+};
+const TILE_RULES = [
+  [/penalt|outstanding|overdue|due\b|report/i, AlertTriangle, "red"],
+  [/pending|awaiting|approval|review/i, Clock, "amber"],
+  [/paid|spent|fee|vat|commission|revenue|total paid/i, Banknote, "green"],
+  [/unlock|contact|token/i, KeyRound, "sky"],
+  [/saved|favou?rite/i, Heart, "violet"],
+  [/request/i, FileText, "violet"],
+  [/user|owner|assigned/i, Users, "violet"],
+  [/negotiat/i, Handshake, "sky"],
+  [/transaction/i, Receipt, "sky"],
+  [/active/i, BadgeCheck, "green"],
+  [/listing/i, Home, "blue"],
+];
+function tileFor(label, tone) {
+  const hit = TILE_RULES.find(([re]) => re.test(String(label)));
+  const Icon = hit?.[1] || BarChart3;
+  // An explicit tone outranks the keyword: "danger" is always red, and a
+  // "default" zero ("0 penalties outstanding") should not be dressed as an alarm.
+  const color = tone === "danger" ? "red" : hit?.[2] === "red" ? "blue" : hit?.[2] || "blue";
+  return { Icon, color: TILE[color] };
+}
+
 /**
  * A single figure with its label.
  *
- * Tone is carried by a dot beside the label and by the figure itself. The card
- * used to wear a full-width coloured bar and a hover glow: the bar made a row
- * of neutral stats look like four black-topped alerts, and the glow promised a
- * click on something that is not a link. A stat that needs attention ("brand",
- * "danger") now stands out because the quiet ones are actually quiet.
+ * Each tile has its own colour and icon, picked from what the figure is about,
+ * so a row of them reads as distinct instruments rather than identical boxes.
+ * The figure is set large in the display face with tabular digits; it is the
+ * only thing on the tile meant to be read from across the room.
  */
 export function StatCard({ label, value, hint, tone = "default" }) {
-  const accent = tone === "brand" ? "text-brand" : tone === "danger" ? "text-red-600" : "text-ink";
-  const dot = tone === "brand" ? "bg-brand" : tone === "danger" ? "bg-red-500" : "bg-line";
-  const frame = tone === "danger" ? "!border-red-200" : "";
+  const { Icon, color } = tileFor(label, tone);
+  const figure = tone === "danger" ? "text-red-600" : "text-ink";
   return (
-    <div className={`card dashboard-reveal !p-5 ${frame}`}>
-      <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-ink-faint">
-        <span aria-hidden="true" className={`h-2 w-2 shrink-0 rounded-full ${dot}`} />
-        {label}
-      </p>
-      <p className={`stat-figure mt-2.5 font-display text-[1.75rem] font-bold leading-none ${accent}`}>{value}</p>
-      {hint && <p className="mt-2 text-xs leading-relaxed text-ink-faint">{hint}</p>}
+    <div className="stat-tile dashboard-reveal" style={{ "--tile": color }}>
+      <div className="flex items-start justify-between gap-3">
+        <p className="pt-1 font-display text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">{label}</p>
+        <span className="tile-key" aria-hidden="true">
+          <Icon className="h-5 w-5" />
+        </span>
+      </div>
+      <p className={`stat-figure mt-3 text-[2rem] font-extrabold leading-none ${figure}`}>{value}</p>
+      {hint && <p className="mt-2.5 text-xs leading-relaxed text-ink-faint">{hint}</p>}
     </div>
   );
 }
@@ -94,7 +130,7 @@ export function Table({
           an iOS back-navigation out of the page. */}
       <div className="table-scroll overflow-x-auto overscroll-x-contain">
         <table className="w-full text-sm" style={{ minWidth }}>
-          <thead className="border-b border-line bg-panel/80 text-left text-[11px] uppercase tracking-wide text-ink-faint">
+          <thead className="border-b border-line bg-panel/80 text-left font-display text-[10px] uppercase tracking-[0.14em] text-ink-faint">
             <tr>
               {numbered && (
                 <th scope="col" className="w-12 px-4 py-3.5 text-right font-bold" title="Row number">#</th>

@@ -15,9 +15,9 @@ function compact(n) {
 
 export default function AccountOverview({ stats = {}, myUnlocks = 0 }) {
   return (
-    <section className="rounded-2xl border border-line bg-surface p-5 shadow-soft">
+    <section className="card !p-5">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="font-display text-lg font-bold text-ink">Account Overview</h2>
+        <h2 className="font-display text-xl font-bold text-ink">Account Overview</h2>
         <Link href="/dashboard/listings" className="inline-flex min-h-11 items-center gap-1 text-sm font-bold text-brand hover:text-brand-dark">
           View Details <ArrowRight className="h-4 w-4" />
         </Link>

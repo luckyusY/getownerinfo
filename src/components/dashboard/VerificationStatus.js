@@ -60,9 +60,9 @@ export default function VerificationStatus({ user }) {
   const allDone = doneCount === rows.length;
 
   return (
-    <section className="rounded-2xl border border-line bg-surface p-5 shadow-soft">
+    <section className="card !p-5">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="font-display text-lg font-bold text-ink">Verification Status</h2>
+        <h2 className="font-display text-xl font-bold text-ink">Verification Status</h2>
         <Link href="/dashboard/profile#verification" className="inline-flex min-h-11 items-center text-sm font-bold text-brand hover:text-brand-dark">
           {allDone ? "View" : "Continue"}
         </Link>

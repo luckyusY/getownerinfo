@@ -107,10 +107,36 @@
       radial-gradient(680px 460px at 0% 22%, rgba(22, 104, 227, 0.045), transparent 60%),
       linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(247, 248, 250, 0) 260px);
   }
-  h1, h2, h3, .font-display {
+  /*
+   * Type.
+   *
+   * Two families, used for two different jobs. Poppins is geometric and wide:
+   * set large and heavy with tight tracking it gives headlines and figures a
+   * confident, poster-like shape. Nunito Sans is rounder and narrower and
+   * carries everything that is read rather than glanced at.
+   *
+   * Poppins loosens badly as it grows — its default spacing is tuned for body
+   * sizes — so tracking tightens with size instead of being one flat value.
+   * Headings also balance their line breaks, so a title never strands one
+   * word on its second line.
+   */
+  h1, h2, h3, h4, .font-display {
     font-family: var(--font-display), system-ui, sans-serif;
     color: var(--ink);
-    letter-spacing: -0.015em;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    font-feature-settings: "ss01", "kern";
+  }
+  h1 {
+    letter-spacing: -0.035em;
+    line-height: 1.08;
+  }
+  h2 {
+    letter-spacing: -0.028em;
+    line-height: 1.15;
+  }
+  p {
+    text-wrap: pretty;
   }
   ::selection {
     background: rgba(22, 104, 227, 0.16);
@@ -298,8 +324,149 @@
 
   /* Figures that are compared down a column or across tiles. */
   .stat-figure {
+    font-family: var(--font-display), system-ui, sans-serif;
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.04em;
+  }
+
+  /*
+   * Dashboard masthead. Navy with the survey grid, lit from two corners —
+   * the same surface as the footer and the sign-in stage, so the product has
+   * one dark material rather than three. On a page of white cards it is what
+   * gives the screen a top.
+   */
+  .dash-hero {
+    @apply relative isolate overflow-hidden rounded-3xl px-5 py-6 text-white sm:px-8 sm:py-8;
+    background:
+      radial-gradient(520px 260px at 0% 0%, rgba(21, 176, 221, 0.34), transparent 62%),
+      radial-gradient(620px 320px at 100% 120%, rgba(22, 104, 227, 0.6), transparent 62%),
+      linear-gradient(135deg, #0c2340 0%, #0a1d38 60%, #08162b 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      0 24px 48px -28px rgba(12, 35, 64, 0.75);
+  }
+  .dash-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+    background-size: 36px 36px;
+    -webkit-mask-image: radial-gradient(ellipse at 85% 30%, #000 0%, transparent 68%);
+    mask-image: radial-gradient(ellipse at 85% 30%, #000 0%, transparent 68%);
+  }
+  .dash-hero .eyebrow {
+    color: #9fdcef;
+  }
+  .dash-hero h1 {
+    color: #ffffff;
+  }
+
+  /*
+   * Stat tile. Each one carries a colour (--tile) used three ways: the icon
+   * key, a soft glow in the far corner, and a rule along the bottom edge.
+   * A row of them reads as a set of distinct instruments rather than four
+   * identical white boxes.
+   */
+  .stat-tile {
+    @apply relative isolate overflow-hidden rounded-2xl bg-surface p-5;
+    --tile: 22, 104, 227;
+    border: 1px solid var(--line);
+    box-shadow:
+      inset 0 1px 0 #ffffff,
+      0 1px 1px rgba(12, 35, 64, 0.05),
+      0 18px 36px -26px rgba(var(--tile), 0.55);
+    transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 200ms ease;
+  }
+  .stat-tile::before {
+    content: "";
+    position: absolute;
+    right: -48px;
+    top: -48px;
+    z-index: -1;
+    width: 150px;
+    height: 150px;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(var(--tile), 0.2), transparent 68%);
+  }
+  .stat-tile::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 3px;
+    background: linear-gradient(90deg, rgb(var(--tile)), rgba(var(--tile), 0.15));
+  }
+  @media (hover: hover) {
+    .stat-tile:hover {
+      transform: translateY(-3px);
+      box-shadow:
+        inset 0 1px 0 #ffffff,
+        0 1px 1px rgba(12, 35, 64, 0.05),
+        0 26px 44px -24px rgba(var(--tile), 0.7);
+    }
+  }
+  /* The icon is a small raised key in the tile's colour. */
+  .tile-key {
+    @apply grid h-11 w-11 shrink-0 place-items-center rounded-xl text-white;
+    background: linear-gradient(180deg, rgba(var(--tile), 0.82), rgb(var(--tile)));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.4),
+      0 3px 0 rgba(var(--tile), 0.45),
+      0 10px 16px -8px rgba(var(--tile), 0.7);
+  }
+
+  /*
+   * Dashboard sidebar: the dark rail. White cards on a pale page gave the
+   * dashboard no anchor; a navy rail down the left does, and it makes the
+   * current page — a lit brand key — the brightest thing in it.
+   */
+  .dash-nav {
+    @apply flex flex-col gap-5 rounded-3xl p-3 text-white;
+    background:
+      radial-gradient(420px 260px at 0% 0%, rgba(21, 176, 221, 0.2), transparent 62%),
+      linear-gradient(180deg, #0c2340 0%, #091b34 100%);
+    border: 1px solid #1c3a63;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      0 24px 48px -28px rgba(12, 35, 64, 0.8);
+  }
+  .dash-nav-active {
+    background: linear-gradient(180deg, #3d8bf2 0%, var(--brand) 55%, #1259c9 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.38),
+      0 2px 0 #0b3f95,
+      0 10px 18px -10px rgba(22, 104, 227, 0.9);
+  }
+
+  /*
+   * Listing card.
+   */
+  .listing-card {
+    @apply relative flex h-full flex-col overflow-hidden rounded-3xl bg-surface;
+    border: 1px solid var(--line);
+    box-shadow:
+      inset 0 1px 0 #ffffff,
+      0 1px 1px rgba(12, 35, 64, 0.05),
+      0 20px 40px -28px rgba(12, 35, 64, 0.4);
+    transition:
+      transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 260ms ease,
+      border-color 200ms ease;
+  }
+  @media (hover: hover) {
+    .listing-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(22, 104, 227, 0.35);
+      box-shadow:
+        inset 0 1px 0 #ffffff,
+        0 2px 2px rgba(12, 35, 64, 0.05),
+        0 34px 60px -30px rgba(22, 104, 227, 0.55);
+    }
+  }
+  .listing-card:active {
+    transform: translateY(-1px) scale(0.995);
   }
 
   .premium-hover {
@@ -562,8 +729,19 @@
     @apply rounded-2xl border border-line bg-surface p-6 shadow-soft sm:p-8;
   }
 
+  /* Small-caps label with a short rule in front: a marker that a section
+     starts here, readable at a glance without competing with the heading. */
   .eyebrow {
-    @apply text-xs font-bold uppercase tracking-wide text-brand;
+    @apply inline-flex items-center gap-2 text-[11px] font-bold uppercase text-brand;
+    font-family: var(--font-display), system-ui, sans-serif;
+    letter-spacing: 0.16em;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 18px;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--brand), var(--sky));
   }
 
   .auth-shell {
@@ -575,45 +753,58 @@
   /*
    * Sign-in and sign-up.
    *
-   * Two panes from lg up: the brand side says why the account is worth
-   * having, the form side is nothing but the form. Below lg the brand pane
-   * folds away to a short band so the first field is on the first screen.
+   * One stage, one card. The page is a night view of Kigali under the brand
+   * navy, and the form floats on it as a single lit sheet: the place sets the
+   * scene, the card does the work. (A two-pane split was tried and dropped —
+   * it read as a brochure stapled to a form, and on wide screens the eye had
+   * to choose a side.)
    */
-  .auth-split {
-    @apply grid min-h-screen lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)];
+  .auth-stage {
+    @apply relative isolate flex min-h-screen flex-col items-center justify-center px-4 py-10 sm:py-14;
+    background-color: #081a31;
   }
-  .auth-aside {
-    @apply relative isolate hidden overflow-hidden text-white lg:flex lg:flex-col lg:justify-between lg:p-12 xl:p-16;
-    background:
-      radial-gradient(900px 520px at 0% 0%, rgba(21, 176, 221, 0.3), transparent 60%),
-      radial-gradient(700px 520px at 100% 100%, rgba(22, 104, 227, 0.5), transparent 62%),
-      linear-gradient(160deg, #0c2340 0%, #0a1c36 55%, #071428 100%);
-  }
-  /* A faint survey grid: the product is about knowing exactly where something
-     is and who owns it. Masked so it fades before it reaches the text. */
-  .auth-aside::before {
+  .auth-stage::before {
     content: "";
-    position: absolute;
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background: url("/hero-slides/kigali-owner-secure.webp") center / cover no-repeat;
+  }
+  /* Navy wash, heaviest behind the card so the white sheet has contrast to
+     sit on, with brand and sky light bleeding in from two corners. */
+  .auth-stage::after {
+    content: "";
+    position: fixed;
     inset: 0;
     z-index: -1;
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
-    background-size: 44px 44px;
-    -webkit-mask-image: radial-gradient(ellipse at 70% 40%, #000 0%, transparent 70%);
-    mask-image: radial-gradient(ellipse at 70% 40%, #000 0%, transparent 70%);
+    background:
+      radial-gradient(900px 600px at 12% 8%, rgba(21, 176, 221, 0.28), transparent 60%),
+      radial-gradient(900px 620px at 92% 96%, rgba(22, 104, 227, 0.42), transparent 62%),
+      linear-gradient(180deg, rgba(8, 26, 49, 0.86) 0%, rgba(8, 26, 49, 0.93) 100%);
   }
-  .auth-main {
-    @apply flex flex-col justify-center px-4 py-8 sm:px-8 lg:px-12 xl:px-20;
-    background-image: radial-gradient(640px 300px at 50% 0%, rgba(22, 104, 227, 0.09), transparent 62%);
+  .auth-card {
+    @apply relative w-full overflow-hidden rounded-3xl bg-surface p-6 sm:p-9;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow:
+      inset 0 1px 0 #ffffff,
+      0 2px 0 rgba(255, 255, 255, 0.22),
+      0 30px 60px -24px rgba(0, 0, 0, 0.7),
+      0 60px 120px -40px rgba(22, 104, 227, 0.45);
   }
-  .auth-point {
-    @apply flex items-start gap-3.5 rounded-2xl p-4;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
+  .auth-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--brand) 0%, var(--sky) 55%, var(--gold) 100%);
+  }
+  .auth-chip {
+    @apply inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-xs font-bold text-white;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
   }
 
   /* Staggered entrance for the auth form's rows. */

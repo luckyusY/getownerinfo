@@ -144,16 +144,15 @@ export default function RegisterPage() {
     <AuthShell
       wide
       title="One account to find it, list it, and reach the owner."
-      lead="Browse, rent, buy, list and post requests from the same account. It takes about a minute."
     >
       <GoogleOneTap role={form.role} />
 
       <div className="rise space-y-5">
         <div>
           <p className="eyebrow">Join the marketplace</p>
-          <h1 className="mt-1 font-display text-3xl font-bold text-ink">Create your account</h1>
-          <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
-            Already registered?{" "}
+          <h1 className="mt-2 font-display text-[2rem] font-extrabold text-ink">Create your account</h1>
+          <p className="mt-2 text-sm leading-relaxed text-ink-soft">
+            It takes about a minute. Already registered?{" "}
             <Link href="/login" className="font-bold text-brand underline-offset-4 hover:underline">
               Sign in
             </Link>
@@ -161,22 +160,6 @@ export default function RegisterPage() {
         </div>
 
         <AuthAlert>{serverError || searchParams.get("error")}</AuthAlert>
-
-        <div>
-          <p className="label">I mainly want to</p>
-          <SegmentedControl
-            value={form.role}
-            onChange={(role) => update("role", role)}
-            // Side by side even on a phone: stacked, the two options pushed
-            // the first field off the first screen.
-            columns="grid-cols-2"
-            options={[
-              { value: "buyer", label: "Find", description: "Browse and unlock owners.", icon: Search },
-              { value: "owner", label: "List", description: "Publish property or assets.", icon: Home },
-            ]}
-          />
-          <p className="mt-2 text-xs text-ink-faint">Either way you get both. This only sets which workspace opens first.</p>
-        </div>
 
         <GoogleAuthButton role={form.role} label="Sign up with Google" />
         <AuthDivider>or with email</AuthDivider>
@@ -294,6 +277,24 @@ export default function RegisterPage() {
               onChange={(e) => update("passwordConfirm", e.target.value)}
             />
           </FormField>
+
+          {/* After the fields, not before them: at the top it pushed the first
+              input to the bottom of a phone's first screen. */}
+          <div className="pb-4 pt-1">
+            <p className="label">I mainly want to</p>
+            <SegmentedControl
+              value={form.role}
+              onChange={(role) => update("role", role)}
+              // Side by side even on a phone: stacked, the two options pushed
+              // the first field off the first screen.
+              columns="grid-cols-2"
+              options={[
+                { value: "buyer", label: "Find", description: "Browse and unlock owners.", icon: Search },
+                { value: "owner", label: "List", description: "Publish property or assets.", icon: Home },
+              ]}
+            />
+            <p className="mt-2 text-xs text-ink-faint">Either way you get both. This only sets which workspace opens first.</p>
+          </div>
 
           <SubmitButton type="submit" loading={loading} className="!mt-2 w-full !min-h-12 !text-base">
             {loading ? "Creating account..." : (<>Create account <ArrowRight className="h-4 w-4" /></>)}

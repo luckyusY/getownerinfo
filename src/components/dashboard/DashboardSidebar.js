@@ -168,7 +168,7 @@ export default function DashboardSidebar({ role, counts = {} }) {
     : [...sellerGroups(counts), ...buyerGroups(counts), ...commonGroups(counts)];
 
   return (
-    <nav aria-label="Dashboard" className="card flex flex-col gap-5 !p-3">
+    <nav aria-label="Dashboard" className="dash-nav">
       <NavItem
         href="/dashboard"
         icon={LayoutDashboard}
@@ -178,7 +178,7 @@ export default function DashboardSidebar({ role, counts = {} }) {
 
       {groups.map((group) => (
         <div key={group.title}>
-          <p className="px-3 pb-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-ink-faint">
+          <p className="px-3 pb-1.5 font-display text-[10px] font-semibold uppercase tracking-[0.18em] text-white/45">
             {group.title}
           </p>
           <div className="grid gap-0.5">
@@ -193,11 +193,11 @@ export default function DashboardSidebar({ role, counts = {} }) {
         </div>
       ))}
 
-      <div className="border-t border-line pt-3">
+      <div className="border-t border-white/10 pt-3">
         <button
           type="button"
           onClick={logout}
-          className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50 active:scale-[0.98]"
+          className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/15 hover:text-red-200 active:scale-[0.98]"
         >
           <LogOut className="h-[18px] w-[18px]" />
           Logout
@@ -210,10 +210,10 @@ export default function DashboardSidebar({ role, counts = {} }) {
 /**
  * One sidebar row.
  *
- * Weight does the work here. Every row used to be bold and the current one a
- * solid brand slab, so the sidebar shouted evenly and the page you were on was
- * just the loudest of twenty. Rows now rest at semibold in soft ink; only the
- * current one is bold, in brand, on a tint, with a rule on its leading edge.
+ * The rail is dark, so the rows rest in dimmed white at semibold and only the
+ * current page is lit: a raised brand key, the brightest thing in the rail.
+ * With every row bold, as they once were, the page you were on was merely the
+ * loudest of twenty.
  *
  * A `sub` row is a filtered view of the row above it: no icon, indented along
  * a hairline, and a little smaller — but still a full 44px target on touch.
@@ -224,24 +224,24 @@ function NavItem({ href, icon: Icon, label, count, verified, active, sub = false
       href={href}
       aria-current={active ? "page" : undefined}
       className={`group relative flex min-h-11 items-center gap-3 rounded-lg transition active:scale-[0.98] lg:min-h-0 ${
-        sub ? "ml-[21px] border-l border-line py-2 pl-[18px] pr-3 text-[13px] lg:py-1.5" : "px-3 py-2.5 text-sm lg:py-2"
+        sub ? "ml-[21px] border-l border-white/15 py-2 pl-[18px] pr-3 text-[13px] lg:py-1.5" : "px-3 py-2.5 text-sm lg:py-2"
       } ${sub ? "rounded-l-none" : ""} ${
         active
-          ? "bg-brand-50 font-bold text-brand"
-          : "font-semibold text-ink-soft hover:bg-paper hover:text-ink"
+          ? `font-bold text-white ${sub ? "bg-white/10" : "dash-nav-active"}`
+          : "font-semibold text-white/70 hover:bg-white/10 hover:text-white"
       }`}
     >
       {/* Leading-edge rule: says "you are here" without filling the row. */}
-      {active && (
+      {active && sub && (
         <span
           aria-hidden="true"
-          className={`absolute top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-brand ${sub ? "-left-[2px]" : "left-0"}`}
+          className="absolute -left-[2px] top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-sky"
         />
       )}
       {!sub && (
         <Icon
           className={`h-[18px] w-[18px] shrink-0 transition-colors ${
-            active ? "text-brand" : "text-ink-faint group-hover:text-ink-soft"
+            active ? "text-white" : "text-white/50 group-hover:text-white"
           }`}
         />
       )}
@@ -249,13 +249,13 @@ function NavItem({ href, icon: Icon, label, count, verified, active, sub = false
       {count > 0 && (
         <span
           className={`stat-figure inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold ${
-            active ? "bg-brand text-white" : "bg-panel text-ink-soft"
+            active ? "bg-white/25 text-white" : "bg-white/10 text-white/80"
           }`}
         >
           {count > 99 ? "99+" : count}
         </span>
       )}
-      {verified && !count && <BadgeCheck className="h-4 w-4 shrink-0 text-emerald-600" />}
+      {verified && !count && <BadgeCheck className="h-4 w-4 shrink-0 text-emerald-400" />}
     </Link>
   );
 }

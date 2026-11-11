@@ -17,8 +17,8 @@ const ITEMS = [
 
 export default function HelpSupport() {
   return (
-    <section className="rounded-2xl border border-line bg-surface p-5 shadow-soft">
-      <h2 className="font-display text-lg font-bold text-ink">Help &amp; Support</h2>
+    <section className="card !p-5">
+      <h2 className="font-display text-xl font-bold text-ink">Help &amp; Support</h2>
 
       <div className="mt-4 grid grid-cols-2 gap-3">
         {ITEMS.map(({ href, icon: Icon, title, hint, tone, online }) => (
