@@ -168,7 +168,7 @@ export default function DashboardSidebar({ role, counts = {} }) {
     : [...sellerGroups(counts), ...buyerGroups(counts), ...commonGroups(counts)];
 
   return (
-    <nav aria-label="Dashboard" className="flex flex-col gap-5 rounded-2xl border border-line bg-surface p-3 shadow-soft">
+    <nav aria-label="Dashboard" className="card flex flex-col gap-5 !p-3">
       <NavItem
         href="/dashboard"
         icon={LayoutDashboard}

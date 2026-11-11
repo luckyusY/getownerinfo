@@ -17,11 +17,9 @@ export default function GoogleAuthButton({ role, label = "Continue with Google" 
   return (
     <Link
       href={href}
-      className="flex min-h-11 w-full items-center justify-center gap-3 rounded-lg border border-line bg-white px-4 py-2.5 text-sm font-black text-ink shadow-soft transition hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-lift"
+      className="btn-outline w-full !min-h-12 !text-base"
     >
-      <span className="grid h-7 w-7 place-items-center rounded-full bg-white shadow-sm ring-1 ring-line">
-        <GoogleMark />
-      </span>
+      <GoogleMark />
       {label}
     </Link>
   );

@@ -54,7 +54,7 @@ export default function DashboardTopbar({ user, unreadCount = 0, onToggleSidebar
     .toUpperCase();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-surface/95 backdrop-blur">
+    <header className="site-header sticky top-0 z-40">
       <div className="mx-auto flex max-w-[1600px] items-center gap-3 px-3 py-2.5 sm:gap-4 sm:px-4">
         <button
           type="button"

@@ -54,16 +54,39 @@ const SOCIALS = [
 
 export default function SiteFooter() {
   return (
-    <footer className="mt-16 bg-navy text-white/75">
+    <footer className="site-footer relative isolate mt-16 overflow-hidden text-white/75">
+      {/* Last word before the links: the two things a visitor can still do. */}
+      <div className="border-b border-white/10">
+        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-5 px-4 py-9 sm:flex-row sm:items-center">
+          <div>
+            <p className="font-display text-2xl font-bold text-white">Have something to sell or let?</p>
+            <p className="mt-1 text-sm leading-relaxed text-white/70">
+              List it once, get reviewed, and hear directly from serious buyers and tenants.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/dashboard/owner/listings/new" className="btn-primary">List your property</Link>
+            <Link href="/seekers/new" className="btn-footer">Post a request</Link>
+          </div>
+        </div>
+      </div>
+
       <div className="mx-auto max-w-7xl px-4 py-12">
         <div className="grid gap-10 lg:grid-cols-[1.1fr_2fr_1.1fr]">
           <div>
-            <Link href="/" className="inline-flex items-center" aria-label="Get Owner Info home">
+            {/* On its own white tile: inverted to white, the square mark and its
+                small wordmark collapsed into an unreadable speck on navy. */}
+            <Link
+              href="/"
+              aria-label="Get Owner Info home"
+              className="inline-flex items-center rounded-2xl bg-white px-3.5 py-2 shadow-[0_3px_0_rgba(255,255,255,0.22),0_16px_28px_-16px_rgba(0,0,0,0.6)]"
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/brand/logo-getownerinfo-transparent.png"
+                src="/brand/logo-getownerinfo-cropped-white.png"
                 alt="Get Owner Info"
-                className="h-11 w-auto object-contain brightness-0 invert"
+                loading="lazy"
+                className="h-12 w-auto object-contain"
               />
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-6">
@@ -78,7 +101,7 @@ export default function SiteFooter() {
                     target="_blank"
                     rel="noreferrer noopener"
                     aria-label={s.label}
-                    className="grid h-11 w-11 place-items-center rounded-full bg-white/10 text-white transition hover:bg-brand active:scale-95"
+                    className="social-tile grid h-11 w-11 place-items-center rounded-xl text-white"
                   >
                     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
                       <path d={s.path} />
@@ -92,11 +115,11 @@ export default function SiteFooter() {
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {COLUMNS.map((col) => (
               <div key={col.title}>
-                <h3 className="text-sm font-bold text-white">{col.title}</h3>
+                <h3 className="!text-white text-xs font-bold uppercase tracking-[0.14em]">{col.title}</h3>
                 <ul className="mt-1 grid">
                   {col.links.map(([label, href]) => (
                     <li key={label}>
-                      <Link href={href} className="flex min-h-11 items-center text-sm transition hover:text-white active:text-white">
+                      <Link href={href} className="flex min-h-11 items-center text-sm transition hover:translate-x-1 hover:text-white active:text-white">
                         {label}
                       </Link>
                     </li>
@@ -107,14 +130,14 @@ export default function SiteFooter() {
           </div>
 
           <div>
-            <h3 className="text-sm font-bold text-white">Subscribe to our newsletter</h3>
+            <h3 className="!text-white text-xs font-bold uppercase tracking-[0.14em]">Newsletter</h3>
             <p className="mt-2 text-sm leading-6">Get the latest listings, tips and updates.</p>
             <NewsletterForm />
           </div>
         </div>
       </div>
 
-      <div className="border-t border-navy-line">
+      <div className="border-t border-white/10 bg-black/15">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-4 text-xs font-semibold">
           <p>© {new Date().getFullYear()} GetOwnerInfo. All rights reserved.</p>
           <p className="flex items-center gap-4">

@@ -14,7 +14,7 @@ export default function SiteHeader() {
   const dashboardPath = session ? DASHBOARD_PATHS[session.role] : null;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-surface/95 backdrop-blur">
+    <header className="site-header sticky top-0 z-40">
       {!session && <GoogleOneTap />}
 
       {/*

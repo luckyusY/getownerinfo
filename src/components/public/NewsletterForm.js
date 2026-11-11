@@ -40,9 +40,9 @@ export default function NewsletterForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter your email address"
-          className="min-w-0 flex-1 rounded-lg border border-navy-line bg-white/5 px-3.5 py-2.5 text-sm font-semibold text-white outline-none transition placeholder:font-medium placeholder:text-white/40 focus:border-brand"
+          className="min-h-11 min-w-0 flex-1 rounded-xl border border-white/20 bg-black/20 px-3.5 py-2.5 text-sm font-semibold text-white shadow-[inset_0_2px_4px_rgba(0,0,0,0.35)] outline-none transition placeholder:font-medium placeholder:text-white/55 focus:border-sky focus:shadow-[inset_0_2px_4px_rgba(0,0,0,0.35),0_0_0_4px_rgba(21,176,221,0.22)]"
         />
-        <button type="submit" disabled={state === "sending"} className="btn-primary !rounded-lg shrink-0">
+        <button type="submit" disabled={state === "sending"} className="btn-primary shrink-0">
           {state === "sending" ? <Loader2 className="h-4 w-4 animate-spin" /> : state === "done" ? <Check className="h-4 w-4" /> : null}
           {state === "done" ? "Subscribed" : "Subscribe"}
         </button>

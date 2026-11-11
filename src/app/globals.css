@@ -140,45 +140,108 @@
 }
 
 @layer components {
-  /* Buttons */
+  /*
+   * Buttons.
+   *
+   * Physical, not flat: each one is a key with a lit top face and a solid edge
+   * underneath (the 0-blur shadow). Hover raises it a pixel and deepens the
+   * edge; pressing drives the face down onto the edge, so the edge disappears
+   * exactly as the button travels. That is the whole of the tap feedback on a
+   * touchscreen, where there is no hover, and it is why the travel distance
+   * (3px) equals the edge height.
+   *
+   * --btn-edge is the only thing a variant has to set to get the behaviour.
+   */
   .btn {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply relative inline-flex min-h-11 select-none items-center justify-center gap-2 rounded-xl px-5 py-2 text-sm font-bold disabled:cursor-not-allowed;
+    --btn-edge: transparent;
+    transition:
+      transform 120ms cubic-bezier(0.3, 0.7, 0.4, 1),
+      box-shadow 120ms cubic-bezier(0.3, 0.7, 0.4, 1),
+      background-color 160ms ease,
+      border-color 160ms ease,
+      color 160ms ease,
+      filter 160ms ease;
   }
+  .btn:disabled {
+    opacity: 0.55;
+    filter: saturate(0.6);
+  }
+
   .btn-primary {
     @apply btn text-white;
-    background: var(--brand);
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 8px 20px -10px rgba(22, 104, 227, 0.45);
+    --btn-edge: #0b3f95;
+    background: linear-gradient(180deg, #3d8bf2 0%, var(--brand) 48%, #1259c9 100%);
+    border: 1px solid #0f52bc;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.38),
+      inset 0 -1px 0 rgba(7, 28, 31, 0.12),
+      0 3px 0 var(--btn-edge),
+      0 10px 22px -10px rgba(22, 104, 227, 0.75);
+    text-shadow: 0 1px 0 rgba(7, 40, 100, 0.35);
   }
+
+  .btn-outline {
+    @apply btn text-ink;
+    --btn-edge: #c9d3da;
+    background: linear-gradient(180deg, #ffffff 0%, #f4f7f9 100%);
+    border: 1px solid #d3dce2;
+    box-shadow:
+      inset 0 1px 0 #ffffff,
+      0 3px 0 var(--btn-edge),
+      0 8px 18px -12px rgba(12, 35, 64, 0.45);
+  }
+
   /* Gated on a real pointer. A touch device applies :hover on tap and keeps it
      until you tap elsewhere, so the lift used to stick to the last button
      pressed. */
   @media (hover: hover) {
     .btn-primary:hover:not(:disabled) {
-      background: var(--brand-dark);
-      transform: translateY(-2px);
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.42),
+        inset 0 -1px 0 rgba(7, 28, 31, 0.12),
+        0 4px 0 var(--btn-edge),
+        0 16px 28px -12px rgba(22, 104, 227, 0.85);
     }
-  }
-  .btn-outline {
-    @apply btn bg-surface/80 text-ink;
-    border: 1px solid var(--line);
-  }
-  @media (hover: hover) {
     .btn-outline:hover:not(:disabled) {
+      transform: translateY(-1px);
       border-color: var(--brand);
       color: var(--brand);
-      transform: translateY(-2px);
+      --btn-edge: #a9c6f3;
+      box-shadow:
+        inset 0 1px 0 #ffffff,
+        0 4px 0 var(--btn-edge),
+        0 14px 24px -14px rgba(22, 104, 227, 0.55);
     }
   }
 
-  /* After the hover rules, so it wins the transform on a press either way.
-     This is the whole app's tap feedback: there is no hover on a touchscreen,
-     so without it every button feels dead. */
-  .btn:active:not(:disabled) {
+  /* After the hover rules, so the press wins either way. */
+  .btn-primary:active:not(:disabled),
+  .btn-outline:active:not(:disabled) {
+    transform: translateY(3px);
+    transition-duration: 40ms;
+  }
+  .btn-primary:active:not(:disabled) {
+    box-shadow:
+      inset 0 2px 4px rgba(7, 40, 100, 0.35),
+      0 0 0 var(--btn-edge),
+      0 4px 10px -8px rgba(22, 104, 227, 0.6);
+  }
+  .btn-outline:active:not(:disabled) {
+    box-shadow:
+      inset 0 2px 4px rgba(12, 35, 64, 0.12),
+      0 0 0 var(--btn-edge);
+  }
+
+  .btn-ghost {
+    @apply btn text-ink-soft hover:bg-panel hover:text-ink;
+  }
+  .btn-ghost:active:not(:disabled) {
     transform: scale(0.97);
   }
-  .btn-ghost {
-    @apply btn text-ink-soft hover:text-ink;
-  }
+
 
   .nav-link {
     position: relative;
@@ -203,11 +266,18 @@
   }
 
   /* Surfaces */
+  /* A sheet lying on the page: a lit top edge, a tight contact shadow and a
+     wide soft one. The inset highlight is what stops a white card on a
+     near-white page from looking like an outlined box. */
   .card {
     @apply rounded-2xl p-6;
     background: var(--surface);
     border: 1px solid var(--line);
-    box-shadow: 0 1px 2px rgba(12, 35, 64, 0.04), 0 14px 36px -24px rgba(12, 35, 64, 0.22);
+    box-shadow:
+      inset 0 1px 0 #ffffff,
+      0 1px 1px rgba(12, 35, 64, 0.05),
+      0 2px 4px -1px rgba(12, 35, 64, 0.05),
+      0 18px 40px -26px rgba(12, 35, 64, 0.28);
   }
 
   /*
@@ -280,55 +350,201 @@
     transform: translateX(120%);
   }
 
-  /* Forms */
-  .input {
-    @apply min-h-11 w-full rounded-lg px-3.5 py-2.5 text-base font-semibold text-ink outline-none transition lg:text-sm;
-    background: var(--surface);
-    border: 1px solid var(--line);
+  /*
+   * Forms.
+   *
+   * A field is a shallow well: a hairline of shadow under its top edge says
+   * "this is sunk into the page, you type into it", which is the opposite
+   * signal to a button's raised face. On focus the well fills white, takes a
+   * brand border and a soft ring. Nothing moves — a field that shifts as you
+   * click into it makes the label next to it look like it jumped.
+   */
+  .input,
+  .input-wrap {
+    background: #fbfcfd;
+    border: 1px solid #d3dce2;
+    box-shadow: inset 0 1px 2px rgba(12, 35, 64, 0.06), 0 1px 0 rgba(255, 255, 255, 0.9);
+    transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
   }
-  .input:focus {
-    border-color: var(--brand);
-    box-shadow: 0 0 0 3px rgba(22, 104, 227, 0.15);
+  .input {
+    @apply min-h-12 w-full rounded-xl px-3.5 py-2.5 text-base font-semibold text-ink outline-none lg:text-sm;
   }
   .input-wrap {
-    @apply flex min-h-11 w-full items-center gap-2 rounded-lg px-3.5 py-2.5 transition;
-    background: var(--surface);
-    border: 1px solid var(--line);
+    @apply flex min-h-12 w-full items-center gap-2.5 rounded-xl px-3.5 py-2;
   }
   @media (hover: hover) {
+    .input:hover,
     .input-wrap:hover {
-      border-color: rgba(22, 104, 227, 0.45);
+      border-color: #a9bccb;
     }
   }
+  .input:focus,
   .input-wrap:focus-within {
+    background: #ffffff;
     border-color: var(--brand);
-    box-shadow: 0 0 0 3px rgba(22, 104, 227, 0.15);
-    transform: translateY(-1px);
+    box-shadow: inset 0 1px 2px rgba(12, 35, 64, 0.04), 0 0 0 4px rgba(22, 104, 227, 0.14);
   }
-  .input-wrap-error {
-    border-color: rgba(220, 38, 38, 0.55);
-    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+  /* The leading icon wakes up with the field. */
+  .input-wrap:focus-within > svg:first-child {
+    color: var(--brand);
+  }
+  .input-wrap-error,
+  .input-wrap-error:focus-within {
+    background: #fffafa;
+    border-color: #dc2626;
+    box-shadow: inset 0 1px 2px rgba(12, 35, 64, 0.04), 0 0 0 4px rgba(220, 38, 38, 0.12);
+  }
+  .input-wrap-error > svg:first-child {
+    color: #dc2626;
   }
   .label {
-    @apply mb-1.5 block text-sm font-bold text-ink-soft;
+    @apply mb-1.5 block text-sm font-bold text-ink;
   }
   .segmented-option {
-    @apply flex min-h-16 items-center gap-3 rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink-soft shadow-soft transition duration-200 hover:-translate-y-0.5 hover:border-brand/40 hover:text-ink;
+    @apply flex min-h-16 items-center gap-3 rounded-xl px-4 py-3 text-sm text-ink-soft;
+    background: linear-gradient(180deg, #ffffff 0%, #f6f8fa 100%);
+    border: 1px solid #d3dce2;
+    box-shadow: inset 0 1px 0 #ffffff, 0 2px 0 #d6dee4;
+    transition: transform 120ms ease, box-shadow 120ms ease, border-color 160ms ease, color 160ms ease, background 160ms ease;
   }
+  @media (hover: hover) {
+    .segmented-option:hover {
+      border-color: rgba(22, 104, 227, 0.5);
+      color: var(--ink);
+    }
+  }
+  .segmented-option:active {
+    transform: translateY(2px);
+    box-shadow: inset 0 1px 0 #ffffff, 0 0 0 #d6dee4;
+  }
+  /* Selected reads as pressed in and lit: the choice you made stays down. */
   .segmented-option-active {
-    @apply border-brand bg-brand-50 text-brand;
+    @apply text-brand;
+    background: linear-gradient(180deg, #eaf2fd 0%, #f4f8ff 100%);
+    border-color: var(--brand);
+    box-shadow: inset 0 2px 4px rgba(22, 104, 227, 0.16), 0 0 0 3px rgba(22, 104, 227, 0.1);
   }
   .form-step {
     @apply flex items-center gap-2 rounded-xl border border-line bg-surface px-3 py-2 text-ink-faint shadow-soft transition;
   }
   .form-step-current {
-    @apply border-brand bg-brand text-white;
+    @apply border-brand text-white;
+    background: linear-gradient(180deg, #3d8bf2 0%, var(--brand) 60%, #1259c9 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 0 #0b3f95;
   }
   .form-step-done {
     @apply border-brand/30 bg-brand-50 text-brand;
   }
   .file-upload-box {
-    @apply flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-line bg-surface p-4 shadow-soft transition hover:-translate-y-0.5 hover:border-brand/50 hover:bg-brand-50/40;
+    @apply flex cursor-pointer items-center gap-3 rounded-xl border-2 border-dashed border-line bg-paper/60 p-4 transition hover:border-brand/60 hover:bg-brand-50/50;
+  }
+
+
+  /*
+   * Site chrome: the public header and the dashboard top bar.
+   *
+   * Frosted, so the page canvas shows through as you scroll, and resting on a
+   * soft shadow so it reads as a bar above the page rather than a line across
+   * it. The brand rule along the top is drawn with ::before and takes no
+   * layout height — --header-h and --dash-topbar-h are measured values and
+   * must not move.
+   */
+  .site-header {
+    position: sticky;
+    background: rgba(255, 255, 255, 0.86);
+    -webkit-backdrop-filter: saturate(160%) blur(14px);
+    backdrop-filter: saturate(160%) blur(14px);
+    border-bottom: 1px solid var(--line);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 10px 30px -22px rgba(12, 35, 64, 0.55);
+  }
+  .site-header::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--brand) 0%, var(--sky) 55%, var(--gold) 100%);
+    pointer-events: none;
+  }
+
+  /* Dropdown under the public nav: same rule, so it reads as part of the bar. */
+  .mega-menu {
+    animation: fade-up 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .mega-menu::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--brand), var(--sky));
+  }
+
+  /*
+   * Footer. Deep navy with the same faint survey grid as the sign-in pane, lit
+   * from the top-left, so the two darkest surfaces in the product match.
+   */
+  .site-footer {
+    background:
+      radial-gradient(900px 420px at 0% 0%, rgba(21, 176, 221, 0.16), transparent 60%),
+      radial-gradient(800px 460px at 100% 100%, rgba(22, 104, 227, 0.26), transparent 62%),
+      linear-gradient(180deg, #0c2340 0%, #081a31 100%);
+  }
+  .site-footer::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--brand) 0%, var(--sky) 55%, var(--gold) 100%);
+  }
+  .site-footer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 44px 44px;
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 70%);
+    mask-image: linear-gradient(180deg, #000 0%, transparent 70%);
+  }
+
+  /* Secondary button for dark surfaces: glass face, same key travel. */
+  .btn-footer {
+    @apply btn text-white;
+    --btn-edge: rgba(255, 255, 255, 0.22);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.07));
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 3px 0 var(--btn-edge);
+  }
+  @media (hover: hover) {
+    .btn-footer:hover {
+      transform: translateY(-1px);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.12));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.36), 0 4px 0 var(--btn-edge);
+    }
+  }
+  .btn-footer:active {
+    transform: translateY(3px);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 0 var(--btn-edge);
+  }
+
+  .social-tile {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.06));
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 2px 0 rgba(0, 0, 0, 0.35);
+    transition: transform 120ms ease, box-shadow 120ms ease, background 160ms ease;
+  }
+  @media (hover: hover) {
+    .social-tile:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(180deg, #3d8bf2, var(--brand));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 4px 0 #0b3f95;
+    }
+  }
+  .social-tile:active {
+    transform: translateY(2px);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
   }
 
   /* Badges */
@@ -355,6 +571,60 @@
     background-image:
       radial-gradient(720px 320px at 50% 0%, rgba(22, 104, 227, 0.12), transparent 62%);
   }
+
+  /*
+   * Sign-in and sign-up.
+   *
+   * Two panes from lg up: the brand side says why the account is worth
+   * having, the form side is nothing but the form. Below lg the brand pane
+   * folds away to a short band so the first field is on the first screen.
+   */
+  .auth-split {
+    @apply grid min-h-screen lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)];
+  }
+  .auth-aside {
+    @apply relative isolate hidden overflow-hidden text-white lg:flex lg:flex-col lg:justify-between lg:p-12 xl:p-16;
+    background:
+      radial-gradient(900px 520px at 0% 0%, rgba(21, 176, 221, 0.3), transparent 60%),
+      radial-gradient(700px 520px at 100% 100%, rgba(22, 104, 227, 0.5), transparent 62%),
+      linear-gradient(160deg, #0c2340 0%, #0a1c36 55%, #071428 100%);
+  }
+  /* A faint survey grid: the product is about knowing exactly where something
+     is and who owns it. Masked so it fades before it reaches the text. */
+  .auth-aside::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+    background-size: 44px 44px;
+    -webkit-mask-image: radial-gradient(ellipse at 70% 40%, #000 0%, transparent 70%);
+    mask-image: radial-gradient(ellipse at 70% 40%, #000 0%, transparent 70%);
+  }
+  .auth-main {
+    @apply flex flex-col justify-center px-4 py-8 sm:px-8 lg:px-12 xl:px-20;
+    background-image: radial-gradient(640px 300px at 50% 0%, rgba(22, 104, 227, 0.09), transparent 62%);
+  }
+  .auth-point {
+    @apply flex items-start gap-3.5 rounded-2xl p-4;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+
+  /* Staggered entrance for the auth form's rows. */
+  .rise > * {
+    animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .rise > *:nth-child(2) { animation-delay: 50ms; }
+  .rise > *:nth-child(3) { animation-delay: 100ms; }
+  .rise > *:nth-child(4) { animation-delay: 150ms; }
+  .rise > *:nth-child(5) { animation-delay: 200ms; }
+  .rise > *:nth-child(n + 6) { animation-delay: 250ms; }
 
   
 
@@ -420,10 +690,14 @@
     background: var(--surface);
     color: var(--ink-soft);
   }
+  .chip {
+    box-shadow: inset 0 1px 0 #ffffff, 0 1px 0 rgba(12, 35, 64, 0.06);
+  }
   .chip[data-active="true"] {
-    border-color: var(--brand);
-    background: var(--brand);
+    border-color: #0f52bc;
+    background: linear-gradient(180deg, #3d8bf2 0%, var(--brand) 60%, #1259c9 100%);
     color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 0 #0b3f95;
   }
 
   @media (hover: hover) {

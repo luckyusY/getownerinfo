@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/Toast";
-import { Mail, Lock } from "lucide-react";
+import { ArrowRight, Lock, Mail } from "lucide-react";
 import { FormField, TextInput, SubmitButton } from "@/components/ui/Form";
 import GoogleAuthButton from "@/components/GoogleAuthButton";
 import GoogleOneTap from "@/components/GoogleOneTap";
+import AuthShell, { AuthAlert, AuthDivider } from "@/components/auth/AuthShell";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,6 +16,9 @@ export default function LoginPage() {
   const { toast } = useToast();
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
+  // Kept on the page as well as toasted: a toast is gone in a few seconds,
+  // and "why did that not work" should still be readable when you look back.
+  const [error, setError] = useState("");
 
   // Where to land after signing in. The bottom tab bar sends signed-out
   // visitors here with ?next=, so they end up where they tapped. Only
@@ -30,50 +34,59 @@ export default function LoginPage() {
   async function onSubmit(e) {
     e.preventDefault();
     setLoading(true);
+    setError("");
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-      const json = await res.json();
-      if (!json.success) throw new Error(json.error || "Login failed");
+      const json = await res.json().catch(() => null);
+      if (!json?.success) {
+        throw new Error(json?.error || "We could not sign you in right now. Please try again.");
+      }
       toast("Welcome back!", { type: "success" });
       router.push(destination);
       router.refresh();
     } catch (err) {
-      toast(err.message, { type: "error" });
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="auth-shell flex items-center justify-center py-6 sm:py-10">
+    <AuthShell
+      title="Welcome back to the people who actually own it."
+      lead="Sign in to manage your listings, unlocked contacts, messages and payments in one place."
+    >
       <GoogleOneTap />
-      <div className="w-full max-w-md">
-        {searchParams.get("error") && (
-          <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
-            {searchParams.get("error")}
-          </div>
-        )}
-        <Link href="/" className="mb-5 flex items-center justify-center gap-2 sm:mb-6">
-          <span className="flex h-16 w-[180px] items-center justify-center overflow-hidden rounded-2xl bg-white px-4 shadow-soft sm:h-20 sm:w-[210px]">
-            <img src="/brand/logo-getownerinfo-cropped-white.png" alt="Get Owner Info" className="h-12 w-auto object-contain sm:h-16" />
-          </span>
-        </Link>
-        <form onSubmit={onSubmit} className="card space-y-4 !p-5 sm:!p-7">
-          <div>
-            <p className="eyebrow">Secure access</p>
-            <h1 className="mt-1 font-display text-2xl font-bold text-ink">Welcome back</h1>
-            <p className="mt-1 text-sm text-ink-soft">Sign in to manage listings, unlocks, messages, and payments.</p>
-          </div>
 
+      <div className="rise space-y-5">
+        <div>
+          <p className="eyebrow">Secure access</p>
+          <h1 className="mt-1 font-display text-3xl font-bold text-ink">Sign in</h1>
+          <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
+            New here?{" "}
+            <Link href="/register" className="font-bold text-brand underline-offset-4 hover:underline">
+              Create an account
+            </Link>
+          </p>
+        </div>
+
+        <AuthAlert>{error || searchParams.get("error")}</AuthAlert>
+
+        <GoogleAuthButton />
+        <AuthDivider>or with email</AuthDivider>
+
+        <form onSubmit={onSubmit} className="space-y-1" noValidate={false}>
           <FormField label="Email" required>
             <TextInput
               icon={Mail}
               type="email"
               required
+              autoComplete="email"
+              inputMode="email"
               value={form.email}
               placeholder="you@example.com"
               onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -84,32 +97,22 @@ export default function LoginPage() {
               icon={Lock}
               type="password"
               required
+              autoComplete="current-password"
               value={form.password}
               placeholder="Enter your password"
               onChange={(e) => setForm({ ...form, password: e.target.value })}
             />
           </FormField>
 
-          <GoogleAuthButton />
-          <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-wide text-ink-faint">
-            <span className="h-px flex-1 bg-line" /> Or use email <span className="h-px flex-1 bg-line" />
-          </div>
-
-          <SubmitButton type="submit" loading={loading} className="w-full">
-            {loading ? "Signing in..." : "Sign in"}
+          <SubmitButton type="submit" loading={loading} className="!mt-2 w-full !min-h-12 !text-base">
+            {loading ? "Signing in..." : (<>Sign in <ArrowRight className="h-4 w-4" /></>)}
           </SubmitButton>
-
-          <p className="text-center text-sm text-ink-soft">
-            No account?{" "}
-            <Link href="/register" className="font-bold text-brand hover:text-brand-dark">
-              Create one
-            </Link>
-          </p>
         </form>
-        <p className="mt-4 text-center text-xs text-ink-faint">
-          Owner details stay protected until you pay the token fee.
+
+        <p className="flex items-center justify-center gap-2 text-center text-xs font-semibold text-ink-faint">
+          <Lock className="h-3.5 w-3.5" /> Owner details stay protected until you pay the token fee.
         </p>
       </div>
-    </div>
+    </AuthShell>
   );
 }

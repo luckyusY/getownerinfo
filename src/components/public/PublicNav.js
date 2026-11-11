@@ -154,8 +154,8 @@ export default function PublicNav() {
               }}
               aria-expanded={menu.groups ? open === menu.label : undefined}
               aria-haspopup={menu.groups ? "true" : undefined}
-              className={`inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg px-2.5 py-2 text-sm font-bold transition xl:px-3 ${
-                open === menu.label ? "bg-brand-50 text-brand" : "text-ink-soft hover:bg-panel hover:text-ink"
+              className={`inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg px-2.5 py-2 text-sm font-semibold transition xl:px-3 ${
+                open === menu.label ? "bg-brand-50 text-brand" : "text-ink hover:bg-panel"
               }`}
             >
               {menu.label}
@@ -170,7 +170,7 @@ export default function PublicNav() {
       {MENUS.filter((m) => m.groups && m.label === open).map((menu) => (
         <div
           key={menu.label}
-          className="absolute left-0 top-full z-50 mt-1 w-[min(680px,calc(100vw-48px))] rounded-2xl border border-line bg-surface p-5 shadow-lift"
+          className="mega-menu absolute left-0 top-full z-50 mt-1 w-[min(680px,calc(100vw-48px))] overflow-hidden rounded-2xl border border-line bg-surface p-5 shadow-lift"
         >
           <div className="flex items-center justify-between pb-3">
             <p className="font-display text-base font-bold text-ink">{menu.label}</p>
@@ -181,14 +181,14 @@ export default function PublicNav() {
           <div className="grid gap-5 sm:grid-cols-3">
             {menu.groups.map((group) => (
               <div key={group.title}>
-                <p className="mb-2 text-[11px] font-black uppercase tracking-wide text-ink-faint">{group.title}</p>
+                <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.14em] text-ink-faint">{group.title}</p>
                 <ul className="grid gap-1">
                   {group.links.map(([label, href]) => (
                     <li key={label}>
                       <Link
                         href={href}
                         onClick={() => setOpen(null)}
-                        className="block rounded-lg px-2.5 py-2 text-sm font-semibold text-ink-soft transition hover:bg-brand-50 hover:text-brand"
+                        className="block rounded-lg px-2.5 py-2 text-sm font-semibold text-ink-soft transition hover:translate-x-0.5 hover:bg-brand-50 hover:text-brand"
                       >
                         {label}
                       </Link>

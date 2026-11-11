@@ -1,19 +1,58 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/Toast";
-import { Check, Circle, Home, Mail, Phone, Search, Lock, User } from "lucide-react";
-import { FormField, SegmentedControl, SelectInput, SubmitButton, TextInput } from "@/components/ui/Form";
+import { ArrowRight, Check, Home, Lock, Mail, Phone, Search, User } from "lucide-react";
+import { FormField, SegmentedControl, SubmitButton, TextInput } from "@/components/ui/Form";
 import GoogleAuthButton from "@/components/GoogleAuthButton";
 import GoogleOneTap from "@/components/GoogleOneTap";
+import AuthShell, { AuthAlert, AuthDivider } from "@/components/auth/AuthShell";
 import { isValidRwandaPhone } from "@/lib/phone";
+
+const PASSWORD_RULES = [
+  ["8+ characters", (p) => p.length >= 8],
+  ["Uppercase", (p) => /[A-Z]/.test(p)],
+  ["Lowercase", (p) => /[a-z]/.test(p)],
+  ["Number", (p) => /[0-9]/.test(p)],
+  ["Symbol", (p) => /[^A-Za-z0-9]/.test(p)],
+];
+
+const STRENGTH = [
+  { label: "", bar: "bg-line" },
+  { label: "Too weak", bar: "bg-red-500" },
+  { label: "Weak", bar: "bg-red-500" },
+  { label: "Getting there", bar: "bg-amber-500" },
+  { label: "Almost", bar: "bg-amber-500" },
+  { label: "Strong", bar: "bg-emerald-600" },
+];
+
+/** Field-level problems, in the order the fields appear on the page. */
+function validate(form) {
+  const errors = {};
+  if (form.name.trim().length < 2) errors.name = "Enter your full name.";
+  if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) errors.email = "Enter a valid email address.";
+  if (form.phone && !isValidRwandaPhone(form.phone)) {
+    errors.phone = "Enter a valid Rwanda mobile number, or leave it empty.";
+  }
+  const missing = PASSWORD_RULES.filter(([, test]) => !test(form.password)).map(([label]) => label.toLowerCase());
+  if (missing.length) errors.password = `Still needed: ${missing.join(", ")}.`;
+  if (!form.passwordConfirm) errors.passwordConfirm = "Type your password again.";
+  else if (form.password !== form.passwordConfirm) errors.passwordConfirm = "The two passwords do not match.";
+  return errors;
+}
+
+const FIELD_ORDER = ["name", "phone", "email", "password", "passwordConfirm"];
+
+// The API reports problems per field; show them on the field they belong to.
+const SERVER_FIELD_LABEL = { name: "Name", email: "Email", phone: "Phone", password: "Password", passwordConfirm: "Password" };
 
 export default function RegisterPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
+  const formRef = useRef(null);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -23,164 +62,251 @@ export default function RegisterPage() {
     role: searchParams.get("role") === "owner" ? "owner" : "buyer",
   });
   const [loading, setLoading] = useState(false);
+  // Errors are held back until the first attempt to submit. Before that the
+  // form is quiet; after it, every field reports as you fix it.
+  const [attempted, setAttempted] = useState(false);
+  const [serverError, setServerError] = useState("");
+  const [serverFields, setServerFields] = useState({});
 
-  const passwordChecks = [
-    ["At least 8 characters", form.password.length >= 8],
-    ["One uppercase letter", /[A-Z]/.test(form.password)],
-    ["One lowercase letter", /[a-z]/.test(form.password)],
-    ["One number", /[0-9]/.test(form.password)],
-    ["One special character", /[^A-Za-z0-9]/.test(form.password)],
-  ];
+  const clientErrors = validate(form);
+  const errors = attempted ? { ...serverFields, ...clientErrors } : {};
+  const passed = PASSWORD_RULES.map(([, test]) => test(form.password));
+  const score = form.password ? passed.filter(Boolean).length : 0;
   const passwordsMatch = form.passwordConfirm.length > 0 && form.password === form.passwordConfirm;
-  const passwordMismatch = form.passwordConfirm.length > 0 && form.password !== form.passwordConfirm;
-  const invalidPhone = Boolean(form.phone && !isValidRwandaPhone(form.phone));
 
   useEffect(() => {
     router.prefetch("/dashboard");
   }, [router]);
 
+  function update(field, value) {
+    setForm((f) => ({ ...f, [field]: value }));
+    if (serverFields[field]) setServerFields((s) => ({ ...s, [field]: undefined }));
+  }
+
+  function focusFirst(problems) {
+    const first = FIELD_ORDER.find((name) => problems[name]);
+    if (first) formRef.current?.querySelector(`[name="${first}"]`)?.focus();
+  }
+
   async function onSubmit(e) {
     e.preventDefault();
+    setAttempted(true);
+    setServerError("");
+
+    // The button is never disabled. It used to stay grey until every password
+    // rule passed and both passwords matched, with nothing on the page saying
+    // so — pressing it did nothing at all, which read as "sign-up is broken".
+    // Now a press always answers: either the account is created, or the first
+    // field with a problem takes focus and says what it needs.
+    if (Object.keys(clientErrors).length) {
+      focusFirst(clientErrors);
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, name: form.name.trim(), email: form.email.trim() }),
       });
-      const json = await res.json();
-      if (!json.success) {
-        const detail = json.issues
-          ? Object.values(json.issues).flat().join(", ")
-          : json.error;
-        throw new Error(detail || "Registration failed");
+      const json = await res.json().catch(() => null);
+
+      if (!json?.success) {
+        if (json?.issues) {
+          const fields = {};
+          for (const [key, messages] of Object.entries(json.issues)) {
+            if (messages?.length) fields[key] = `${SERVER_FIELD_LABEL[key] || key}: ${messages[0]}`;
+          }
+          setServerFields(fields);
+          focusFirst(fields);
+          throw new Error("Please check the highlighted fields.");
+        }
+        if (res.status === 409) {
+          setServerFields({ email: "An account with this email already exists." });
+          focusFirst({ email: true });
+          throw new Error("That email already has an account. Sign in instead, or use a different email.");
+        }
+        throw new Error(json?.error || "We could not create your account right now. Please try again in a moment.");
       }
-      toast("Account created - welcome!", { type: "success" });
+
+      toast("Account created. Welcome!", { type: "success" });
       router.push("/dashboard");
       router.refresh();
     } catch (err) {
-      toast(err.message, { type: "error" });
+      setServerError(err.message);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="auth-shell flex items-center justify-center py-6 sm:py-10">
+    <AuthShell
+      wide
+      title="One account to find it, list it, and reach the owner."
+      lead="Browse, rent, buy, list and post requests from the same account. It takes about a minute."
+    >
       <GoogleOneTap role={form.role} />
-      <div className="w-full max-w-xl">
-        {searchParams.get("error") && (
-          <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
-            {searchParams.get("error")}
-          </div>
-        )}
-        <Link href="/" className="mb-5 flex items-center justify-center gap-2 sm:mb-6">
-          <span className="flex h-16 w-[180px] items-center justify-center overflow-hidden rounded-2xl bg-white px-4 shadow-soft sm:h-20 sm:w-[210px]">
-            <img src="/brand/logo-getownerinfo-cropped-white.png" alt="Get Owner Info" className="h-12 w-auto object-contain sm:h-16" />
-          </span>
-        </Link>
-        <form onSubmit={onSubmit} className="card space-y-4 !p-5 sm:!p-7">
-          <div>
-            <p className="eyebrow">Join the marketplace</p>
-            <h1 className="mt-1 font-display text-2xl font-bold text-ink">Create your account</h1>
-            <p className="mt-1 text-sm text-ink-soft">One account lets you browse, rent, buy, list, post requests, and message other users. Choose the workspace you want to open first; your activities stay together.</p>
-          </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <FormField label="Full name" required>
-              <TextInput
-                icon={User}
-                required
-                placeholder="Your full name"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-              />
-            </FormField>
-            <FormField label="Phone">
-              <TextInput
-                icon={Phone}
-                type="tel"
-                placeholder="+250 ..."
-                aria-invalid={invalidPhone}
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              />
-              <p className="mt-1 text-xs text-ink-faint">Rwanda format: +250 7XX XXX XXX or 07XX XXX XXX.</p>
-              {invalidPhone && <p role="alert" className="mt-1 text-xs font-semibold text-red-700">Enter a valid Rwanda mobile number.</p>}
-            </FormField>
-          </div>
-          <FormField label="Email" required>
-            <TextInput
-              icon={Mail}
-              type="email"
-              required
-              placeholder="you@example.com"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-            />
-          </FormField>
-          <FormField label="Password" required>
-            <TextInput
-              icon={Lock}
-              type="password"
-              required
-              minLength={8}
-              autoComplete="new-password"
-              placeholder="Create a strong password"
-              value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
-            />
-            <ul className="mt-2 grid gap-1 sm:grid-cols-2" aria-label="Password requirements">
-              {passwordChecks.map(([label, passed]) => (
-                <li key={label} className={`flex items-center gap-1.5 text-xs font-semibold ${passed ? "text-emerald-700" : "text-ink-faint"}`}>
-                  {passed ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : <Circle className="h-3.5 w-3.5" aria-hidden="true" />} {label}
-                </li>
-              ))}
-            </ul>
-          </FormField>
-          <FormField label="Confirm password" required>
-            <TextInput
-              icon={Lock}
-              type="password"
-              required
-              minLength={8}
-              autoComplete="new-password"
-              placeholder="Enter your password again"
-              value={form.passwordConfirm}
-              aria-invalid={passwordMismatch}
-              onChange={(e) => setForm({ ...form, passwordConfirm: e.target.value })}
-            />
-            {passwordMismatch && <p role="alert" className="mt-1 text-xs font-semibold text-red-700">Passwords do not match.</p>}
-            {passwordsMatch && <p className="mt-1 text-xs font-semibold text-emerald-700">Passwords match.</p>}
-          </FormField>
-          <FormField label="Open my workspace with">
-            <SegmentedControl
-              value={form.role}
-              onChange={(role) => setForm({ ...form, role })}
-              options={[
-                { value: "buyer", label: "Browse and request", description: "Seller tools can be added later; one account keeps everything together.", icon: Search },
-                { value: "owner", label: "List and manage", description: "Buyer and tenant tools are included in this account.", icon: Home },
-              ]}
-            />
-          </FormField>
-
-          <GoogleAuthButton role={form.role} label="Sign up with Google" />
-          <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-wide text-ink-faint">
-            <span className="h-px flex-1 bg-line" /> Or use email <span className="h-px flex-1 bg-line" />
-          </div>
-
-          <SubmitButton type="submit" loading={loading} disabled={passwordChecks.some(([, passed]) => !passed) || !passwordsMatch || invalidPhone} className="w-full">
-            {loading ? "Creating account..." : "Create account"}
-          </SubmitButton>
-
-          <p className="text-center text-sm text-ink-soft">
+      <div className="rise space-y-5">
+        <div>
+          <p className="eyebrow">Join the marketplace</p>
+          <h1 className="mt-1 font-display text-3xl font-bold text-ink">Create your account</h1>
+          <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
             Already registered?{" "}
-            <Link href="/login" className="font-bold text-brand hover:text-brand-dark">
+            <Link href="/login" className="font-bold text-brand underline-offset-4 hover:underline">
               Sign in
             </Link>
           </p>
+        </div>
+
+        <AuthAlert>{serverError || searchParams.get("error")}</AuthAlert>
+
+        <div>
+          <p className="label">I mainly want to</p>
+          <SegmentedControl
+            value={form.role}
+            onChange={(role) => update("role", role)}
+            // Side by side even on a phone: stacked, the two options pushed
+            // the first field off the first screen.
+            columns="grid-cols-2"
+            options={[
+              { value: "buyer", label: "Find", description: "Browse and unlock owners.", icon: Search },
+              { value: "owner", label: "List", description: "Publish property or assets.", icon: Home },
+            ]}
+          />
+          <p className="mt-2 text-xs text-ink-faint">Either way you get both. This only sets which workspace opens first.</p>
+        </div>
+
+        <GoogleAuthButton role={form.role} label="Sign up with Google" />
+        <AuthDivider>or with email</AuthDivider>
+
+        {/* noValidate: the browser's own bubbles would pre-empt the inline
+            messages and only ever show one problem at a time. */}
+        <form ref={formRef} onSubmit={onSubmit} noValidate className="space-y-1">
+          <div className="grid gap-x-4 sm:grid-cols-2">
+            <FormField label="Full name" required error={errors.name}>
+              <TextInput
+                icon={User}
+                name="name"
+                autoComplete="name"
+                placeholder="Your full name"
+                error={errors.name}
+                aria-invalid={Boolean(errors.name)}
+                value={form.name}
+                onChange={(e) => update("name", e.target.value)}
+              />
+            </FormField>
+            <FormField label="Phone" hint="Optional. +250 7XX XXX XXX" error={errors.phone}>
+              <TextInput
+                icon={Phone}
+                name="phone"
+                type="tel"
+                autoComplete="tel"
+                inputMode="tel"
+                placeholder="+250 7XX XXX XXX"
+                error={errors.phone}
+                aria-invalid={Boolean(errors.phone)}
+                value={form.phone}
+                onChange={(e) => update("phone", e.target.value)}
+              />
+            </FormField>
+          </div>
+
+          <FormField label="Email" required error={errors.email}>
+            <TextInput
+              icon={Mail}
+              name="email"
+              type="email"
+              autoComplete="email"
+              inputMode="email"
+              placeholder="you@example.com"
+              error={errors.email}
+              aria-invalid={Boolean(errors.email)}
+              value={form.email}
+              onChange={(e) => update("email", e.target.value)}
+            />
+          </FormField>
+
+          <FormField label="Password" required error={errors.password}>
+            <TextInput
+              icon={Lock}
+              name="password"
+              type="password"
+              autoComplete="new-password"
+              placeholder="Create a strong password"
+              error={errors.password}
+              aria-invalid={Boolean(errors.password)}
+              aria-describedby="password-rules"
+              value={form.password}
+              onChange={(e) => update("password", e.target.value)}
+            />
+
+            {/* Strength at a glance, then the rules as chips that tick off. */}
+            <div id="password-rules" className="mt-2.5">
+              <div className="flex items-center gap-3">
+                <div className="grid flex-1 grid-cols-5 gap-1" aria-hidden="true">
+                  {PASSWORD_RULES.map((_, i) => (
+                    <span
+                      key={i}
+                      className={`h-1.5 rounded-full transition-colors duration-300 ${i < score ? STRENGTH[score].bar : "bg-line"}`}
+                    />
+                  ))}
+                </div>
+                <span className="w-24 text-right text-xs font-bold text-ink-soft" aria-live="polite">
+                  {STRENGTH[score].label}
+                </span>
+              </div>
+              <ul className="mt-2.5 flex flex-wrap gap-1.5" aria-label="Password requirements">
+                {PASSWORD_RULES.map(([label], i) => (
+                  <li
+                    key={label}
+                    className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-bold transition-colors ${
+                      passed[i]
+                        ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                        : "border-line bg-surface text-ink-faint"
+                    }`}
+                  >
+                    {passed[i] && <Check className="h-3 w-3" aria-hidden="true" />}
+                    {label}
+                    <span className="sr-only">{passed[i] ? " met" : " not met yet"}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </FormField>
+
+          <FormField
+            label="Confirm password"
+            required
+            error={errors.passwordConfirm}
+            hint={passwordsMatch ? "Passwords match." : undefined}
+          >
+            <TextInput
+              icon={Lock}
+              name="passwordConfirm"
+              type="password"
+              autoComplete="new-password"
+              placeholder="Enter your password again"
+              error={errors.passwordConfirm}
+              aria-invalid={Boolean(errors.passwordConfirm)}
+              value={form.passwordConfirm}
+              onChange={(e) => update("passwordConfirm", e.target.value)}
+            />
+          </FormField>
+
+          <SubmitButton type="submit" loading={loading} className="!mt-2 w-full !min-h-12 !text-base">
+            {loading ? "Creating account..." : (<>Create account <ArrowRight className="h-4 w-4" /></>)}
+          </SubmitButton>
         </form>
+
+        <p className="text-center text-xs leading-relaxed text-ink-faint">
+          By creating an account you agree to our{" "}
+          <Link href="/terms" className="font-bold text-ink-soft underline-offset-4 hover:underline">Terms</Link>{" "}
+          and{" "}
+          <Link href="/privacy" className="font-bold text-ink-soft underline-offset-4 hover:underline">Privacy Policy</Link>.
+        </p>
       </div>
-    </div>
+    </AuthShell>
   );
 }
