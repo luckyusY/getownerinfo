@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { env } from "@/lib/env";
+import { requestOrigin } from "@/lib/requestOrigin";
 import { connectDB } from "@/lib/db";
 import Payment from "@/models/Payment";
 import { PAYMENT_TYPES } from "@/lib/constants";
@@ -39,8 +39,8 @@ const RETURN_PATHS = {
  * The ref is only used to look the payment up; nothing is changed. A forged or
  * unknown ref just lands on the dashboard.
  */
-async function destinationFor(ref) {
-  const fallback = new URL("/dashboard", env.appUrl);
+async function destinationFor(ref, origin) {
+  const fallback = new URL("/dashboard", origin);
   fallback.searchParams.set("payment", "returned");
   if (!ref || !/^afp_[a-f0-9]{24}$/.test(ref)) return fallback;
 
@@ -50,11 +50,11 @@ async function destinationFor(ref) {
     if (!payment) return fallback;
 
     if (payment.type === PAYMENT_TYPES.TOKEN_FEE && payment.listing) {
-      const dest = new URL(`/listings/${payment.listing}`, env.appUrl);
+      const dest = new URL(`/listings/${payment.listing}`, origin);
       dest.searchParams.set("payment", payment._id.toString());
       return dest;
     }
-    const dest = new URL(RETURN_PATHS[payment.type] || "/dashboard", env.appUrl);
+    const dest = new URL(RETURN_PATHS[payment.type] || "/dashboard", origin);
     dest.searchParams.set("payment", "returned");
     return dest;
   } catch (err) {
@@ -86,7 +86,8 @@ async function handle(req) {
   );
 
   const ref = query.ref || "";
-  const dest = await destinationFor(ref);
+  // Stay on the host AfriPay returned the buyer to (see lib/requestOrigin).
+  const dest = await destinationFor(ref, requestOrigin(req));
   return NextResponse.redirect(dest, { status: 303 });
 }
 

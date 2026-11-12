@@ -10,14 +10,14 @@ import { verifyOtp } from "@/lib/notify";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { PAYMENT_TYPES, PAYMENT_STATUS } from "@/lib/constants";
 import { settleNonUnlockPayment } from "@/lib/paymentSettlement";
-import { env } from "@/lib/env";
 
 const schema = z.object({ otp: z.string().optional() });
 
 /** Where a still-unpaid payment is paid. Only hosted checkouts have one. */
 function checkoutUrlFor(payment) {
   if (payment.provider === "afripay" && payment.providerRef) {
-    return `${env.appUrl}/api/payments/${encodeURIComponent(payment.providerRef)}/checkout`;
+    // A path, so it stays on the host the buyer is signed in on.
+    return `/api/payments/${encodeURIComponent(payment.providerRef)}/checkout`;
   }
   return null;
 }

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
-import { env } from "@/lib/env";
+import { requestOrigin } from "@/lib/requestOrigin";
 import {
   getSession,
   signToken,
@@ -19,9 +19,11 @@ import {
 // dashboard; a disabled or deleted one is signed out.
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req) {
   const session = getSession();
-  const login = new URL("/login", env.appUrl);
+  // Same host as the request: the cookie being re-issued belongs to it.
+  const origin = requestOrigin(req);
+  const login = new URL("/login", origin);
   if (!session?.sub) return NextResponse.redirect(login);
 
   await connectDB();
@@ -33,5 +35,5 @@ export async function GET() {
   }
 
   setAuthCookie(signToken(createSessionPayload(user)));
-  return NextResponse.redirect(new URL("/dashboard", env.appUrl));
+  return NextResponse.redirect(new URL("/dashboard", origin));
 }

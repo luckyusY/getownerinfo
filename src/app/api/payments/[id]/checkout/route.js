@@ -2,7 +2,7 @@ import { connectDB } from "@/lib/db";
 import Payment from "@/models/Payment";
 import { fail, requireAuth } from "@/lib/api";
 import { PAYMENT_STATUS } from "@/lib/constants";
-import { env } from "@/lib/env";
+import { requestOrigin } from "@/lib/requestOrigin";
 import { AFRIPAY_CHECKOUT_URL, buildCheckoutFields } from "@/lib/payments/afripay";
 
 // GET /api/payments/:ref/checkout — hand the buyer off to AfriPay.
@@ -51,7 +51,8 @@ export async function GET(req, { params }) {
     currency: payment.currency,
     comment: payment.type,
     clientToken: providerRef,
-    returnUrl: `${env.appUrl}/api/payments/return?ref=${encodeURIComponent(providerRef)}`,
+    // Back to the host the buyer left from: that is where their session is.
+    returnUrl: `${requestOrigin(req)}/api/payments/return?ref=${encodeURIComponent(providerRef)}`,
   });
 
   const inputs = Object.entries(fields)

@@ -60,7 +60,11 @@ export const afripayProvider = {
     return {
       providerRef,
       status: "pending",
-      redirectUrl: `${env.appUrl}/api/payments/${providerRef}/checkout`,
+      // A path, not an absolute URL: the browser resolves it against the host
+      // the buyer is signed in on. Built from NEXT_PUBLIC_APP_URL it pointed at
+      // the configured domain, where a buyer browsing on another of the site's
+      // hosts has no session and the handoff answered 401.
+      redirectUrl: `/api/payments/${providerRef}/checkout`,
       echo: { amount, currency, type, reference, metadata },
     };
   },
