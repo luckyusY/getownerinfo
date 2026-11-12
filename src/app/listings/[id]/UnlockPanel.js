@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { CheckCircle2, ExternalLink, LockKeyhole } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 
@@ -68,6 +68,7 @@ const TIERS = [
 export default function UnlockPanel({ listingId, loggedIn, area, initialRevealed, initialUnlockId, tokenFees }) {
   const { toast } = useToast();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [revealed, setRevealed] = useState(initialRevealed || null);
   const [unlockId, setUnlockId] = useState(initialUnlockId || null);
   const [tier, setTier] = useState("buyer");
@@ -88,6 +89,21 @@ export default function UnlockPanel({ listingId, loggedIn, area, initialRevealed
   // restart its interval.
   const paymentRef = useRef(null);
   paymentRef.current = paymentId;
+
+  // Back from the payment page: AfriPay returns the buyer here with
+  // ?payment=<id>. Resume waiting for that payment instead of offering to start
+  // (and charge) a second one. The parameter is then dropped from the address
+  // so a reload does not keep re-entering this state.
+  useEffect(() => {
+    const returned = searchParams.get("payment");
+    if (!returned || revealed || !/^[a-f\d]{24}$/i.test(returned)) return;
+    setPaymentId(returned);
+    setStage("pending");
+    // History API rather than router.replace: the router treated a same-path
+    // replace as a no-op and the parameter stayed in the address bar.
+    window.history.replaceState(window.history.state, "", pathname);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function reset() {
     setStage("idle");
@@ -120,6 +136,7 @@ export default function UnlockPanel({ listingId, loggedIn, area, initialRevealed
       } else if (j.data.needsOtp) {
         toast("Verification code sent to your email", { type: "info" });
         setPaymentId(j.data.paymentId);
+        setRedirectUrl(j.data.redirectUrl || null);
         setDevOtp(j.data.devOtp || null);
         setStage("otp");
       } else if (j.data.needsVerify) {
@@ -154,7 +171,15 @@ export default function UnlockPanel({ listingId, loggedIn, area, initialRevealed
         body: JSON.stringify({ otp: code }),
       });
       const j = await res.json();
-      if (!j.success) return { done: false, status: res.status, error: j.error };
+      if (!j.success) {
+        return {
+          done: false,
+          status: res.status,
+          error: j.error,
+          needsPayment: Boolean(j.needsPayment),
+          redirectUrl: j.redirectUrl || null,
+        };
+      }
       return { done: true, data: j.data };
     },
     []
@@ -167,6 +192,15 @@ export default function UnlockPanel({ listingId, loggedIn, area, initialRevealed
       if (result.done) {
         accept(result.data);
         toast("Contact unlocked", { type: "success" });
+        return;
+      }
+      // Right code, money not in yet: the normal next step with a hosted
+      // checkout. Move on to paying rather than reporting it as an error.
+      if (result.needsPayment) {
+        if (result.redirectUrl) setRedirectUrl(result.redirectUrl);
+        setOtp("");
+        setStage("pending");
+        toast("Code confirmed. Now complete the payment.", { type: "success" });
         return;
       }
       // 410 expired, 429 too many attempts. Both told the buyer to "restart the
@@ -249,7 +283,10 @@ export default function UnlockPanel({ listingId, loggedIn, area, initialRevealed
         </Link>
       ) : stage === "otp" ? (
         <div className="mt-3 space-y-2">
-          <p className="text-xs text-ink-soft">Enter the 6-digit code sent to your email.</p>
+          <p className="text-xs text-ink-soft">
+            Step 1 of 2: enter the 6-digit code we emailed you. Then you pay, and the contact
+            appears here.
+          </p>
           {devOtp && <p className="text-xs text-clay">Dev code: <strong>{devOtp}</strong></p>}
           <input
             className="input text-center tracking-widest"
@@ -261,25 +298,30 @@ export default function UnlockPanel({ listingId, loggedIn, area, initialRevealed
             placeholder="000000"
           />
           <button className="btn-primary w-full" disabled={loading || otp.length !== 6} onClick={verify}>
-            {loading ? "Verifying..." : "Confirm & unlock"}
+            {loading ? "Checking code..." : "Confirm code"}
           </button>
           {/* There must always be a way out of this step. */}
           <button className="btn-ghost w-full" disabled={loading} onClick={reset}>
             Start again
           </button>
           <p className="text-[11px] text-ink-faint">
-            After five wrong codes, or once the code expires, you start again from the
-            payment step.
+            Nothing is charged until you pay in the next step. After five wrong codes, or once
+            the code expires after 10 minutes, start again.
           </p>
         </div>
       ) : stage === "pending" ? (
         <div className="mt-3 space-y-2">
           <p className="text-xs font-semibold leading-5 text-ink-soft">
-            Your payment of {money(fee)} has been started but not confirmed yet.
+            {redirectUrl
+              ? <>Step 2 of 2: pay {Number.isFinite(fee) ? money(fee) : "the token fee"} with AfriPay (mobile money or card). You come back here afterwards.</>
+              : "Waiting for your payment to be confirmed."}
           </p>
+          {/* Same tab: AfriPay returns the buyer to this listing, where the
+              panel resumes waiting. A new tab left two copies of the page
+              open, one of which never learned the payment had gone through. */}
           {redirectUrl && (
-            <a href={redirectUrl} target="_blank" rel="noopener noreferrer" className="btn-primary w-full">
-              <ExternalLink className="h-4 w-4" /> Complete payment
+            <a href={redirectUrl} className="btn-primary w-full">
+              <ExternalLink className="h-4 w-4" /> Pay with AfriPay
             </a>
           )}
           <button className="btn-outline w-full" disabled={loading} onClick={checkPaymentNow}>

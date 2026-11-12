@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { env } from "@/lib/env";
+import { connectDB } from "@/lib/db";
+import Payment from "@/models/Payment";
+import { PAYMENT_TYPES } from "@/lib/constants";
 
 // GET|POST /api/payments/return — where AfriPay sends the buyer back to after
 // checkout (the return_url we post in src/app/api/payments/[id]/checkout).
@@ -14,6 +17,52 @@ import { env } from "@/lib/env";
 // contract, and the webhook/verify path can then be written against fact rather
 // than guesswork.
 export const dynamic = "force-dynamic";
+
+// Where each kind of payment was started from, so the buyer lands back there.
+const RETURN_PATHS = {
+  [PAYMENT_TYPES.LISTING_FEE]: "/dashboard/listings",
+  [PAYMENT_TYPES.SEEKER_POST]: "/dashboard/requests",
+  [PAYMENT_TYPES.SEEKER_VIEW]: "/seekers",
+  [PAYMENT_TYPES.COMMISSION]: "/dashboard/invoices",
+  [PAYMENT_TYPES.PENALTY]: "/dashboard/invoices",
+};
+
+/**
+ * Send the buyer back to what they were paying for.
+ *
+ * Everything used to land on /dashboard, so a buyer who paid to unlock a
+ * listing came back to a page with no sign of it and had to find the listing
+ * again. A token payment now returns to its listing with ?payment=<id>, which
+ * the unlock panel picks up to wait for the confirmation and reveal the
+ * contact in place.
+ *
+ * The ref is only used to look the payment up; nothing is changed. A forged or
+ * unknown ref just lands on the dashboard.
+ */
+async function destinationFor(ref) {
+  const fallback = new URL("/dashboard", env.appUrl);
+  fallback.searchParams.set("payment", "returned");
+  if (!ref || !/^afp_[a-f0-9]{24}$/.test(ref)) return fallback;
+
+  try {
+    await connectDB();
+    const payment = await Payment.findOne({ providerRef: ref }).select("type listing").lean();
+    if (!payment) return fallback;
+
+    if (payment.type === PAYMENT_TYPES.TOKEN_FEE && payment.listing) {
+      const dest = new URL(`/listings/${payment.listing}`, env.appUrl);
+      dest.searchParams.set("payment", payment._id.toString());
+      return dest;
+    }
+    const dest = new URL(RETURN_PATHS[payment.type] || "/dashboard", env.appUrl);
+    dest.searchParams.set("payment", "returned");
+    return dest;
+  } catch (err) {
+    // Never strand the buyer on an error page over a redirect.
+    console.error("payments.return: lookup failed:", err?.message || err);
+    return fallback;
+  }
+}
 
 async function handle(req) {
   const url = new URL(req.url);
@@ -37,10 +86,7 @@ async function handle(req) {
   );
 
   const ref = query.ref || "";
-  const dest = new URL("/dashboard", env.appUrl);
-  dest.searchParams.set("payment", "returned");
-  if (ref) dest.searchParams.set("ref", ref);
-
+  const dest = await destinationFor(ref);
   return NextResponse.redirect(dest, { status: 303 });
 }
 

@@ -10,8 +10,17 @@ import { verifyOtp } from "@/lib/notify";
 import { ok, fail, requireAuth } from "@/lib/api";
 import { PAYMENT_TYPES, PAYMENT_STATUS } from "@/lib/constants";
 import { settleNonUnlockPayment } from "@/lib/paymentSettlement";
+import { env } from "@/lib/env";
 
 const schema = z.object({ otp: z.string().optional() });
+
+/** Where a still-unpaid payment is paid. Only hosted checkouts have one. */
+function checkoutUrlFor(payment) {
+  if (payment.provider === "afripay" && payment.providerRef) {
+    return `${env.appUrl}/api/payments/${encodeURIComponent(payment.providerRef)}/checkout`;
+  }
+  return null;
+}
 const MAX_OTP_ATTEMPTS = 5;
 
 // POST /api/payments/:id/verify — confirm a payment (with OTP if required) and,
@@ -79,7 +88,27 @@ export async function POST(req, { params }) {
       );
       return fail("Payment failed", 402);
     }
-    return fail("Payment still pending", 402);
+
+    // The code was right but the money has not arrived. With a hosted checkout
+    // (AfriPay) that is the normal order of events: the buyer proves it is them
+    // first, then pays. This branch used to answer only "Payment still
+    // pending", never offered the checkout, and left the code live — so a
+    // buyer could type the correct code forever and never be shown where to
+    // pay. Mark the code as passed, so the background checks that follow need
+    // no code, and hand back the checkout to pay on.
+    if (payment.otp) {
+      await Payment.updateOne(
+        { _id: payment._id },
+        {
+          $unset: { otp: "", otpExpiresAt: "" },
+          $set: { "meta.otpVerifiedAt": new Date() },
+        }
+      );
+    }
+    return fail("Code confirmed. Complete the payment to unlock the contact.", 402, {
+      needsPayment: true,
+      redirectUrl: checkoutUrlFor(payment),
+    });
   }
 
   // Clear the OTP once consumed.
