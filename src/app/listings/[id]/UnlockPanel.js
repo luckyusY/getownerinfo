@@ -148,6 +148,11 @@ export default function UnlockPanel({ listingId, loggedIn, area, initialRevealed
         setPaymentId(j.data.paymentId);
         setRedirectUrl(j.data.redirectUrl || null);
         setStage("pending");
+        if (j.data.redirectUrl) {
+          toast("Taking you to AfriPay to pay…", { type: "info" });
+          window.location.assign(j.data.redirectUrl);
+          return;
+        }
         toast("Payment started. Complete it to reveal the contact.", { type: "info" });
       }
     } catch (err) {
@@ -197,9 +202,18 @@ export default function UnlockPanel({ listingId, loggedIn, area, initialRevealed
       // Right code, money not in yet: the normal next step with a hosted
       // checkout. Move on to paying rather than reporting it as an error.
       if (result.needsPayment) {
-        if (result.redirectUrl) setRedirectUrl(result.redirectUrl);
+        const payUrl = result.redirectUrl || redirectUrl;
         setOtp("");
         setStage("pending");
+        if (payUrl) {
+          // Go straight to the payment page. Stopping on another panel with a
+          // second "Pay" button read as yet one more confirmation, and buyers
+          // never found where the money was actually taken.
+          setRedirectUrl(payUrl);
+          toast("Code confirmed. Taking you to AfriPay to pay…", { type: "success" });
+          window.location.assign(payUrl);
+          return;
+        }
         toast("Code confirmed. Now complete the payment.", { type: "success" });
         return;
       }

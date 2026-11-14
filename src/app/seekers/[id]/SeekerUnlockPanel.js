@@ -64,6 +64,11 @@ export default function SeekerUnlockPanel({
         setPending({ paymentId: j.data.paymentId, redirectUrl: j.data.redirectUrl || null });
         // No success toast here. The payment has only been started, and saying
         // "unlocked" at this point is how the browse list used to mislead.
+        if (j.data.redirectUrl) {
+          toast("Taking you to AfriPay to pay…", { type: "info" });
+          window.location.assign(j.data.redirectUrl);
+          return;
+        }
         toast("Payment started. Complete it to reveal the contact.", { type: "info" });
         return;
       }
